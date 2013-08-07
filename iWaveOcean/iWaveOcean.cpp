@@ -16,71 +16,16 @@
 #include "Simulator.h"
 #include <vector>
 
-#define iWaveOcean_CLASS_ID	Class_ID(0xd9edfdd9, 0x93776fa5)
-
 #define PBLOCK_REF	0
 
 #define MIN_WIDTH 1.0f
 #define MIN_LENGTH 1.0f
 
-class iWaveOcean : public SimpleObject2
-{
-public:
-    //Constructor/Destructor
-    iWaveOcean();
-    virtual ~iWaveOcean();
-
-    // Simulation cache
-    std::vector<Point3*> _cache;
- 
-    HWND _simulateRollup;
-    static iWaveOcean* instance;
-    static INT_PTR CALLBACK SimulateDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-
-    // Parameter block handled by parent
-    static IObjParam *ip; // Access to the interface
-
-    // From BaseObject
-    virtual CreateMouseCallBack* GetCreateMouseCallBack();
-
-    // From Object
-    virtual BOOL HasUVW();
-    virtual void SetGenUVW(BOOL sw);
-    virtual int CanConvertToType(Class_ID obtype);
-    virtual Object* ConvertToType(TimeValue t, Class_ID obtype);
-    virtual void GetCollapseTypes(Tab<Class_ID>& clist,Tab<TSTR*>& nlist);
-    virtual int IntersectRay(TimeValue t, Ray& ray, float& at, Point3& norm);
-
-    // From Animatable
-    virtual void BeginEditParams( IObjParam  *ip, ULONG flags,Animatable *prev);
-    virtual void EndEditParams( IObjParam *ip, ULONG flags,Animatable *next);
-
-    // From SimpleObject
-    virtual void BuildMesh(TimeValue t);
-    virtual void BuildPlaneMesh(Point3* vertices, int faces_x, int faces_y);
-    virtual void InvalidateUI();
-
-    //From Animatable
-    virtual Class_ID ClassID() {return iWaveOcean_CLASS_ID;}
-    virtual SClass_ID SuperClassID() { return GEOMOBJECT_CLASS_ID; }
-    virtual void GetClassName(TSTR& s) {s = GetString(IDS_CLASS_NAME);}
-
-    virtual RefTargetHandle Clone( RemapDir& remap );
-
-    virtual int NumParamBlocks() { return 1; }					// return number of ParamBlocks in this instance
-    virtual IParamBlock2* GetParamBlock(int /*i*/) { return pblock2; } // return i'th ParamBlock
-    virtual IParamBlock2* GetParamBlockByID(BlockID id) { return (pblock2->ID() == id) ? pblock2 : NULL; } // return id'd ParamBlock
-
-    void DeleteThis() { delete this; }
-};
-
-
-
 class iWaveOceanClassDesc : public ClassDesc2 
 {
 public:
     virtual int IsPublic() 							{ return TRUE; }
-    virtual void* Create(BOOL /*loading = FALSE*/) 		{ return new iWaveOcean(); }
+    virtual void* Create(BOOL /*loading = FALSE*/)  { return new iWaveOcean(); }
     virtual const TCHAR *	ClassName() 			{ return GetString(IDS_CLASS_NAME); }
     virtual SClass_ID SuperClassID() 				{ return GEOMOBJECT_CLASS_ID; }
     virtual Class_ID ClassID() 						{ return iWaveOcean_CLASS_ID; }
@@ -98,22 +43,6 @@ ClassDesc2* GetiWaveOceanDesc() {
     return &iWaveOceanDesc; 
 }
 
-
-
-
-
-enum { iwaveocean_params };
-
-
-//TODO: Add enums for various parameters
-enum { 
-    pb_width,
-    pb_length
-};
-
-
-
-
 static ParamBlockDesc2 iwaveocean_param_blk ( iwaveocean_params, _T("params"),  0, GetiWaveOceanDesc(), 
     P_AUTO_CONSTRUCT + P_AUTO_UI, PBLOCK_REF, 
     //rollout
@@ -129,6 +58,20 @@ static ParamBlockDesc2 iwaveocean_param_blk ( iwaveocean_params, _T("params"),  
         p_range,	    MIN_LENGTH,10000.0f,
         p_ui,			TYPE_SPINNER,		EDITTYPE_FLOAT,	IDC_LENGTH_EDIT,	IDC_LENGTH_SPIN,		0.1f,
         p_end,
+    pb_width_segs,      _T("width_segs"),   TYPE_FLOAT,     0,                  IDS_WIDTH_SEGS,
+        p_default,      100.0f,
+        p_range,        10.0f, 1000.0f,
+        p_end,
+    pb_length_segs,     _T("length_segs"),  TYPE_FLOAT,     0,                  IDS_LENGTH_SEGS,
+        p_default,      100.0f,
+        p_range,        10.0f, 1000.0f,
+        p_end,
+    pb_sim_start,       _T("sim_start"),    TYPE_FLOAT,     0,                  IDS_START_FRAME,
+        p_default,      0.0f,
+        p_end,
+    pb_sim_length,      _T("sim_length"),   TYPE_FLOAT,     0,                  IDS_FRAME_COUNT,
+        p_default,      20.0f,
+        p_end,
     p_end
     );
 
@@ -138,9 +81,14 @@ static ParamBlockDesc2 iwaveocean_param_blk ( iwaveocean_params, _T("params"),  
 //--- iWaveOcean -------------------------------------------------------
 
 IObjParam* iWaveOcean::ip = NULL;
+
 iWaveOcean* iWaveOcean::instance = NULL;
 
-iWaveOcean::iWaveOcean() : _cache()
+ICustButton* iWaveOcean::simButton = NULL;
+HWND iWaveOcean::startFrameStatic = NULL;
+HWND iWaveOcean::numFramesStatic = NULL;
+
+iWaveOcean::iWaveOcean() : _sim(this)
 {
     GetiWaveOceanDesc()->MakeAutoParamBlocks(this);
 }
@@ -156,7 +104,7 @@ void iWaveOcean::BeginEditParams(IObjParam* ip, ULONG flags, Animatable* prev)
     SimpleObject2::BeginEditParams(ip,flags,prev);
     GetiWaveOceanDesc()->BeginEditParams(ip, this, flags, prev);
 
-    _simulateRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SIMULATE), SimulateDlgProc, GetString(IDS_SIMULATE_ROLLUP), (LPARAM)this);
+    _simulateRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SIMULATE), SimulateRollupDlgProc, GetString(IDS_SIMULATE_ROLLUP), (LPARAM)this);
 }
 
 void iWaveOcean::EndEditParams( IObjParam* ip, ULONG flags, Animatable* next )
@@ -171,17 +119,34 @@ void iWaveOcean::EndEditParams( IObjParam* ip, ULONG flags, Animatable* next )
     this->ip = NULL;
 }
 
-INT_PTR CALLBACK iWaveOcean::SimulateDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK iWaveOcean::SimulateRollupDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     { // Respond to the message ...
     case WM_INITDIALOG: // Initialize the Controls here.
         instance = (iWaveOcean*)lParam;
+
+        simButton = GetICustButton(GetDlgItem(hDlg, IDC_SIMULATE_BUTTON));
+        startFrameStatic = GetDlgItem(hDlg, IDC_STARTFRAME_STATIC);
+        numFramesStatic = GetDlgItem(hDlg, IDC_NUMFRAMES_STATIC);
+
+        UpdateStatus();
         return TRUE;
     case WM_DESTROY: // Release the Controls here.
+        ReleaseICustButton(simButton);
+        
         instance = NULL;
+        simButton = NULL;
+        startFrameStatic = NULL;
+        numFramesStatic = NULL;
         return FALSE;
     case WM_COMMAND: // Various messages come in this way.
+        switch (LOWORD(wParam)) {
+        case IDC_SIMULATE_BUTTON:
+            instance->_sim.BeginSimulation(hDlg); // Waits for dialog to exit.
+            UpdateStatus();
+            break;
+        }
         break;
     case WM_NOTIFY: // Others this way...
         break;
@@ -190,6 +155,21 @@ INT_PTR CALLBACK iWaveOcean::SimulateDlgProc(HWND hDlg, UINT message, WPARAM wPa
         break;
     }
     return FALSE;
+}
+
+void iWaveOcean::UpdateStatus()
+{
+    if (instance != NULL) {
+        if (startFrameStatic != NULL)
+        {
+            SetWindowTextInt(startFrameStatic, instance->_sim.GetSimulatedStartFrame());
+        }
+
+        if (numFramesStatic != NULL)
+        {
+            SetWindowTextInt(numFramesStatic, instance->_sim.GetSimulatedFrameCount());
+        }
+    }
 }
 
 //From Object
@@ -293,42 +273,17 @@ void iWaveOcean::BuildMesh(TimeValue t)
     //      use the data member mesh to store the built mesh.
     //      SimpleObject ivalid member should be updated. This can be done while
     //      retrieving values from pblock2.
-    ivalid = FOREVER;
-
-    float width, length;
-    pblock2->GetValue(pb_width, t, width, ivalid); // width = plane X width
-    pblock2->GetValue(pb_length, t, length, ivalid); // length = plane Y length
-
-    int faces_x = 10;
-    int faces_y = 10;
+    ivalid = Interval(t, t + GetTicksPerFrame() - 1); // Validity interval of one frame.
     
-    Point3 *frameData;
+    int frameNumber = t / GetTicksPerFrame(); // ticks * frames/ticks = frames; depends on framerate
 
-    if (_cache.empty())
-    {
-        frameData = new Point3[(faces_x + 1) * (faces_y + 1)];
-        Simulator::GetPlane(width, length, 10, 10, frameData);
+    Grid *frameData = _sim.GetSimulatedGrid(frameNumber);
+    Point3 *vertices = frameData->GetVertices();
 
-        this->BuildPlaneMesh(frameData, faces_x, faces_y);
-
-        delete [] frameData;
-    }
-    else
-    {
-        int frameNumber = t / GetTicksPerFrame(); // ticks * frames/ticks = frames; depends on framerate 
-        frameNumber = max(frameNumber, 0);
-        frameNumber = min(frameNumber, _cache.size() - 1);
-
-        frameData = _cache[frameNumber];
-
-        this->BuildPlaneMesh(frameData, faces_x, faces_y);
-    }
-}
-
-void iWaveOcean::BuildPlaneMesh(Point3* vertices, int faces_x, int faces_y)
-{
-    int vertices_x = faces_x + 1;
-    int vertices_y = faces_y + 1;
+    int faces_x = frameData->GetWidthSegs();
+    int faces_y = frameData->GetLengthSegs();
+    int vertices_x = frameData->GetWidthVertices();
+    int vertices_y = frameData->GetLengthVertices();
     int numVerts = vertices_x * vertices_y;
     int numFaces = faces_x * faces_y * 2; // Double number of quads to make tris.
 

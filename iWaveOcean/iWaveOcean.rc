@@ -36,16 +36,15 @@ BEGIN
     CONTROL         "",IDC_LENGTH_SPIN,"SpinnerControl",0x0,94,20,7,10
 END
 
-IDD_SIMULATE DIALOGEX 0, 0, 108, 85
+IDD_SIMULATE DIALOGEX 0, 0, 108, 65
 STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Start Frame:",IDC_STATIC,7,53,46,8
-    CONTROL         "",IDC_STARTFRAME_EDIT,"CustEdit",WS_DISABLED | WS_TABSTOP,66,53,35,10
-    LTEXT           "Simulated:",IDC_STATIC,7,66,45,8
-    CONTROL         "",IDC_NUMFRAMES_EDIT,"CustEdit",WS_DISABLED | WS_TABSTOP,66,66,35,10
-    CONTROL         "Simulate",IDC_SIMULATE_BUTTON,"CustButton",WS_TABSTOP,7,7,94,18
-    CONTROL         "Reset Simulation",IDC_RESET_BUTTON,"CustButton",WS_TABSTOP,7,29,94,18
+    CONTROL         "Simulate!",IDC_SIMULATE_BUTTON,"CustButton",WS_TABSTOP,7,7,94,18
+    LTEXT           "Start Frame:  ",IDC_STATIC,7,32,43,8
+    LTEXT           "Simulated:  ",IDC_STATIC,7,44,38,8
+    RTEXT           "0",IDC_STARTFRAME_STATIC,93,32,8,8
+    RTEXT           "0",IDC_NUMFRAMES_STATIC,93,44,8,8
 END
 
 
@@ -70,7 +69,9 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 101
         TOPMARGIN, 7
-        BOTTOMMARGIN, 78
+        BOTTOMMARGIN, 58
+        HORZGUIDE, 32
+        HORZGUIDE, 44
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -117,6 +118,10 @@ BEGIN
     IDS_WIDTH               "Width"
     IDS_LENGTH              "Length"
     IDS_SIMULATE_ROLLUP     "Simulate"
+    IDS_WIDTH_SEGS          "Width Segments"
+    IDS_LENGTH_SEGS         "Length Segments"
+    IDS_START_FRAME         "Start Frame"
+    IDS_FRAME_COUNT         "Frame Count"
 END
 
 #endif    // English (United States) resources
