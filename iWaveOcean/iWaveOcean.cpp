@@ -281,8 +281,8 @@ void iWaveOcean::BuildMesh(TimeValue t)
     
     int frameNumber = t / GetTicksPerFrame(); // ticks * frames/ticks = frames; depends on framerate
 
-    Grid *frameData = _sim.GetSimulatedGrid(frameNumber);
-    Point3 *vertices = frameData->GetVertices();
+    Grid* frameData = _sim.GetSimulatedGrid(frameNumber);
+    float* vertexHeights = frameData->GetVertexHeights();
 
     int faces_x = frameData->GetWidthSegs();
     int faces_y = frameData->GetLengthSegs();
@@ -290,6 +290,11 @@ void iWaveOcean::BuildMesh(TimeValue t)
     int vertices_y = frameData->GetLengthVertices();
     int numVerts = vertices_x * vertices_y;
     int numFaces = faces_x * faces_y * 2; // Double number of quads to make tris.
+
+    float width = frameData->GetWidth();
+    float length = frameData->GetLength();
+    float halfWidth = width / 2.0f;
+    float halfLength = length / 2.0f;
 
     mesh.setNumVerts(numVerts);
     mesh.setNumFaces(numFaces);
@@ -302,7 +307,8 @@ void iWaveOcean::BuildMesh(TimeValue t)
     {
         for (int j = 0; j < vertices_y; j++)
         {
-            mesh.setVert(vtx, vertices[vtx]);
+            Point3 pt(i * width / faces_x - halfWidth, j * length / faces_y - halfLength, vertexHeights[vtx]);
+            mesh.setVert(vtx, pt);
             mesh.setTVert(vtx, i / max_u, j / max_v, 0.0f);
             ++vtx;
         }

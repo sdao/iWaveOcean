@@ -120,23 +120,16 @@ void Ocean::PropagateWaves()
 
 Grid* Ocean::GetDisplayGrid()
 {
-    Grid* ret = new Grid(vertices_x - 1, vertices_y - 1);
-    Point3* vertices = ret->GetVertices();
-
-    int segs_x = vertices_x - 1;
-    int segs_y = vertices_y - 1;
-    float halfWidth = width / 2.0f;
-    float halfLength = length / 2.0f;
+    Grid* ret = new Grid(width, length, vertices_x - 1, vertices_y - 1);
+    float* vertexHeights = ret->GetVertexHeights();
 
     int vtx = 0;
     for (int i = 0; i < vertices_x; i++)
     {
         for (int j = 0; j < vertices_y; j++)
         {
-            float pt_x = i * width / segs_x - halfWidth;
-            float pt_y = j * length / segs_y - halfLength;
-            float pt_z = 0.5 * (height[vtx] * height_scale + 1.0) * obstruction[vtx];
-            vertices[vtx] = Point3(pt_x, pt_y, pt_z);
+            float vtx_height = 0.5 * (height[vtx] * height_scale + 1.0) * obstruction[vtx];
+            vertexHeights[vtx] = vtx_height;
             vtx++;
         }
     }

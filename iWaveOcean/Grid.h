@@ -1,22 +1,30 @@
 #pragma once
 
-#include <point3.h>
-
 /* Represents a grid mesh that can be deformed. */
 class Grid
 {
+    float _width;
+    float _length;
     int _widthSegs;
     int _lengthSegs;
-    Point3* _vertices;
+    float* _vertices;
 
 public:
     /*
-    Creates a new Grid with the vertices uninitialized.
+    Creates a new Grid with the vertices uninitialized. Use the Clear() method to zero out all of the vertex heights.
+    \param width the width along the U-axis
+    \param length the length along the V-axis
     \param widthSegs the number of faces along the U-axis
     \param lengthSegs the number of faces along the V-axis
     */
-    Grid(int widthSegs, int lengthSegs);
+    Grid(float width, float length, int widthSegs, int lengthSegs);
     ~Grid(void);
+
+    /* Gets the display width. */
+    float GetWidth();
+
+    /* Gets the display height. */
+    float GetLength();
 
     /* Gets the number of faces along the U-axis. */
     int GetWidthSegs();
@@ -34,24 +42,23 @@ public:
     int GetTotalVertices();
 
     /*
-    Gets the array of vertices; this is a mapping between the UV space and the XYZ space.
-    The length of the array is equal to GetWidthVertices() * GetLengthVertices().
+    Gets the array of heights corresponding to each UV coordinate on the grid.
     The vertices are arranged U-major; e.g. UV coords (0, 0.1), (0, 0.2), (0, 0.3), ..., (0.1, 0.1), (0.1, 0.2), (0.1, 0.3), ..., (1.0, 1.0).
     */
-    Point3* GetVertices();
+    float* GetVertexHeights();
 
     /*
-    Replaces the vertices with a mapping of the UV plane to the XY plane.
-    \param width the width of the grid in the X-axis
-    \param length the length of the grid in the Y-axis
+    Zeroes out all of the values on the height map.
     */
-    void MakePlanar(float width, float length);
+    void Clear();
 
     /*
     Redimensions the grid.
+    \param width the width along the U-axis
+    \param length the length along the V-axis
     \param widthSegs the new number of faces along the U-axis
     \param lengthSegs the new number of faces along the V-axis
     */
-    void Redim(int widthSegs, int lengthSegs);
+    void Redim(float width, float length, int widthSegs, int lengthSegs);
 };
 

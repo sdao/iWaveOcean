@@ -11,7 +11,7 @@ int Simulator::simStart;
 int Simulator::simLength;
 int Simulator::simCounter;
 
-Simulator::Simulator(iWaveOcean* geom) : _cache(), _cacheStartFrame(0), _grid_0(0, 0), _geom(geom), _finished(true), _cancelled(false)
+Simulator::Simulator(iWaveOcean* geom) : _cache(), _cacheStartFrame(0), _grid_0(1.0, 1.0, 0, 0), _geom(geom), _finished(true), _cancelled(false)
 {
 }
 
@@ -146,8 +146,8 @@ Grid* Simulator::GetSimulatedGrid(int frame)
         _geom->pblock2->GetValue(pb_width_segs, 0, widthSegs, _geom->ivalid);
         _geom->pblock2->GetValue(pb_length_segs, 0, lengthSegs, _geom->ivalid);
 
-        _grid_0.Redim((int)widthSegs, (int)lengthSegs);
-        _grid_0.MakePlanar(width, length);
+        _grid_0.Redim(width, length, (int)widthSegs, (int)lengthSegs);
+        _grid_0.Clear();
         return &_grid_0;
     }
 }

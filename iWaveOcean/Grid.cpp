@@ -1,17 +1,25 @@
 #include "Grid.h"
 
 
-Grid::Grid(int widthSegs, int lengthSegs)
+Grid::Grid(float width, float length, int widthSegs, int lengthSegs)
+    : _width(width), _length(length), _widthSegs(widthSegs), _lengthSegs(lengthSegs)
 {
-    _widthSegs = widthSegs;
-    _lengthSegs = lengthSegs;
-
-    _vertices = new Point3[(_widthSegs + 1) * (_lengthSegs + 1)];
+    _vertices = new float[(_widthSegs + 1) * (_lengthSegs + 1)];
 }
 
 Grid::~Grid(void)
 {
     delete [] _vertices;
+}
+
+float Grid::GetWidth()
+{
+    return _width;
+}
+
+float Grid::GetLength()
+{
+    return _length;
 }
 
 int Grid::GetWidthSegs()
@@ -39,33 +47,32 @@ int Grid::GetTotalVertices()
     return (_widthSegs + 1) * (_lengthSegs + 1);
 }
 
-Point3* Grid::GetVertices()
+float* Grid::GetVertexHeights()
 {
     return _vertices;
 }
 
-void Grid::MakePlanar(float width, float length)
+void Grid::Clear()
 {
-    float halfWidth = width / 2.0f;
-    float halfLength = length / 2.0f;
-
     int vtx = 0;
     for (int i = 0; i <= _widthSegs; i++)
     {
         for (int j = 0; j <= _lengthSegs; j++)
         {
-            _vertices[vtx] = Point3(i * width / _widthSegs - halfWidth, j * length / _lengthSegs - halfLength, 0.0f);
+            _vertices[vtx] = 0.0;
             vtx++;
         }
     }
 }
 
-void Grid::Redim(int widthSegs, int lengthSegs)
+void Grid::Redim(float width, float length, int widthSegs, int lengthSegs)
 {
     delete [] _vertices;
 
+    _width = width;
+    _length = length;
     _widthSegs = widthSegs;
     _lengthSegs = lengthSegs;
 
-    _vertices = new Point3[(_widthSegs + 1) * (_lengthSegs + 1)];
+    _vertices = new float[(_widthSegs + 1) * (_lengthSegs + 1)];
 }
