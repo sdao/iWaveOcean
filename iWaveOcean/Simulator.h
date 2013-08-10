@@ -82,7 +82,11 @@ public:
     /*
     Gets the deformed grid as calculated by the simulation at a specified frame.
     Returns a flat plane if no cached frames are available.
+    If the index is outside of the simulated range but there are frames available, chooses the closest frame.
     */
     Grid* GetSimulatedGrid(int frame);
+
+    IOResult Load(ILoad* iload);
+    IOResult Save(ISave* isave);
 };
 

@@ -45,7 +45,7 @@ public:
     //Constructor/Destructor
     iWaveOcean();
     virtual ~iWaveOcean();
- 
+
     // Static stuff for simulation cache
     static iWaveOcean* instance;
 
@@ -80,6 +80,10 @@ public:
     // From SimpleObject
     virtual void BuildMesh(TimeValue t);
     virtual void InvalidateUI();
+
+    // Loading/Saving
+    virtual IOResult Load(ILoad *iload);
+    virtual IOResult Save(ISave *isave);
 
     //From Animatable
     virtual Class_ID ClassID() {return iWaveOcean_CLASS_ID;}

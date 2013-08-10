@@ -1,5 +1,7 @@
 #define _WIN32_WINNT _WIN32_WINNT_VISTA
 
+#define CheckResult(res) if (res != IO_OK) return res;
+
 #include "Simulator.h"
 #include <Windows.h>
 #include <process.h>
@@ -136,7 +138,7 @@ Grid* Simulator::GetSimulatedGrid(int frame)
         frame = max(frame, _cacheStartFrame);
         frame = min(frame, _cacheStartFrame + _cache.size() - 1);
 
-        return _cache.at(frame - _cacheStartFrame);
+        return _cache[frame - _cacheStartFrame];
     }
     else
     {
@@ -185,4 +187,89 @@ HRESULT CALLBACK Simulator::SimulateTaskDlgProc(HWND hWnd, UINT message, WPARAM 
         break;
     }
     return S_OK;
+}
+
+IOResult Simulator::Load(ILoad* iload)
+{
+    Reset();
+
+    ULONG nb;
+    IOResult res;
+
+    res = iload->Read(&_cacheStartFrame, sizeof(int), &nb);
+    CheckResult(res);
+
+    int size;
+    res = iload->Read(&size, sizeof(int), &nb);
+    CheckResult(res);
+
+    for (int i = 0; i < size; i++)
+    {
+        float width;
+        float length;
+        int widthSegs;
+        int lengthSegs;
+
+        res = iload->Read(&width, sizeof(float), &nb);
+        CheckResult(res);
+
+        res = iload->Read(&length, sizeof(float), &nb);
+        CheckResult(res);
+
+        res = iload->Read(&widthSegs, sizeof(int), &nb);
+        CheckResult(res);
+
+        res = iload->Read(&lengthSegs, sizeof(int), &nb);
+        CheckResult(res);
+
+        int numVertices = (widthSegs + 1) * (lengthSegs + 1);
+        float *vertexHeights = new float[numVertices];
+        res = iload->Read(vertexHeights, sizeof(float) * numVertices, &nb);
+        CheckResult(res);
+
+        Grid* grid = new Grid(width, length, widthSegs, lengthSegs, vertexHeights);
+        _cache.push_back(grid);
+    }
+
+    return IO_OK;
+}
+
+IOResult Simulator::Save(ISave* isave)
+{
+    ULONG nb;
+    IOResult res;
+
+    res = isave->Write(&_cacheStartFrame, sizeof(int), &nb);
+    CheckResult(res);
+
+    int size = _cache.size();
+    res = isave->Write(&size, sizeof(int), &nb);
+    CheckResult(res);
+
+    for (int i = 0; i < size; i++)
+    {
+        Grid* grid = _cache[i];
+        float width = grid->GetWidth();
+        float length = grid->GetLength();
+        int widthSegs = grid->GetWidthSegs();
+        int lengthSegs = grid->GetLengthSegs();
+        float* vertexHeights = grid->GetVertexHeights();
+
+        res = isave->Write(&width, sizeof(float), &nb);
+        CheckResult(res);
+
+        res = isave->Write(&length, sizeof(float), &nb);
+        CheckResult(res);
+
+        res = isave->Write(&widthSegs, sizeof(int), &nb);
+        CheckResult(res);
+
+        res = isave->Write(&lengthSegs, sizeof(int), &nb);
+        CheckResult(res);
+
+        res = isave->Write(vertexHeights, sizeof(float) * (widthSegs + 1) * (lengthSegs + 1), &nb);
+        CheckResult(res);
+    }
+
+    return IO_OK;
 }

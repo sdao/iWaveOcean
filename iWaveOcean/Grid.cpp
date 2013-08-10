@@ -7,6 +7,12 @@ Grid::Grid(float width, float length, int widthSegs, int lengthSegs)
     _vertices = new float[(_widthSegs + 1) * (_lengthSegs + 1)];
 }
 
+Grid::Grid(float width, float length, int widthSegs, int lengthSegs, float* vertexHeights)
+    : _width(width), _length(length), _widthSegs(widthSegs), _lengthSegs(lengthSegs)
+{
+    _vertices = vertexHeights;
+}
+
 Grid::~Grid(void)
 {
     delete [] _vertices;

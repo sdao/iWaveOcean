@@ -16,7 +16,8 @@
 #include "Simulator.h"
 #include <vector>
 
-#define PBLOCK_REF	0
+#define PBLOCK_REF 0
+#define SIM_DATA_CHUNK 1000 
 
 #define MIN_WIDTH 1.0f
 #define MIN_LENGTH 1.0f
@@ -386,4 +387,36 @@ RefTargetHandle iWaveOcean::Clone(RemapDir& remap)
     newob->ivalid.SetEmpty();
     BaseClone(this, newob, remap);
     return(newob);
+}
+
+IOResult iWaveOcean::Load(ILoad* iload)
+{
+    ULONG nb;
+    IOResult res;
+    while (IO_OK == (res = iload->OpenChunk()))
+    {
+        switch(iload->CurChunkID())
+        {
+        case SIM_DATA_CHUNK:
+            res = _sim.Load(iload);
+            break;
+        }
+        iload->CloseChunk();
+        if (res != IO_OK) return res;
+    }
+
+    return IO_OK;
+}
+
+IOResult iWaveOcean::Save(ISave* isave)
+{
+    ULONG nb;
+    IOResult res;
+
+    isave->BeginChunk(SIM_DATA_CHUNK);
+    res = _sim.Save(isave);
+    if (res != IO_OK) return res;
+    isave->EndChunk();
+
+    return IO_OK;
 }

@@ -18,6 +18,17 @@ public:
     \param lengthSegs the number of faces along the V-axis
     */
     Grid(float width, float length, int widthSegs, int lengthSegs);
+
+    /*
+    Creates a new Grid with the vertices initialized to the specified array. 
+    \param width the width along the U-axis
+    \param length the length along the V-axis
+    \param widthSegs the number of faces along the U-axis
+    \param lengthSegs the number of faces along the V-axis
+    \param vertices the heights of the vertices; this array must be of size (widthSegs + 1) * (lengthSegs + 1)
+    */
+    Grid(float width, float length, int widthSegs, int lengthSegs, float* vertexHeights);
+
     ~Grid(void);
 
     /* Gets the display width. */
