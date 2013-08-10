@@ -53,6 +53,7 @@
     <ClCompile Include="iWaveOcean.cpp" />
     <ClCompile Include="DllEntry.cpp" />
     <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="Ocean.cpp" />
     <ClCompile Include="Simulator.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +63,7 @@
     <ClInclude Include="3dsmaxsdk_preinclude.h" />
     <ClInclude Include="iWaveOcean.h" />
     <ClInclude Include="Grid.h" />
+    <ClInclude Include="Ocean.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Simulator.h" />
   </ItemGroup>

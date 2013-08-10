@@ -34,6 +34,10 @@ BEGIN
     LTEXT           "Length:",IDC_STATIC,7,20,25,8
     CONTROL         "",IDC_LENGTH_EDIT,"CustEdit",WS_TABSTOP,58,20,35,10
     CONTROL         "",IDC_LENGTH_SPIN,"SpinnerControl",0x0,94,20,7,10
+    LISTBOX         IDC_COLLISION_LIST,7,46,94,55,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Pick",IDC_COLLISION_PICK_BUTTON,"CustButton",WS_TABSTOP,7,104,41,13
+    CONTROL         "Delete",IDC_COLLISION_DELETE_BUTTON,"CustButton",WS_TABSTOP,60,104,41,13
+    LTEXT           "Collision Objects:  ",IDC_STATIC,7,35,58,8
 END
 
 IDD_SIMULATE DIALOGEX 0, 0, 108, 65
@@ -43,8 +47,8 @@ BEGIN
     CONTROL         "Simulate!",IDC_SIMULATE_BUTTON,"CustButton",WS_TABSTOP,7,7,94,18
     LTEXT           "Start Frame:  ",IDC_STATIC,7,32,43,8
     LTEXT           "Simulated:  ",IDC_STATIC,7,44,38,8
-    RTEXT           "0",IDC_STARTFRAME_STATIC,93,32,8,8
-    RTEXT           "0",IDC_NUMFRAMES_STATIC,93,44,8,8
+    RTEXT           "000000",IDC_NUMFRAMES_STATIC,76,44,25,8
+    RTEXT           "000000",IDC_STARTFRAME_STATIC,76,32,25,8
 END
 
 
@@ -122,6 +126,7 @@ BEGIN
     IDS_LENGTH_SEGS         "Length Segments"
     IDS_START_FRAME         "Start Frame"
     IDS_FRAME_COUNT         "Frame Count"
+    IDS_COLLISION_OBJS      "Collision Objects"
 END
 
 #endif    // English (United States) resources

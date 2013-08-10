@@ -5,12 +5,13 @@
 #include <process.h>
 #include <units.h>
 #include "iWaveOcean.h"
+#include "Ocean.h"
 
 int Simulator::simStart;
 int Simulator::simLength;
 int Simulator::simCounter;
 
-Simulator::Simulator(iWaveOcean* geom) : _cache(), _cacheStartFrame(0), grid_0(0, 0), _geom(geom), _finished(true)
+Simulator::Simulator(iWaveOcean* geom) : _cache(), _cacheStartFrame(0), _grid_0(0, 0), _geom(geom), _finished(true), _cancelled(false)
 {
 }
 
@@ -32,10 +33,23 @@ void Simulator::DoWork(void* ptr)
     modifier->pblock2->GetValue(pb_width_segs, 0, widthSegsFloat, modifier->ivalid);
     modifier->pblock2->GetValue(pb_length_segs, 0, lengthSegsFloat, modifier->ivalid);
 
+    float width, length;
+    modifier->pblock2->GetValue(pb_width, 0, width, modifier->ivalid); // width = plane X width
+    modifier->pblock2->GetValue(pb_length, 0, length, modifier->ivalid); // length = plane Y length
+
     simStart = simStartFloat;
     simLength = simLengthFloat;
     int widthSegs = widthSegsFloat;
     int lengthSegs = lengthSegsFloat;
+
+    std::vector<INode*> collisionObjs;
+    int collisionObjsCount = modifier->pblock2->Count(pb_collision_objs);
+    for (int i = 0; i < collisionObjsCount; i++) {
+        INode* n = modifier->pblock2->GetINode(pb_collision_objs, 0, i);
+        collisionObjs.push_back(n);
+    }
+
+    Ocean oc(widthSegs + 1, lengthSegs + 1, width, length, 1.0, 1/30.0, 0.3);
 
     for (simCounter = simStart; simCounter < simStart + simLength; simCounter++)
     {
@@ -45,16 +59,9 @@ void Simulator::DoWork(void* ptr)
             return;
         }
 
-        Sleep(500);
-
         TimeValue t = simCounter * GetTicksPerFrame();
 
-        float width, length;
-        modifier->pblock2->GetValue(pb_width, t, width, modifier->ivalid); // width = plane X width
-        modifier->pblock2->GetValue(pb_length, t, length, modifier->ivalid); // length = plane Y length
-
-        Grid *data = new Grid(widthSegs, lengthSegs);
-        data->MakePlanar(width, length * simCounter);
+        Grid *data = oc.NextGrid();
         instance->_cache.push_back(data);
     }
 
@@ -139,9 +146,9 @@ Grid* Simulator::GetSimulatedGrid(int frame)
         _geom->pblock2->GetValue(pb_width_segs, 0, widthSegs, _geom->ivalid);
         _geom->pblock2->GetValue(pb_length_segs, 0, lengthSegs, _geom->ivalid);
 
-        grid_0.Redim((int)widthSegs, (int)lengthSegs);
-        grid_0.MakePlanar(width, length);
-        return &grid_0;
+        _grid_0.Redim((int)widthSegs, (int)lengthSegs);
+        _grid_0.MakePlanar(width, length);
+        return &_grid_0;
     }
 }
 

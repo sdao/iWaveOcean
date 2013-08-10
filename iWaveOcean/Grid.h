@@ -30,6 +30,9 @@ public:
     /* Gets the number of vertices along the V-axis. */
     int GetLengthVertices();
 
+    /* Gets the total number of vertices. */
+    int GetTotalVertices();
+
     /*
     Gets the array of vertices; this is a mapping between the UV space and the XYZ space.
     The length of the array is equal to GetWidthVertices() * GetLengthVertices().

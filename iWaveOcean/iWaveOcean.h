@@ -103,5 +103,6 @@ enum {
     pb_width_segs,
     pb_length_segs,
     pb_sim_start,
-    pb_sim_length
+    pb_sim_length,
+    pb_collision_objs
 };

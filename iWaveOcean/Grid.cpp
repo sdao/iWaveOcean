@@ -34,6 +34,11 @@ int Grid::GetLengthVertices()
     return _lengthSegs + 1;
 }
 
+int Grid::GetTotalVertices()
+{
+    return (_widthSegs + 1) * (_lengthSegs + 1);
+}
+
 Point3* Grid::GetVertices()
 {
     return _vertices;
