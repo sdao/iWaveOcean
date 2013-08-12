@@ -72,6 +72,7 @@ public:
     virtual Object* ConvertToType(TimeValue t, Class_ID obtype);
     virtual void GetCollapseTypes(Tab<Class_ID>& clist,Tab<TSTR*>& nlist);
     virtual int IntersectRay(TimeValue t, Ray& ray, float& at, Point3& norm);
+    virtual BOOL IsWorldSpaceObject() { return TRUE; }
 
     // From Animatable
     virtual void BeginEditParams( IObjParam  *ip, ULONG flags,Animatable *prev);
@@ -86,9 +87,10 @@ public:
     virtual IOResult Save(ISave *isave);
 
     //From Animatable
-    virtual Class_ID ClassID() {return iWaveOcean_CLASS_ID;}
+    virtual Class_ID ClassID() { return iWaveOcean_CLASS_ID; }
     virtual SClass_ID SuperClassID() { return GEOMOBJECT_CLASS_ID; }
-    virtual void GetClassName(TSTR& s) {s = GetString(IDS_CLASS_NAME);}
+    virtual void GetClassName(TSTR& s) { s = GetString(IDS_CLASS_NAME); }
+    virtual const wchar_t* GetObjectName() { return _M("iWave"); }
 
     virtual RefTargetHandle Clone( RemapDir& remap );
 

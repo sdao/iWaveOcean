@@ -44,29 +44,31 @@ void Simulator::DoWork(void* ptr)
     int widthSegs = widthSegsFloat;
     int lengthSegs = lengthSegsFloat;
 
-    std::vector<INode*> collisionObjs;
-    int collisionObjsCount = modifier->pblock2->Count(pb_collision_objs);
-    for (int i = 0; i < collisionObjsCount; i++) {
+    int collisionNodeCount = modifier->pblock2->Count(pb_collision_objs);
+    INode** collisionNodes = new INode*[collisionNodeCount];
+    for (int i = 0; i < collisionNodeCount; i++)
+    {
         INode* n = modifier->pblock2->GetINode(pb_collision_objs, 0, i);
-        collisionObjs.push_back(n);
+        collisionNodes[i] = n;
     }
 
-    Ocean oc(widthSegs + 1, lengthSegs + 1, width, length, 1.0, 1/30.0, 0.3);
+    Ocean oc(widthSegs + 1, lengthSegs + 1, width, length, 1.0, 1/30.0, 0.3, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount);
 
     for (simCounter = simStart; simCounter < simStart + simLength; simCounter++)
     {
         if (instance->_cancelled)
         {
-            instance->_finished = true;
-            return;
+            break;
         }
 
         TimeValue t = simCounter * GetTicksPerFrame();
+        oc.UpdateObstructions(t);
 
         Grid *data = oc.NextGrid();
         instance->_cache.push_back(data);
     }
 
+    delete [] collisionNodes;
     instance->_finished = true;
 }
 

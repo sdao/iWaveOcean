@@ -1,16 +1,22 @@
 #pragma once
 #include "Grid.h"
+#include <object.h>
 
 #define P 6
 
 class Ocean
 {
+    INode* parent_node;
+    INode** collision_nodes;
+    int collision_nodes_count;
+
     float dt;       /* Time between each frame of the simulation, i.e. 24 fps => dt = 0.4 */
     float alpha;    /* Wave damping factor. */
     float gravity;  /* 9.8 m/s^2 * dt * dt */
 
     int vertices_x;
     int vertices_y;
+    int vertices_total;
 
     float width;
     float length;
@@ -48,8 +54,11 @@ public:
     \param dt the difference in time between frames (e.g. for 24 fps, a normal dt is 1/24)
     \param alpha the wave damping factor
     */
-    Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha);
+    Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, INode* parentNode, INode** collisionNodes, int numCollisionNodes);
     ~Ocean(void);
+
+    /* Updates the obstructions and sources for the current simulation time. */
+    void UpdateObstructions(TimeValue t);
 
     /* Advances the simulation one step and returns the resultant grid. The Grid returned needs to be destroyed once it is unused. */
     Grid* NextGrid();
