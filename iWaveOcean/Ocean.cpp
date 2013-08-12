@@ -36,6 +36,7 @@ Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heig
     dt(dt), alpha(alpha), gravity(9.8 * dt * dt),
     parent_node(parentNode), collision_nodes(collisionNodes), collision_nodes_count(numCollisionNodes)
 {
+    obstruction_raw = new float[vertices_total];
     obstruction = new float[vertices_total];
     source = new float[vertices_total];
     height = new float[vertices_total];
@@ -53,6 +54,7 @@ Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heig
 
 Ocean::~Ocean(void)
 {
+    delete [] obstruction_raw;
     delete [] obstruction;
     delete [] source;
     delete [] height;
@@ -144,7 +146,7 @@ Grid* Ocean::GetDisplayGrid()
         for (int j = 0; j < vertices_y; j++)
         {
             float vtx_height = 0.5 * (height[vtx] * height_scale + 1.0) * obstruction[vtx];
-            vertexHeights[vtx] = obstruction[vtx];//vtx_height;
+            vertexHeights[vtx] = vtx_height;
             vtx++;
         }
     }
@@ -154,7 +156,7 @@ Grid* Ocean::GetDisplayGrid()
 
 void Ocean::UpdateObstructions(TimeValue t)
 {
-    Clear(obstruction, vertices_total, 1.0);
+    Clear(obstruction_raw, vertices_total, 1.0);
 
     float halfWidth = width / 2.0;
     float halfLength = length / 2.0;
@@ -190,7 +192,7 @@ void Ocean::UpdateObstructions(TimeValue t)
         {
             for (int j = 0; j < vertices_y; j++)
             {
-                if (obstruction[vtx] != 0.0) // Only continue if point is not a known obstruction.
+                if (obstruction_raw[vtx] != 0.0) // Only continue if point is not a known obstruction.
                 {
                     Point3 pt(i * width / faces_x - halfWidth, j * length / faces_y - halfLength, 0.0f);
                     Point3 ptInObjSpace = objToObj.PointTransform(pt);
@@ -220,7 +222,7 @@ void Ocean::UpdateObstructions(TimeValue t)
 
                         if (intersectsDownLow && atDown < atUp)
                         {
-                            obstruction[vtx] = 0.0;
+                            obstruction_raw[vtx] = 0.0;
                         }
                     }
                 }
@@ -231,6 +233,30 @@ void Ocean::UpdateObstructions(TimeValue t)
 
         // Delete it when done...
         if (deleteIt) triObject->DeleteMe();
+    }
+
+    float gaussian[5][5] = {
+        {0.0000, 0.0000, 0.0002, 0.0000, 0.0000},
+        {0.0000, 0.0113, 0.0837, 0.0113, 0.0000},
+        {0.0002, 0.0837, 0.6187, 0.0837, 0.0002},
+        {0.0000, 0.0113, 0.0837, 0.0113, 0.0000},
+        {0.0000, 0.0000, 0.0002, 0.0000, 0.0000}
+    }; // Gaussian filter kernel with sigma = 0.5
+    int Q = 2;
+    for (int i = Q; i < vertices_x - Q; i++) {
+        for (int j = Q; j < vertices_y - Q; j++) {
+            int vtx = i * vertices_y + j;
+            float val = 0.0f; // Local derivative at a point.
+
+            for (int kern_x = -Q; kern_x <= Q; kern_x++) {
+                for (int kern_y = -Q; kern_y <= Q; kern_y++) {
+                    int other_vtx = (i + kern_x) * vertices_y + (j + kern_y);
+                    val += gaussian[kern_x + Q][kern_y + Q] * obstruction_raw[other_vtx];
+                }
+            }
+
+            obstruction[vtx] = val;
+        }
     }
 
     // Calculate sources.

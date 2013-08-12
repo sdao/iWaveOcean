@@ -22,6 +22,7 @@ class Ocean
     float length;
     float height_scale;
 
+    float *obstruction_raw;
     float *obstruction;             /* Water obstruction(s). 1.0 = no obstruction, 0.0 = total obstruction. */
     float *source;                  /* Water source(s). 0.0 = no source. */
     float *height;                  /* Height map of waves. 0.0 = no height. */
