@@ -320,10 +320,10 @@ void iWaveOcean::BuildMesh(TimeValue t)
     {
         for (int j = 0; j < faces_y; j++)
         {
-            int pt1 = i * vertices_y + j;
-            int pt2 = i * vertices_y + j + 1;
-            int pt3 = (i+1) * vertices_y + j + 1;
-            int pt4 = (i+1) * vertices_y + j;
+            int pt1 = (i+1) * vertices_y + j;
+            int pt2 = (i+1) * vertices_y + j + 1;
+            int pt3 = i * vertices_y + j + 1;
+            int pt4 = i * vertices_y + j;
 
             mesh.faces[face].setVerts(pt1, pt2, pt3);
             mesh.faces[face].setEdgeVisFlags(1, 1, 0);
