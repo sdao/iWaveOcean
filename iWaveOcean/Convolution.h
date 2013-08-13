@@ -1,4 +1,5 @@
 #pragma once
+#include "IConvolution.h"
 
 enum ConvolutionEdgeBehavior
 {
@@ -8,7 +9,7 @@ enum ConvolutionEdgeBehavior
 };
 
 template <int radius, ConvolutionEdgeBehavior behavior>
-class Convolution
+class Convolution : public IConvolution<radius>
 {
     static const int kernel_width = 2 * radius + 1;
     float _kernel[kernel_width][kernel_width];
@@ -49,6 +50,19 @@ public:
                         {
                             other_vtx_x = (((i + kern_x) % rows) + rows) % rows;
                             other_vtx_y = (((j + kern_y) % rows) + rows) % rows;
+                        }
+                        else if (behavior == ReflectEdges)
+                        {
+                            // Flip negative values (i.e. -x => x).
+                            other_vtx_x = abs(i + kern_x);
+                            other_vtx_y = abs(j + kern_y);
+                            
+                            // Flip all values over the boundary (i.e. BOUND + x => BOUND - x).
+                            int diff_x = abs(other_vtx_x - (rows - 1));
+                            other_vtx_x = (rows - 1) - diff_x;
+
+                            int diff_y = abs(other_vtx_y - (cols - 1));
+                            other_vtx_y = (cols - 1) - diff_y;
                         }
 
                         int other_vtx = other_vtx_x * cols + other_vtx_y;

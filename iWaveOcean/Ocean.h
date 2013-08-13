@@ -1,7 +1,7 @@
 #pragma once
 #include "Grid.h"
 #include <object.h>
-#include "Convolution.h"
+#include "IConvolution.h"
 
 #define P 6
 
@@ -15,6 +15,7 @@ class Ocean
     float alpha;    /* Wave damping factor. */
     float gravity;  /* 9.8 m/s^2 * dt * dt */
     float sigma;    /* Used for strength of Gaussian smoothing of obstructions. */
+    int wave_exp;
 
     int vertices_x;
     int vertices_y;
@@ -24,8 +25,8 @@ class Ocean
     float length;
     float height_scale;
 
-    Convolution<2, ExtendEdges>* gaussianConvolution;
-    Convolution<P, ExtendEdges>* verticalDerivConvolution;
+    IConvolution<2>* gaussianConvolution;
+    IConvolution<P>* verticalDerivConvolution;
 
     float *obstruction_raw;         /* Water obstruction(s) before Gaussian smoothing. */
     float *obstruction;             /* Water obstruction(s). 1.0 = no obstruction, 0.0 = total obstruction. */
@@ -51,7 +52,7 @@ public:
     \param dt the difference in time between frames (e.g. for 24 fps, a normal dt is 1/24)
     \param alpha the wave damping factor
     */
-    Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float siga, INode* parentNode, INode** collisionNodes, int numCollisionNodes);
+    Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, int wavePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes);
     ~Ocean(void);
 
     /* Updates the obstructions and sources for the current simulation time. */

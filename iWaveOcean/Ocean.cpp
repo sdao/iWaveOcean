@@ -3,6 +3,7 @@
 #include "Ocean.h"
 #include <math.h>
 #include <triobj.h>
+#include "Convolution.h"
 
 void Clear(float* arr, int size, float val)
 {
@@ -88,9 +89,9 @@ void GetVerticalDerivKernel(float(& arr)[2 * P + 1][2 * P + 1])
     }
 }
 
-Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, INode* parentNode, INode** collisionNodes, int numCollisionNodes)
+Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, int wavePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes)
     : vertices_x(verticesX), vertices_y(verticesY), vertices_total(verticesX * verticesY), width(width), length(length), height_scale(heightScale),
-    dt(dt), alpha(alpha), gravity(9.8 * dt * dt), sigma(sigma),
+    dt(dt), alpha(alpha), gravity(9.8 * dt * dt), sigma(sigma), wave_exp(wavePower),
     parent_node(parentNode), collision_nodes(collisionNodes), collision_nodes_count(numCollisionNodes)
 {
     float gaussianKernel[5][5];
@@ -99,7 +100,7 @@ Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heig
 
     float verticalDerivKernel[2 * P + 1][2 * P + 1];
     GetVerticalDerivKernel(verticalDerivKernel);
-    verticalDerivConvolution = new Convolution<P, ExtendEdges>(verticalDerivKernel);
+    verticalDerivConvolution = new Convolution<P, ReflectEdges>(verticalDerivKernel);
 
     obstruction_raw = new float[vertices_total];
     obstruction = new float[vertices_total];
@@ -251,6 +252,7 @@ void Ocean::UpdateObstructions(TimeValue t)
         if (deleteIt) triObject->DeleteMe();
     }
 
+    // Perform Gaussian smoothing of obstruction boundaries.
     gaussianConvolution->Convolve(obstruction_raw, obstruction, vertices_x, vertices_y);
 
     // Calculate sources.
@@ -258,7 +260,7 @@ void Ocean::UpdateObstructions(TimeValue t)
     {
         // Make all collision objects create wakes (act as sources).
         // Paper suggests source = 1 - obstruction, but source = 1 - obstruction^2 gives slightly stronger waves.
-        source[i] = 1.0 - (obstruction[i] * obstruction[i]);
+        source[i] = 1.0 - pow(obstruction[i], wave_exp);
     }
 }
 
