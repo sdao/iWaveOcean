@@ -52,7 +52,7 @@ void Simulator::DoWork(void* ptr)
         collisionNodes[i] = n;
     }
 
-    Ocean oc(widthSegs + 1, lengthSegs + 1, width, length, 1.0, 1/30.0, 0.3, 1.0, 2, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount);
+    Ocean oc(widthSegs + 1, lengthSegs + 1, width, length, 1.0, 1/30.0, 0.3, 1.0, 2.0, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount);
 
     for (simCounter = simStart; simCounter < simStart + simLength; simCounter++)
     {

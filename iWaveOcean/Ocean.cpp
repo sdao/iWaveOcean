@@ -89,7 +89,7 @@ void GetVerticalDerivKernel(float(& arr)[2 * P + 1][2 * P + 1])
     }
 }
 
-Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, int wavePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes)
+Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, float wavePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes)
     : vertices_x(verticesX), vertices_y(verticesY), vertices_total(verticesX * verticesY), width(width), length(length), height_scale(heightScale),
     dt(dt), alpha(alpha), gravity(9.8 * dt * dt), sigma(sigma), wave_exp(wavePower),
     parent_node(parentNode), collision_nodes(collisionNodes), collision_nodes_count(numCollisionNodes)
