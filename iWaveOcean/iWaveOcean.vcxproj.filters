@@ -55,6 +55,9 @@
     <ClInclude Include="Ocean.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Convolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="iWaveOcean.rc">

@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES 
+
 #include "Ocean.h"
 #include <math.h>
 #include <triobj.h>
@@ -30,39 +32,33 @@ TriObject* GetTriObjectFromNode(INode *node, int &deleteIt, TimeValue t)
     }
 }
 
-
-Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, INode* parentNode, INode** collisionNodes, int numCollisionNodes)
-    : vertices_x(verticesX), vertices_y(verticesY), vertices_total(verticesX * verticesY), width(width), length(length), height_scale(heightScale),
-    dt(dt), alpha(alpha), gravity(9.8 * dt * dt),
-    parent_node(parentNode), collision_nodes(collisionNodes), collision_nodes_count(numCollisionNodes)
+void GetGaussianKernel(float sigma, float(& arr)[5][5])
 {
-    obstruction_raw = new float[vertices_total];
-    obstruction = new float[vertices_total];
-    source = new float[vertices_total];
-    height = new float[vertices_total];
-    previous_height = new float[vertices_total];
-    vertical_derivative = new float[vertices_total];
+    float double_sigma_2 = 2.0 * sigma * sigma;
+    float sum = 0.0f;
 
-    Clear(obstruction, vertices_total, 1.0);
-    Clear(source, vertices_total, 0.0);
-    Clear(height, vertices_total, 0.0);
-    Clear(previous_height, vertices_total, 0.0);
-    Clear(vertical_derivative, vertices_total, 0.0);
+    for (int i = -2; i <= 2; i++)
+    {
+        int i_2 = i * i;
+        for (int j = -2; j <= 2; j++)
+        {
+            int j_2 = j * j;
+            float val = exp(-(i_2 + j_2) / double_sigma_2);
+            arr[i + 2][j + 2] = val;
+            sum += val;
+        }
+    }
 
-    InitializeKernel();
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            arr[i][j] /= sum;
+        }
+    }
 }
 
-Ocean::~Ocean(void)
-{
-    delete [] obstruction_raw;
-    delete [] obstruction;
-    delete [] source;
-    delete [] height;
-    delete [] previous_height;
-    delete [] vertical_derivative;
-}
-
-void Ocean::InitializeKernel()
+void GetVerticalDerivKernel(float(& arr)[2 * P + 1][2 * P + 1])
 {
     float dq = 0.001;
     float sigma = 1.0;
@@ -87,29 +83,49 @@ void Ocean::InitializeKernel()
                 kern += q * q * exp(-sigma * q * q) * j0(r * q);
             }
 
-            kernel[i + P][j + P] = kern / G_0;
+            arr[i + P][j + P] = kern / G_0;
         }
     }
 }
 
-void Ocean::Convolve()
+Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, INode* parentNode, INode** collisionNodes, int numCollisionNodes)
+    : vertices_x(verticesX), vertices_y(verticesY), vertices_total(verticesX * verticesY), width(width), length(length), height_scale(heightScale),
+    dt(dt), alpha(alpha), gravity(9.8 * dt * dt), sigma(sigma),
+    parent_node(parentNode), collision_nodes(collisionNodes), collision_nodes_count(numCollisionNodes)
 {
-    // We're skipping calculating anything within a margin of P.
-    for (int i = P; i < vertices_x - P; i++) {
-        for (int j = P; j < vertices_y - P; j++) {
-            int vtx = i * vertices_y + j;
-            float vd = 0.0f; // Local derivative at a point.
+    float gaussianKernel[5][5];
+    GetGaussianKernel(sigma, gaussianKernel);
+    gaussianConvolution = new Convolution<2, ExtendEdges>(gaussianKernel);
 
-            for (int kern_x = -P; kern_x <= P; kern_x++) {
-                for (int kern_y = -P; kern_y <= P; kern_y++) {
-                    int other_vtx = (i + kern_x) * vertices_y + (j + kern_y);
-                    vd += kernel[kern_x + P][kern_y + P] * height[other_vtx];
-                }
-            }
+    float verticalDerivKernel[2 * P + 1][2 * P + 1];
+    GetVerticalDerivKernel(verticalDerivKernel);
+    verticalDerivConvolution = new Convolution<P, ExtendEdges>(verticalDerivKernel);
 
-            vertical_derivative[vtx] = vd;
-        }
-    }
+    obstruction_raw = new float[vertices_total];
+    obstruction = new float[vertices_total];
+    source = new float[vertices_total];
+    height = new float[vertices_total];
+    previous_height = new float[vertices_total];
+    vertical_derivative = new float[vertices_total];
+
+    Clear(obstruction, vertices_total, 1.0);
+    Clear(source, vertices_total, 0.0);
+    Clear(height, vertices_total, 0.0);
+    Clear(previous_height, vertices_total, 0.0);
+    Clear(vertical_derivative, vertices_total, 0.0);
+}
+
+Ocean::~Ocean(void)
+{
+    delete gaussianConvolution;
+    delete verticalDerivConvolution;
+
+    delete [] obstruction_raw;
+    delete [] obstruction;
+    delete [] source;
+    delete [] height;
+    delete [] previous_height;
+    delete [] vertical_derivative;
 }
 
 void Ocean::PropagateWaves()
@@ -120,7 +136,7 @@ void Ocean::PropagateWaves()
         height[i] *= obstruction[i];
     }
 
-    Convolve();
+    verticalDerivConvolution->Convolve(height, vertical_derivative, vertices_x, vertices_y);
 
     // Actually move the surface waves now!
     float alpha_dt_1 = 2.0 - (alpha * dt);
@@ -235,34 +251,14 @@ void Ocean::UpdateObstructions(TimeValue t)
         if (deleteIt) triObject->DeleteMe();
     }
 
-    float gaussian[5][5] = {
-        {0.0000, 0.0000, 0.0002, 0.0000, 0.0000},
-        {0.0000, 0.0113, 0.0837, 0.0113, 0.0000},
-        {0.0002, 0.0837, 0.6187, 0.0837, 0.0002},
-        {0.0000, 0.0113, 0.0837, 0.0113, 0.0000},
-        {0.0000, 0.0000, 0.0002, 0.0000, 0.0000}
-    }; // Gaussian filter kernel with sigma = 0.5
-    int Q = 2;
-    for (int i = Q; i < vertices_x - Q; i++) {
-        for (int j = Q; j < vertices_y - Q; j++) {
-            int vtx = i * vertices_y + j;
-            float val = 0.0f; // Local derivative at a point.
-
-            for (int kern_x = -Q; kern_x <= Q; kern_x++) {
-                for (int kern_y = -Q; kern_y <= Q; kern_y++) {
-                    int other_vtx = (i + kern_x) * vertices_y + (j + kern_y);
-                    val += gaussian[kern_x + Q][kern_y + Q] * obstruction_raw[other_vtx];
-                }
-            }
-
-            obstruction[vtx] = val;
-        }
-    }
+    gaussianConvolution->Convolve(obstruction_raw, obstruction, vertices_x, vertices_y);
 
     // Calculate sources.
     for (int i = 0; i < vertices_total; i++)
     {
-        source[i] = 1.0 - obstruction[i]; // Make all collision objects create wakes (act as sources).
+        // Make all collision objects create wakes (act as sources).
+        // Paper suggests source = 1 - obstruction, but source = 1 - obstruction^2 gives slightly stronger waves.
+        source[i] = 1.0 - (obstruction[i] * obstruction[i]);
     }
 }
 

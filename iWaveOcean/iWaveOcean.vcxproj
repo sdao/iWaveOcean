@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3dsmaxsdk_preinclude.h" />
+    <ClInclude Include="Convolution.h" />
     <ClInclude Include="iWaveOcean.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Ocean.h" />
