@@ -40,12 +40,12 @@
     <ClCompile>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <PreprocessorDefinitions>_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MaxSdkInc);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\fftw-3.3.3-dll64;$(MaxSdkInc);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(MaxSdkLib);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>bmm.lib; core.lib; geom.lib; gfx.lib; mesh.lib; maxutil.lib; maxscrpt.lib; manipsys.lib; paramblk2.lib;;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\fftw-3.3.3-dll64;$(MaxSdkLib);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libfftw3f-3.lib;bmm.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;manipsys.lib;paramblk2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>iWaveOcean.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -55,6 +55,7 @@
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Ocean.cpp" />
     <ClCompile Include="Simulator.cpp" />
+    <ClCompile Include="Ambient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="iWaveOcean.def" />
@@ -68,6 +69,7 @@
     <ClInclude Include="Ocean.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Simulator.h" />
+    <ClInclude Include="Ambient.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="iWaveOcean.rc" />
