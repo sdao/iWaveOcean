@@ -29,11 +29,15 @@ void Simulator::DoWork(void* ptr)
 
     instance->Reset();
 
-    float simStartFloat, simLengthFloat, widthSegsFloat, lengthSegsFloat;
+    float simStartFloat, simLengthFloat, widthSegsFloat, lengthSegsFloat, alpha, sigma, wakePower, heightScale;
     modifier->pblock2->GetValue(pb_sim_start, 0, simStartFloat, modifier->ivalid);
     modifier->pblock2->GetValue(pb_sim_length, 0, simLengthFloat, modifier->ivalid);
     modifier->pblock2->GetValue(pb_width_segs, 0, widthSegsFloat, modifier->ivalid);
     modifier->pblock2->GetValue(pb_length_segs, 0, lengthSegsFloat, modifier->ivalid);
+    modifier->pblock2->GetValue(pb_wave_damping, 0, alpha, modifier->ivalid);
+    modifier->pblock2->GetValue(pb_collision_smoothing, 0, sigma, modifier->ivalid);
+    modifier->pblock2->GetValue(pb_wake_power, 0, wakePower, modifier->ivalid);
+    modifier->pblock2->GetValue(pb_height_scale, 0, heightScale, modifier->ivalid);
 
     float width, length;
     modifier->pblock2->GetValue(pb_width, 0, width, modifier->ivalid); // width = plane X width
@@ -52,7 +56,8 @@ void Simulator::DoWork(void* ptr)
         collisionNodes[i] = n;
     }
 
-    Ocean oc(widthSegs + 1, lengthSegs + 1, width, length, 1.0, 1/30.0, 0.3, 1.0, 2.0, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount);
+    float secondsPerFrame = 1.0 / GetFrameRate();
+    Ocean oc(widthSegs + 1, lengthSegs + 1, width, length, heightScale, secondsPerFrame, alpha, sigma, wakePower, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount);
 
     for (simCounter = simStart; simCounter < simStart + simLength; simCounter++)
     {

@@ -24,7 +24,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-IDD_PANEL DIALOGEX 0, 0, 108, 156
+IDD_PANEL DIALOGEX 0, 0, 108, 241
 STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
@@ -34,21 +34,46 @@ BEGIN
     LTEXT           "Length:",IDC_STATIC,7,20,25,8
     CONTROL         "",IDC_LENGTH_EDIT,"CustEdit",WS_TABSTOP,58,20,35,10
     CONTROL         "",IDC_LENGTH_SPIN,"SpinnerControl",0x0,94,20,7,10
-    LISTBOX         IDC_COLLISION_LIST,7,46,94,55,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Pick",IDC_COLLISION_PICK_BUTTON,"CustButton",WS_TABSTOP,7,104,41,13
-    CONTROL         "Delete",IDC_COLLISION_DELETE_BUTTON,"CustButton",WS_TABSTOP,60,104,41,13
-    LTEXT           "Collision Objects:  ",IDC_STATIC,7,35,58,8
+    LISTBOX         IDC_COLLISION_LIST,7,102,94,55,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Add",IDC_COLLISION_PICK_BUTTON,"CustButton",WS_TABSTOP,7,160,45,13
+    CONTROL         "Remove",IDC_COLLISION_DELETE_BUTTON,"CustButton",WS_TABSTOP,56,160,45,13
+    LTEXT           "Collision Objects:  ",IDC_STATIC,7,91,58,8
+    LTEXT           "Width Segs:",IDC_STATIC,7,34,40,8
+    CONTROL         "",IDC_WIDTH_SEGS_EDIT,"CustEdit",WS_TABSTOP,58,34,35,10
+    CONTROL         "",IDC_WIDTH_SEGS_SPIN,"SpinnerControl",0x0,94,34,7,10
+    LTEXT           "Length Segs:",IDC_STATIC,7,48,43,8
+    CONTROL         "",IDC_LENGTH_SEGS_EDIT,"CustEdit",WS_TABSTOP,58,48,35,10
+    CONTROL         "",IDC_LENGTH_SEGS_SPIN,"SpinnerControl",0x0,94,48,7,10
+    LTEXT           "Sim Start:",IDC_STATIC,7,62,31,8
+    CONTROL         "",IDC_START_EDIT,"CustEdit",WS_TABSTOP,58,62,35,10
+    CONTROL         "",IDC_START_SPIN,"SpinnerControl",0x0,94,62,7,10
+    LTEXT           "Sim Length:",IDC_STATIC,7,76,38,8
+    CONTROL         "",IDC_FRAMES_EDIT,"CustEdit",WS_TABSTOP,58,76,35,10
+    CONTROL         "",IDC_FRAMES_SPIN,"SpinnerControl",0x0,94,76,7,10
+    LTEXT           "Damping:",IDC_STATIC,7,181,31,8
+    CONTROL         "",IDC_DAMPING_EDIT,"CustEdit",WS_TABSTOP,58,181,35,10
+    CONTROL         "",IDC_DAMPING_SPIN,"SpinnerControl",0x0,94,181,7,10
+    LTEXT           "Smoothing:",IDC_STATIC,7,195,36,8
+    CONTROL         "",IDC_SMOOTHING_EDIT,"CustEdit",WS_TABSTOP,58,195,35,10
+    CONTROL         "",IDC_SMOOTHING_SPIN,"SpinnerControl",0x0,94,195,7,10
+    LTEXT           "Wake Power:",IDC_STATIC,7,209,44,8
+    CONTROL         "",IDC_WAKE_POWER_EDIT,"CustEdit",WS_TABSTOP,58,209,35,10
+    CONTROL         "",IDC_WAKE_POWER_SPIN,"SpinnerControl",0x0,94,209,7,10
+    LTEXT           "Height Scale:",IDC_STATIC,7,223,44,8
+    CONTROL         "",IDC_HEIGHT_EDIT,"CustEdit",WS_TABSTOP,58,223,35,10
+    CONTROL         "",IDC_HEIGHT_SPIN,"SpinnerControl",0x0,94,223,7,10
 END
 
-IDD_SIMULATE DIALOGEX 0, 0, 108, 65
+IDD_SIMULATE DIALOGEX 0, 0, 108, 78
 STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    CONTROL         "Simulate!",IDC_SIMULATE_BUTTON,"CustButton",WS_TABSTOP,7,7,94,18
-    LTEXT           "Start Frame:  ",IDC_STATIC,7,32,43,8
-    LTEXT           "Simulated:  ",IDC_STATIC,7,44,38,8
-    RTEXT           "000000",IDC_NUMFRAMES_STATIC,76,44,25,8
-    RTEXT           "000000",IDC_STARTFRAME_STATIC,76,32,25,8
+    CONTROL         "Simulate!",IDC_SIMULATE_BUTTON,"CustButton",WS_TABSTOP,7,7,94,16
+    LTEXT           "Start Frame:  ",IDC_STATIC,7,47,43,8
+    LTEXT           "Simulated:  ",IDC_STATIC,7,59,38,8
+    RTEXT           "000000",IDC_NUMFRAMES_STATIC,76,59,25,8
+    RTEXT           "000000",IDC_STARTFRAME_STATIC,76,47,25,8
+    CONTROL         "Clear All",IDC_CLEAR_BUTTON,"CustButton",WS_TABSTOP,7,27,94,16
 END
 
 
@@ -65,7 +90,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 101
         TOPMARGIN, 7
-        BOTTOMMARGIN, 149
+        BOTTOMMARGIN, 234
     END
 
     IDD_SIMULATE, DIALOG
@@ -73,9 +98,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 101
         TOPMARGIN, 7
-        BOTTOMMARGIN, 58
-        HORZGUIDE, 32
-        HORZGUIDE, 44
+        BOTTOMMARGIN, 71
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -117,7 +140,7 @@ BEGIN
     IDS_LIBDESCRIPTION      "Ocean wave simulation using the iWave method."
     IDS_CATEGORY            "Simulations"
     IDS_CLASS_NAME          "iWaveOcean"
-    IDS_PARAMS              "Parameters"
+    IDS_PARAMS              "Dynamics"
     IDS_SPIN                "Spin"
     IDS_WIDTH               "Width"
     IDS_LENGTH              "Length"
@@ -127,6 +150,14 @@ BEGIN
     IDS_START_FRAME         "Start Frame"
     IDS_FRAME_COUNT         "Frame Count"
     IDS_COLLISION_OBJS      "Collision Objects"
+    IDS_WAVE_DAMPING        "Wave Damping"
+    IDS_COLLISION_SMOOTHING "Collision Smoothing"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_WAKE_POWER          "Wake Power"
+    IDS_HEIGHT_SCALE        "Height Scale"
 END
 
 #endif    // English (United States) resources

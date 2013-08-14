@@ -49,7 +49,6 @@ public:
     // Static stuff for simulation cache
     static iWaveOcean* instance;
 
-    static ICustButton* simButton;
     static HWND startFrameStatic;
     static HWND numFramesStatic;
 
@@ -110,5 +109,9 @@ enum {
     pb_length_segs,
     pb_sim_start,
     pb_sim_length,
-    pb_collision_objs
+    pb_collision_objs,
+    pb_wave_damping,
+    pb_collision_smoothing,
+    pb_wake_power,
+    pb_height_scale
 };

@@ -49,33 +49,57 @@ static ParamBlockDesc2 iwaveocean_param_blk ( iwaveocean_params, _T("params"),  
     //rollout
     IDD_PANEL, IDS_PARAMS, 0, 0, NULL,
     // params
-    pb_width,			_T("width"),		TYPE_FLOAT,		0,          		IDS_WIDTH,
+    pb_width,			_T("width"),		    TYPE_FLOAT,		0,          		IDS_WIDTH,
         p_default,		100.0f,
         p_range,		MIN_WIDTH,10000.0f,
-        p_ui,			TYPE_SPINNER,		EDITTYPE_FLOAT,	IDC_WIDTH_EDIT,		IDC_WIDTH_SPIN,			0.1f,
+        p_ui,			TYPE_SPINNER,		    EDITTYPE_FLOAT,	IDC_WIDTH_EDIT,		IDC_WIDTH_SPIN,			0.1f,
         p_end,
-    pb_length,			_T("length"),		TYPE_FLOAT,		0,          		IDS_LENGTH,
+    pb_length,			_T("length"),		    TYPE_FLOAT,		0,          		IDS_LENGTH,
         p_default,		100.0f,
         p_range,	    MIN_LENGTH,10000.0f,
-        p_ui,			TYPE_SPINNER,		EDITTYPE_FLOAT,	IDC_LENGTH_EDIT,	IDC_LENGTH_SPIN,		0.1f,
+        p_ui,			TYPE_SPINNER,		    EDITTYPE_FLOAT,	IDC_LENGTH_EDIT,	IDC_LENGTH_SPIN,		0.1f,
         p_end,
-    pb_width_segs,      _T("width_segs"),   TYPE_FLOAT,     0,                  IDS_WIDTH_SEGS,
+    pb_width_segs,      _T("width_segs"),       TYPE_FLOAT,     0,                  IDS_WIDTH_SEGS,
         p_default,      100.0f,
         p_range,        10.0f, 1000.0f,
+        p_ui,			TYPE_SPINNER,		    EDITTYPE_FLOAT,	IDC_WIDTH_SEGS_EDIT,IDC_WIDTH_SEGS_SPIN,    0.1f,
         p_end,
-    pb_length_segs,     _T("length_segs"),  TYPE_FLOAT,     0,                  IDS_LENGTH_SEGS,
+    pb_length_segs,     _T("length_segs"),      TYPE_FLOAT,     0,                  IDS_LENGTH_SEGS,
         p_default,      100.0f,
         p_range,        10.0f, 1000.0f,
+        p_ui,			TYPE_SPINNER,		    EDITTYPE_FLOAT,	IDC_LENGTH_SEGS_EDIT,IDC_LENGTH_SEGS_SPIN,	0.1f,
         p_end,
-    pb_sim_start,       _T("sim_start"),    TYPE_FLOAT,     0,                  IDS_START_FRAME,
+    pb_sim_start,       _T("sim_start"),        TYPE_FLOAT,     0,                  IDS_START_FRAME,
         p_default,      0.0f,
+        p_ui,           TYPE_SPINNER,           EDITTYPE_FLOAT, IDC_START_EDIT,     IDC_START_SPIN,         1.0f,
         p_end,
-    pb_sim_length,      _T("sim_length"),   TYPE_FLOAT,     0,                  IDS_FRAME_COUNT,
+    pb_sim_length,      _T("sim_length"),       TYPE_FLOAT,     0,                  IDS_FRAME_COUNT,
         p_default,      100.0f,
+        p_ui,           TYPE_SPINNER,           EDITTYPE_FLOAT, IDC_FRAMES_EDIT,    IDC_FRAMES_SPIN,        1.0f,
         p_end,
-    pb_collision_objs,  _T("sim_collision"),TYPE_INODE_TAB, 0,  0,              IDS_COLLISION_OBJS,
-        p_ui,           TYPE_NODELISTBOX,   IDC_COLLISION_LIST,IDC_COLLISION_PICK_BUTTON,0,IDC_COLLISION_DELETE_BUTTON,
+    pb_collision_objs,  _T("sim_collision"),    TYPE_INODE_TAB, 0,  0,              IDS_COLLISION_OBJS,
+        p_ui,           TYPE_NODELISTBOX,       IDC_COLLISION_LIST,IDC_COLLISION_PICK_BUTTON,0,IDC_COLLISION_DELETE_BUTTON,
         p_sclassID,     GEOMOBJECT_CLASS_ID,
+        p_end,
+    pb_wave_damping,    _T("wave_damping"),     TYPE_FLOAT,     0,                  IDS_WAVE_DAMPING,
+        p_default,      0.3f,
+        p_range,        0.01f, 1.00f,
+        p_ui,           TYPE_SPINNER,           EDITTYPE_FLOAT, IDC_DAMPING_EDIT,   IDC_DAMPING_SPIN,       0.1f,
+        p_end,
+    pb_collision_smoothing,_T("collision_smooth"),TYPE_FLOAT,   0,                  IDS_COLLISION_SMOOTHING,
+        p_default,      1.00f,
+        p_range,        0.01f, 10.00f,
+        p_ui,           TYPE_SPINNER,           EDITTYPE_FLOAT, IDC_SMOOTHING_EDIT, IDC_SMOOTHING_SPIN,     0.01f,
+        p_end,
+    pb_wake_power,      _T("wake_pow"),         TYPE_FLOAT,     0,                  IDS_WAKE_POWER,
+        p_default,      2.00f,
+        p_range,        1.00f, 5.00f,
+        p_ui,           TYPE_SPINNER,           EDITTYPE_FLOAT, IDC_WAKE_POWER_EDIT,IDC_WAKE_POWER_SPIN,    0.01f,
+        p_end,
+    pb_height_scale,    _T("height_scale"),     TYPE_FLOAT,     0,                  IDS_HEIGHT_SCALE,
+        p_default,      1.00f,
+        p_range,        0.00f, 10.00f,
+        p_ui,           TYPE_SPINNER,           EDITTYPE_FLOAT, IDC_HEIGHT_EDIT,    IDC_HEIGHT_SPIN,        0.01f,
         p_end,
     p_end
     );
@@ -89,7 +113,6 @@ IObjParam* iWaveOcean::ip = NULL;
 
 iWaveOcean* iWaveOcean::instance = NULL;
 
-ICustButton* iWaveOcean::simButton = NULL;
 HWND iWaveOcean::startFrameStatic = NULL;
 HWND iWaveOcean::numFramesStatic = NULL;
 
@@ -131,17 +154,13 @@ INT_PTR CALLBACK iWaveOcean::SimulateRollupDlgProc(HWND hDlg, UINT message, WPAR
     case WM_INITDIALOG: // Initialize the Controls here.
         instance = (iWaveOcean*)lParam;
 
-        simButton = GetICustButton(GetDlgItem(hDlg, IDC_SIMULATE_BUTTON));
         startFrameStatic = GetDlgItem(hDlg, IDC_STARTFRAME_STATIC);
         numFramesStatic = GetDlgItem(hDlg, IDC_NUMFRAMES_STATIC);
 
         UpdateStatus();
         return TRUE;
     case WM_DESTROY: // Release the Controls here.
-        ReleaseICustButton(simButton);
-        
         instance = NULL;
-        simButton = NULL;
         startFrameStatic = NULL;
         numFramesStatic = NULL;
         return FALSE;
@@ -151,6 +170,9 @@ INT_PTR CALLBACK iWaveOcean::SimulateRollupDlgProc(HWND hDlg, UINT message, WPAR
             instance->_sim.BeginSimulation(hDlg); // Waits for dialog to exit.
             UpdateStatus();
             break;
+        case IDC_CLEAR_BUTTON:
+            instance->_sim.Reset();
+            UpdateStatus();
         }
         break;
     case WM_NOTIFY: // Others this way...
