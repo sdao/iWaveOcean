@@ -24,56 +24,90 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-IDD_PANEL DIALOGEX 0, 0, 108, 241
+IDD_PANEL_DYNAMICS DIALOGEX 0, 0, 108, 184
 STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Width:",IDC_STATIC,7,7,22,8
-    CONTROL         "",IDC_WIDTH_EDIT,"CustEdit",WS_TABSTOP,58,7,35,10
-    CONTROL         "",IDC_WIDTH_SPIN,"SpinnerControl",0x0,94,7,7,10
-    LTEXT           "Length:",IDC_STATIC,7,20,25,8
-    CONTROL         "",IDC_LENGTH_EDIT,"CustEdit",WS_TABSTOP,58,20,35,10
-    CONTROL         "",IDC_LENGTH_SPIN,"SpinnerControl",0x0,94,20,7,10
-    LISTBOX         IDC_COLLISION_LIST,7,102,94,55,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Add",IDC_COLLISION_PICK_BUTTON,"CustButton",WS_TABSTOP,7,160,45,13
-    CONTROL         "Remove",IDC_COLLISION_DELETE_BUTTON,"CustButton",WS_TABSTOP,56,160,45,13
-    LTEXT           "Collision Objects:  ",IDC_STATIC,7,91,58,8
-    LTEXT           "Width Segs:",IDC_STATIC,7,34,40,8
-    CONTROL         "",IDC_WIDTH_SEGS_EDIT,"CustEdit",WS_TABSTOP,58,34,35,10
-    CONTROL         "",IDC_WIDTH_SEGS_SPIN,"SpinnerControl",0x0,94,34,7,10
-    LTEXT           "Length Segs:",IDC_STATIC,7,48,43,8
-    CONTROL         "",IDC_LENGTH_SEGS_EDIT,"CustEdit",WS_TABSTOP,58,48,35,10
-    CONTROL         "",IDC_LENGTH_SEGS_SPIN,"SpinnerControl",0x0,94,48,7,10
-    LTEXT           "Sim Start:",IDC_STATIC,7,62,31,8
-    CONTROL         "",IDC_START_EDIT,"CustEdit",WS_TABSTOP,58,62,35,10
-    CONTROL         "",IDC_START_SPIN,"SpinnerControl",0x0,94,62,7,10
-    LTEXT           "Sim Length:",IDC_STATIC,7,76,38,8
-    CONTROL         "",IDC_FRAMES_EDIT,"CustEdit",WS_TABSTOP,58,76,35,10
-    CONTROL         "",IDC_FRAMES_SPIN,"SpinnerControl",0x0,94,76,7,10
-    LTEXT           "Damping:",IDC_STATIC,7,181,31,8
-    CONTROL         "",IDC_DAMPING_EDIT,"CustEdit",WS_TABSTOP,58,181,35,10
-    CONTROL         "",IDC_DAMPING_SPIN,"SpinnerControl",0x0,94,181,7,10
-    LTEXT           "Smoothing:",IDC_STATIC,7,195,36,8
-    CONTROL         "",IDC_SMOOTHING_EDIT,"CustEdit",WS_TABSTOP,58,195,35,10
-    CONTROL         "",IDC_SMOOTHING_SPIN,"SpinnerControl",0x0,94,195,7,10
-    LTEXT           "Wake Power:",IDC_STATIC,7,209,44,8
-    CONTROL         "",IDC_WAKE_POWER_EDIT,"CustEdit",WS_TABSTOP,58,209,35,10
-    CONTROL         "",IDC_WAKE_POWER_SPIN,"SpinnerControl",0x0,94,209,7,10
-    LTEXT           "Height Scale:",IDC_STATIC,7,223,44,8
-    CONTROL         "",IDC_HEIGHT_EDIT,"CustEdit",WS_TABSTOP,58,223,35,10
-    CONTROL         "",IDC_HEIGHT_SPIN,"SpinnerControl",0x0,94,223,7,10
+    LTEXT           "Sim Start:",IDC_STATIC,7,7,31,8
+    CONTROL         "",IDC_START_EDIT,"CustEdit",WS_TABSTOP,58,7,35,10
+    CONTROL         "",IDC_START_SPIN,"SpinnerControl",0x0,94,7,7,10
+    LTEXT           "Sim Length:",IDC_STATIC,7,21,38,8
+    CONTROL         "",IDC_FRAMES_EDIT,"CustEdit",WS_TABSTOP,58,21,35,10
+    CONTROL         "",IDC_FRAMES_SPIN,"SpinnerControl",0x0,94,21,7,10
+    LTEXT           "Collision Objects:  ",IDC_STATIC,7,36,58,8
+    LISTBOX         IDC_COLLISION_LIST,7,47,94,55,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Add",IDC_COLLISION_PICK_BUTTON,"CustButton",WS_TABSTOP,7,105,45,13
+    CONTROL         "Remove",IDC_COLLISION_DELETE_BUTTON,"CustButton",WS_TABSTOP,56,105,45,13
+    LTEXT           "Damping:",IDC_STATIC,7,126,31,8
+    CONTROL         "",IDC_DAMPING_EDIT,"CustEdit",WS_TABSTOP,58,126,35,10
+    CONTROL         "",IDC_DAMPING_SPIN,"SpinnerControl",0x0,94,126,7,10
+    LTEXT           "Smoothing:",IDC_STATIC,7,140,36,8
+    CONTROL         "",IDC_SMOOTHING_EDIT,"CustEdit",WS_TABSTOP,58,140,35,10
+    CONTROL         "",IDC_SMOOTHING_SPIN,"SpinnerControl",0x0,94,140,7,10
+    LTEXT           "Wake Power:",IDC_STATIC,7,154,44,8
+    CONTROL         "",IDC_WAKE_POWER_EDIT,"CustEdit",WS_TABSTOP,58,154,35,10
+    CONTROL         "",IDC_WAKE_POWER_SPIN,"SpinnerControl",0x0,94,154,7,10
+    LTEXT           "Height Scale:",IDC_STATIC,7,167,44,8
+    CONTROL         "",IDC_HEIGHT_EDIT,"CustEdit",WS_TABSTOP,58,167,35,10
+    CONTROL         "",IDC_HEIGHT_SPIN,"SpinnerControl",0x0,94,167,7,10
 END
 
-IDD_SIMULATE DIALOGEX 0, 0, 108, 78
+IDD_SIMULATE DIALOGEX 0, 0, 108, 74
 STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    CONTROL         "Simulate!",IDC_SIMULATE_BUTTON,"CustButton",WS_TABSTOP,7,7,94,16
+    CONTROL         "Simulate Dynamics!",IDC_SIMULATE_BUTTON,"CustButton",WS_TABSTOP,7,7,94,16
     LTEXT           "Start Frame:  ",IDC_STATIC,7,47,43,8
     LTEXT           "Simulated:  ",IDC_STATIC,7,59,38,8
     RTEXT           "000000",IDC_NUMFRAMES_STATIC,76,59,25,8
     RTEXT           "000000",IDC_STARTFRAME_STATIC,76,47,25,8
     CONTROL         "Clear All",IDC_CLEAR_BUTTON,"CustButton",WS_TABSTOP,7,27,94,16
+END
+
+IDD_PANEL_SIZE DIALOGEX 0, 0, 108, 65
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Width:",-1,7,7,22,8
+    CONTROL         "",IDC_WIDTH_EDIT,"CustEdit",WS_TABSTOP,58,7,35,10
+    CONTROL         "",IDC_WIDTH_SPIN,"SpinnerControl",0x0,94,7,7,10
+    LTEXT           "Length:",-1,7,20,25,8
+    CONTROL         "",IDC_LENGTH_EDIT,"CustEdit",WS_TABSTOP,58,20,35,10
+    CONTROL         "",IDC_LENGTH_SPIN,"SpinnerControl",0x0,94,20,7,10
+    LTEXT           "Width Segs:",-1,7,34,40,8
+    CONTROL         "",IDC_WIDTH_SEGS_EDIT,"CustEdit",WS_TABSTOP,58,34,35,10
+    CONTROL         "",IDC_WIDTH_SEGS_SPIN,"SpinnerControl",0x0,94,34,7,10
+    LTEXT           "Length Segs:",-1,7,48,43,8
+    CONTROL         "",IDC_LENGTH_SEGS_EDIT,"CustEdit",WS_TABSTOP,58,48,35,10
+    CONTROL         "",IDC_LENGTH_SEGS_SPIN,"SpinnerControl",0x0,94,48,7,10
+END
+
+IDD_PANEL_AMBIENT DIALOGEX 0, 0, 108, 115
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Actual Scale:",IDC_STATIC,7,20,43,8
+    CONTROL         "",IDC_SCALE_EDIT,"CustEdit",WS_TABSTOP,58,20,35,10
+    CONTROL         "",IDC_SCALE_SPIN,"SpinnerControl",0x0,94,20,7,10
+    LTEXT           "Amplitude:",IDC_STATIC,7,33,34,8
+    CONTROL         "",IDC_AMPLITUDE_EDIT,"CustEdit",WS_TABSTOP,58,33,35,10
+    CONTROL         "",IDC_AMPLITUDE_SPIN,"SpinnerControl",0x0,94,33,7,10
+    LTEXT           "Smallest Wave:",IDC_STATIC,7,46,50,8
+    CONTROL         "",IDC_MIN_SIZE_EDIT,"CustEdit",WS_TABSTOP,58,46,35,10
+    CONTROL         "",IDC_MIN_SIZE_SPIN,"SpinnerControl",0x0,94,46,7,10
+    LTEXT           "Speed:",IDC_STATIC,7,59,24,8
+    CONTROL         "",IDC_SPEED_EDIT,"CustEdit",WS_TABSTOP,58,59,35,10
+    CONTROL         "",IDC_SPEED_SPIN,"SpinnerControl",0x0,94,59,7,10
+    LTEXT           "Direction:",IDC_STATIC,7,72,31,8
+    CONTROL         "",IDC_DIRECTION_EDIT,"CustEdit",WS_TABSTOP,58,72,35,10
+    CONTROL         "",IDC_DIRECTION_SPIN,"SpinnerControl",0x0,94,72,7,10
+    LTEXT           "Seed:",IDC_STATIC,7,85,20,8
+    CONTROL         "",IDC_SEED_EDIT,"CustEdit",WS_TABSTOP,58,85,35,10
+    CONTROL         "",IDC_SEED_SPIN,"SpinnerControl",0x0,94,85,7,10
+    LTEXT           "Loop Frames:",IDC_STATIC,7,98,44,8
+    CONTROL         "",IDC_DURATION_EDIT,"CustEdit",WS_TABSTOP,58,98,35,10
+    CONTROL         "",IDC_DURATION_SPIN,"SpinnerControl",0x0,94,98,7,10
+    CONTROL         "Make Ambient Waves",IDC_AMBIENT_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,86,10
 END
 
 
@@ -85,12 +119,12 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO
 BEGIN
-    IDD_PANEL, DIALOG
+    IDD_PANEL_DYNAMICS, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 101
         TOPMARGIN, 7
-        BOTTOMMARGIN, 234
+        BOTTOMMARGIN, 177
     END
 
     IDD_SIMULATE, DIALOG
@@ -98,7 +132,23 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 101
         TOPMARGIN, 7
-        BOTTOMMARGIN, 71
+        BOTTOMMARGIN, 67
+    END
+
+    IDD_PANEL_SIZE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 101
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 58
+    END
+
+    IDD_PANEL_AMBIENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 101
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 108
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -140,7 +190,7 @@ BEGIN
     IDS_LIBDESCRIPTION      "Ocean wave simulation using the iWave method."
     IDS_CATEGORY            "Simulations"
     IDS_CLASS_NAME          "iWaveOcean"
-    IDS_PARAMS              "Dynamics"
+    IDS_PARAMS_SIZE         "Size"
     IDS_SPIN                "Spin"
     IDS_WIDTH               "Width"
     IDS_LENGTH              "Length"
@@ -158,6 +208,16 @@ STRINGTABLE
 BEGIN
     IDS_WAKE_POWER          "Wake Power"
     IDS_HEIGHT_SCALE        "Height Scale"
+    IDS_PARAMS_DYNAMICS     "Dynamics"
+    IDS_PARAMS_AMBIENT      "Ambient"
+    IDS_AMBIENT_SCALE       "Ambient Scale"
+    IDS_MIN_SIZE            "Minimum Wave Size"
+    IDS_SPEED               "Wind Speed"
+    IDS_DIRECTION           "Wind Direction"
+    IDS_SEED                "Seed"
+    IDS_DURATION            "Ambient Loop Duration"
+    IDS_AMPLITUDE           "Amplitude"
+    IDS_AMBIENT_ON          "Make Ambient Waves"
 END
 
 #endif    // English (United States) resources

@@ -103,15 +103,26 @@ public:
 enum { iwaveocean_params };
 
 enum { 
+    // Size
     pb_width,
     pb_length,
     pb_width_segs,
     pb_length_segs,
+    // Dynamics
     pb_sim_start,
     pb_sim_length,
     pb_collision_objs,
     pb_wave_damping,
     pb_collision_smoothing,
     pb_wake_power,
-    pb_height_scale
+    pb_height_scale,
+    // Ambient
+    pb_ambient_on,
+    pb_amplitude, 
+    pb_min_wave_size,
+    pb_wind_speed,
+    pb_wind_direction,
+    pb_seed,
+    pb_duration,
+    pb_ambient_scale
 };

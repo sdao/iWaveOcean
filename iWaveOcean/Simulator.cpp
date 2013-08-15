@@ -29,11 +29,12 @@ void Simulator::DoWork(void* ptr)
 
     instance->Reset();
 
-    float simStartFloat, simLengthFloat, widthSegsFloat, lengthSegsFloat, alpha, sigma, wakePower, heightScale;
-    modifier->pblock2->GetValue(pb_sim_start, 0, simStartFloat, modifier->ivalid);
-    modifier->pblock2->GetValue(pb_sim_length, 0, simLengthFloat, modifier->ivalid);
-    modifier->pblock2->GetValue(pb_width_segs, 0, widthSegsFloat, modifier->ivalid);
-    modifier->pblock2->GetValue(pb_length_segs, 0, lengthSegsFloat, modifier->ivalid);
+    int widthSegs, lengthSegs;
+    float alpha, sigma, wakePower, heightScale;
+    modifier->pblock2->GetValue(pb_sim_start, 0, simStart, modifier->ivalid);
+    modifier->pblock2->GetValue(pb_sim_length, 0, simLength, modifier->ivalid);
+    modifier->pblock2->GetValue(pb_width_segs, 0, widthSegs, modifier->ivalid);
+    modifier->pblock2->GetValue(pb_length_segs, 0, lengthSegs, modifier->ivalid);
     modifier->pblock2->GetValue(pb_wave_damping, 0, alpha, modifier->ivalid);
     modifier->pblock2->GetValue(pb_collision_smoothing, 0, sigma, modifier->ivalid);
     modifier->pblock2->GetValue(pb_wake_power, 0, wakePower, modifier->ivalid);
@@ -42,11 +43,6 @@ void Simulator::DoWork(void* ptr)
     float width, length;
     modifier->pblock2->GetValue(pb_width, 0, width, modifier->ivalid); // width = plane X width
     modifier->pblock2->GetValue(pb_length, 0, length, modifier->ivalid); // length = plane Y length
-
-    simStart = simStartFloat;
-    simLength = simLengthFloat;
-    int widthSegs = widthSegsFloat;
-    int lengthSegs = lengthSegsFloat;
 
     int collisionNodeCount = modifier->pblock2->Count(pb_collision_objs);
     INode** collisionNodes = new INode*[collisionNodeCount];
@@ -149,13 +145,14 @@ Grid* Simulator::GetSimulatedGrid(int frame)
     }
     else
     {
-        float width, length, widthSegs, lengthSegs;
+        float width, length;
+        int widthSegs, lengthSegs;
         _geom->pblock2->GetValue(pb_width, 0, width, _geom->ivalid); // width = plane X width
         _geom->pblock2->GetValue(pb_length, 0, length, _geom->ivalid); // length = plane Y length
         _geom->pblock2->GetValue(pb_width_segs, 0, widthSegs, _geom->ivalid);
         _geom->pblock2->GetValue(pb_length_segs, 0, lengthSegs, _geom->ivalid);
 
-        _grid_0.Redim(width, length, (int)widthSegs, (int)lengthSegs);
+        _grid_0.Redim(width, length, widthSegs, lengthSegs);
         _grid_0.Clear();
         return &_grid_0;
     }
