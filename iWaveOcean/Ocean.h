@@ -1,15 +1,20 @@
 #pragma once
 #include "Grid.h"
 #include <object.h>
+#include <iparamb2.h>
 #include "IConvolution.h"
 
 #define P 6 /* The radius of the iWave kernel. */
 
 class Ocean
 {
+    int frame_num;
+
     INode* parent_node;
     INode** collision_nodes;
     int collision_nodes_count;
+
+    IParamBlock2* ambient_pblock2;
 
     float dt;       /* Time between each frame of the simulation, i.e. 24 fps => dt = 0.4 */
     float alpha;    /* Wave damping factor. Realistic damping is 0.2 <= alpha <= 0.4, suggested is 0.3 */
@@ -28,6 +33,7 @@ class Ocean
     IConvolution<2>* gaussianConvolution;
     IConvolution<P>* verticalDerivConvolution;
 
+    float *ambient;                 /* Ambient waves calculated by a FFT simulation. */
     float *obstruction_raw;         /* Water obstruction(s) before Gaussian smoothing. */
     float *obstruction;             /* Water obstruction(s). 1.0 = no obstruction, 0.0 = total obstruction. */
     float *source;                  /* Water source(s). 0.0 = no source. */
@@ -44,6 +50,7 @@ public:
 
     /*
     Constructs a new Ocean object.
+    \param startFrame the first frame number
     \param verticesX the number of vertices along the width; must be >= 2P+1; otherwise failure will occur while simulating
     \param verticesY the number of vertices along the length; must be >= 2P+1
     \param width the width of the plane
@@ -56,12 +63,13 @@ public:
     \param parentNode the node hosting the wave simulation
     \param collisionNodes the nodes creating collisions and dynamics in the water
     \param numCollisionNodes the size of the collisionNodes array
+    \param ambientPblock2 the parameter block containing the ambient wave parameters
     */
-    Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, float wakePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes);
+    Ocean(int startFrame, int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, float wakePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes, IParamBlock2* ambientPblock2);
     ~Ocean(void);
 
     /* Updates the obstructions and sources for the current simulation time. */
-    void UpdateObstructions(TimeValue t);
+    void UpdateObstructions();
 
     /* Advances the simulation one step and returns the resultant grid. The Grid returned needs to be destroyed once it is unused. */
     Grid* NextGrid();

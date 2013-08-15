@@ -8,12 +8,13 @@
 #include <units.h>
 #include "iWaveOcean.h"
 #include "Ocean.h"
+#include "Ambient.h"
 
 int Simulator::simStart;
 int Simulator::simLength;
 int Simulator::simCounter;
 
-Simulator::Simulator(iWaveOcean* geom) : _cache(), _cacheStartFrame(0), _grid_0(1.0, 1.0, 0, 0), _geom(geom), _finished(true), _cancelled(false)
+Simulator::Simulator(iWaveOcean* geom) : _cache(), _cacheStartFrame(0), _liveGrid(1.0, 1.0, 0, 0), _geom(geom), _finished(true), _cancelled(false)
 {
 }
 
@@ -29,20 +30,17 @@ void Simulator::DoWork(void* ptr)
 
     instance->Reset();
 
-    int widthSegs, lengthSegs;
-    float alpha, sigma, wakePower, heightScale;
-    modifier->pblock2->GetValue(pb_sim_start, 0, simStart, modifier->ivalid);
-    modifier->pblock2->GetValue(pb_sim_length, 0, simLength, modifier->ivalid);
-    modifier->pblock2->GetValue(pb_width_segs, 0, widthSegs, modifier->ivalid);
-    modifier->pblock2->GetValue(pb_length_segs, 0, lengthSegs, modifier->ivalid);
-    modifier->pblock2->GetValue(pb_wave_damping, 0, alpha, modifier->ivalid);
-    modifier->pblock2->GetValue(pb_collision_smoothing, 0, sigma, modifier->ivalid);
-    modifier->pblock2->GetValue(pb_wake_power, 0, wakePower, modifier->ivalid);
-    modifier->pblock2->GetValue(pb_height_scale, 0, heightScale, modifier->ivalid);
-
-    float width, length;
-    modifier->pblock2->GetValue(pb_width, 0, width, modifier->ivalid); // width = plane X width
-    modifier->pblock2->GetValue(pb_length, 0, length, modifier->ivalid); // length = plane Y length
+    simStart = modifier->pblock2->GetInt(pb_sim_start, 0);
+    simLength = modifier->pblock2->GetInt(pb_sim_length, 0);
+    int widthSegs = modifier->pblock2->GetInt(pb_width_segs, 0);
+    int lengthSegs = modifier->pblock2->GetInt(pb_length_segs, 0);
+    float alpha = modifier->pblock2->GetFloat(pb_wave_damping, 0);
+    float sigma = modifier->pblock2->GetFloat(pb_collision_smoothing, 0);
+    float wakePower = modifier->pblock2->GetFloat(pb_wake_power, 0);
+    float heightScale = modifier->pblock2->GetFloat(pb_height_scale, 0);
+    float width = modifier->pblock2->GetFloat(pb_width, 0); // width = plane X width
+    float length = modifier->pblock2->GetFloat(pb_length, 0); // length = plane Y length
+    bool makeAmbient = modifier->pblock2->GetInt(pb_ambient_on, 0);
 
     int collisionNodeCount = modifier->pblock2->Count(pb_collision_objs);
     INode** collisionNodes = new INode*[collisionNodeCount];
@@ -53,7 +51,7 @@ void Simulator::DoWork(void* ptr)
     }
 
     float secondsPerFrame = 1.0 / GetFrameRate();
-    Ocean oc(widthSegs + 1, lengthSegs + 1, width, length, heightScale, secondsPerFrame, alpha, sigma, wakePower, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount);
+    Ocean oc(simStart, widthSegs + 1, lengthSegs + 1, width, length, heightScale, secondsPerFrame, alpha, sigma, wakePower, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount, makeAmbient ? modifier->pblock2 : NULL);
 
     for (simCounter = simStart; simCounter < simStart + simLength; simCounter++)
     {
@@ -62,8 +60,7 @@ void Simulator::DoWork(void* ptr)
             break;
         }
 
-        TimeValue t = simCounter * GetTicksPerFrame();
-        oc.UpdateObstructions(t);
+        oc.UpdateObstructions();
 
         Grid *data = oc.NextGrid();
         instance->_cache.push_back(data);
@@ -145,16 +142,25 @@ Grid* Simulator::GetSimulatedGrid(int frame)
     }
     else
     {
-        float width, length;
-        int widthSegs, lengthSegs;
-        _geom->pblock2->GetValue(pb_width, 0, width, _geom->ivalid); // width = plane X width
-        _geom->pblock2->GetValue(pb_length, 0, length, _geom->ivalid); // length = plane Y length
-        _geom->pblock2->GetValue(pb_width_segs, 0, widthSegs, _geom->ivalid);
-        _geom->pblock2->GetValue(pb_length_segs, 0, lengthSegs, _geom->ivalid);
+        float width = _geom->pblock2->GetFloat(pb_width, 0); // width = plane X width
+        float length = _geom->pblock2->GetFloat(pb_length, 0); // length = plane Y length
+        int widthSegs = _geom->pblock2->GetInt(pb_width_segs, 0);
+        int lengthSegs = _geom->pblock2->GetInt(pb_length_segs, 0);
+        bool makeAmbient = _geom->pblock2->GetInt(pb_ambient_on, 0);
 
-        _grid_0.Redim(width, length, widthSegs, lengthSegs);
-        _grid_0.Clear();
-        return &_grid_0;
+        _liveGrid.Redim(width, length, widthSegs, lengthSegs);
+        if (makeAmbient)
+        {
+            float* heights = _liveGrid.GetVertexHeights();
+            Ambient ambient(widthSegs + 1, lengthSegs + 1, width/length, _geom->pblock2, frame);
+            ambient.Simulate(heights);
+        }
+        else
+        {
+            _liveGrid.Clear();
+        }
+
+        return &_liveGrid;
     }
 }
 

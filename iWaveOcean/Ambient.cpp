@@ -1,23 +1,50 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <fftw3.h>
+#include <units.h>
 #include "Ambient.h"
+#include "iWaveOcean.h"
 
-Ambient::Ambient(float amplitude, float speed, Point3 direction, float time, float phaseDuration, int resX, int resY, float scaleX, float scaleY, float waveSizeLimit, unsigned long rngSeed)
+Ambient::Ambient(float amplitude, float speed, Point3 direction, float time, float phaseDuration, int verticesX, int verticesY, float scaleX, float scaleY, float waveSizeLimit, unsigned long rngSeed)
 {
     // Parameters.
     A = amplitude;
     V = speed;
     w_hat = direction.FNormalize();
     t = time;
-    M = resX + 1; // Math works better with no. vertices, but UI works better with no. faces.
-    N = resY + 1;
+    M = verticesX;
+    N = verticesY;
     Lx = scaleX;
     Ly = scaleY;
     l = waveSizeLimit;
     T = phaseDuration;
     omega_0 = 2. * M_PI / T;
     seed = rngSeed;
+    engine = std::tr1::mt19937();
+
+    // Precalculate known constants.
+    P_h__L = pow(V, 2) / GRAVITY;
+    P_h__l_2 = pow(l, 2);
+}
+
+Ambient::Ambient(int verticesX, int verticesY, float aspect, IParamBlock2* pblock2, int frameNumber)
+{
+    float frameRate = GetFrameRate();
+    float windDirection = pblock2->GetFloat(pb_wind_direction, t);
+
+    // Parameters.
+    A = pblock2->GetFloat(pb_amplitude, t);
+    V = pblock2->GetFloat(pb_wind_speed, t);
+    w_hat = Point3(cos(windDirection), sin(windDirection), 0.0f).FNormalize();
+    t = frameNumber / frameRate; // frames * seconds/frame
+    M = verticesX;
+    N = verticesY;
+    Lx = pblock2->GetFloat(pb_ambient_scale, t);
+    Ly = Lx / aspect; // Lx / (Lx/Ly) = Lx * Ly/Lx = Ly
+    l = pblock2->GetFloat(pb_min_wave_size, t);
+    T = pblock2->GetInt(pb_duration, t) / frameRate;
+    omega_0 = 2. * M_PI / T;
+    seed = pblock2->GetInt(pb_seed, t);
     engine = std::tr1::mt19937();
 
     // Precalculate known constants.

@@ -1,6 +1,7 @@
 #include <complex>
 #include <random>
 #include <point3.h>
+#include <iparamb2.h>
 
 #define GRAVITY 9.8 // Acceleration due to gravity (m/s^2).
 
@@ -45,15 +46,25 @@ public:
     * \param direction direction of wind
     * \param time time (in s)
     * \param phaseDuration duration of one phase (in s)
-    * \param resX number of faces along the x-axis
-    * \param resY number of faces along the y-axis
-    * \param scaleX length of plane along X-axis (in m)
-    * \param scaleY length of plane along Y-axis (in m) (note: you may want to automatically generate this from scaleX)
+    * \param verticesX number of vertices along the x-axis
+    * \param verticesY number of vertices along the y-axis
+    * \param scaleX simulated length of plane along X-axis (in m)
+    * \param scaleY simulated length of plane along Y-axis (in m) (note: you may want to automatically generate this from scaleX)
     * \param waveSizeLimit size limit that waves must surpass to be rendered
     * \param rngSeed seed for the pseudorandom number generator
     */
-    Ambient(float amplitude, float speed, Point3 direction, float time, float phaseDuration, int resX, int resY, float scaleX, float scaleY, float waveSizeLimit, unsigned long rngSeed);
+    Ambient(float amplitude, float speed, Point3 direction, float time, float phaseDuration, int verticesX, int verticesY, float scaleX, float scaleY, float waveSizeLimit, unsigned long rngSeed);
     
+    /**
+    * Creates a new Tessendorf wave simulation by pulling parameters from the specified parameter block.
+    * \param verticesX number of vertices along the x-axis (for security reasons, the output array size must be constant and not pulled from the parameter block)
+    * \param verticesY number of vertices along the y-axis
+    * \param aspect the ratio x/y = width/length of the dimensions of the output plane
+    * \param pblock2 the parameter block
+    * \param frameNumber the frame number; will be converted internally into the seconds elapsed
+    */
+    Ambient(int verticesX, int verticesY, float aspect, IParamBlock2* pblock2, int frameNumber);
+
     ~Ambient();
 
     /**

@@ -20,7 +20,7 @@ class Simulator
     volatile bool _cancelled;
 
     /* The grid to return in place of the simulation when no simulated data is available. */
-    Grid _grid_0;
+    Grid _liveGrid;
 
     /* The first frame of the simulation. */
     int _cacheStartFrame;

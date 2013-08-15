@@ -3,7 +3,9 @@
 #include "Ocean.h"
 #include <math.h>
 #include <triobj.h>
+#include <units.h>
 #include "Convolution.h"
+#include "Ambient.h"
 
 void Clear(float* arr, int size, float val)
 {
@@ -89,10 +91,11 @@ void GetVerticalDerivKernel(float(& arr)[2 * P + 1][2 * P + 1])
     }
 }
 
-Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, float wakePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes)
-    : vertices_x(verticesX), vertices_y(verticesY), vertices_total(verticesX * verticesY), width(width), length(length), height_scale(heightScale),
+Ocean::Ocean(int startFrame, int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, float wakePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes, IParamBlock2* ambientPblock2)
+    : frame_num(startFrame), vertices_x(verticesX), vertices_y(verticesY), vertices_total(verticesX * verticesY), width(width), length(length), height_scale(heightScale),
     dt(dt), alpha(alpha), gravity(9.8 * dt * dt), sigma(sigma), wake_exp(wakePower),
-    parent_node(parentNode), collision_nodes(collisionNodes), collision_nodes_count(numCollisionNodes)
+    parent_node(parentNode), collision_nodes(collisionNodes), collision_nodes_count(numCollisionNodes),
+    ambient_pblock2(ambientPblock2)
 {
     float gaussianKernel[5][5];
     GetGaussianKernel(sigma, gaussianKernel);
@@ -102,6 +105,7 @@ Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heig
     GetVerticalDerivKernel(verticalDerivKernel);
     verticalDerivConvolution = new Convolution<P, ReflectEdges>(verticalDerivKernel);
 
+    ambient = new float[vertices_total];
     obstruction_raw = new float[vertices_total];
     obstruction = new float[vertices_total];
     source = new float[vertices_total];
@@ -109,6 +113,7 @@ Ocean::Ocean(int verticesX, int verticesY, float width, float length, float heig
     previous_height = new float[vertices_total];
     vertical_derivative = new float[vertices_total];
 
+    Clear(ambient, vertices_total, 0.0);
     Clear(obstruction, vertices_total, 1.0);
     Clear(source, vertices_total, 0.0);
     Clear(height, vertices_total, 0.0);
@@ -121,6 +126,7 @@ Ocean::~Ocean(void)
     delete gaussianConvolution;
     delete verticalDerivConvolution;
 
+    delete [] ambient;
     delete [] obstruction_raw;
     delete [] obstruction;
     delete [] source;
@@ -139,6 +145,17 @@ void Ocean::PropagateWaves()
 
     verticalDerivConvolution->Convolve(height, vertical_derivative, vertices_x, vertices_y);
 
+    // Offload ambient wave calculation.
+    if (ambient_pblock2 == NULL)
+    {
+        Clear(ambient, vertices_total, 0.0);
+    }
+    else
+    {
+        Ambient sim(vertices_x, vertices_y, width/length, ambient_pblock2, frame_num);
+        sim.Simulate(ambient);
+    }
+    
     // Actually move the surface waves now!
     float alpha_dt_1 = 2.0 - (alpha * dt);
     float alpha_dt_2 = 1.0 / (1.0 + alpha * dt);
@@ -148,6 +165,8 @@ void Ocean::PropagateWaves()
         height[i] *= alpha_dt_2;
         height[i] += source[i];
         height[i] *= obstruction[i];
+        height[i] -= ambient[i] * (1.0 - obstruction[i]);
+
         previous_height[i] = temp;
     }
 }
@@ -162,8 +181,7 @@ Grid* Ocean::GetDisplayGrid()
     {
         for (int j = 0; j < vertices_y; j++)
         {
-            float vtx_height = 0.5 * (height[vtx] * height_scale + 1.0) * obstruction[vtx];
-            vertexHeights[vtx] = vtx_height;
+            vertexHeights[vtx] = (height[vtx] * height_scale) + ambient[vtx];
             vtx++;
         }
     }
@@ -171,8 +189,10 @@ Grid* Ocean::GetDisplayGrid()
     return ret;
 }
 
-void Ocean::UpdateObstructions(TimeValue t)
+void Ocean::UpdateObstructions()
 {
+    TimeValue t = frame_num * GetTicksPerFrame();
+
     Clear(obstruction_raw, vertices_total, 1.0);
 
     float halfWidth = width / 2.0;
@@ -260,11 +280,14 @@ void Ocean::UpdateObstructions(TimeValue t)
     {
         // Make all collision objects create wakes (act as sources).
         // Paper suggests source = 1 - obstruction, but source = 1 - obstruction^2 gives slightly stronger waves.
+        // Thus, wake_exp=1.0 is the natural/minimum, wake_exp=2.0+ gives slightly exaggerated wakes.
         source[i] = 1.0 - pow(obstruction[i], wake_exp);
     }
 }
 
 Grid* Ocean::NextGrid() {
     PropagateWaves();
-    return GetDisplayGrid();
+    Grid* render = GetDisplayGrid();
+    frame_num++;
+    return render;
 }
