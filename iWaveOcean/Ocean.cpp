@@ -91,11 +91,11 @@ void GetVerticalDerivKernel(float(& arr)[2 * P + 1][2 * P + 1])
     }
 }
 
-Ocean::Ocean(int startFrame, int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, float wakePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes, IParamBlock2* ambientPblock2)
+Ocean::Ocean(int startFrame, int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, float wakePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes, Grid* ambient)
     : frame_num(startFrame), vertices_x(verticesX), vertices_y(verticesY), vertices_total(verticesX * verticesY), width(width), length(length), height_scale(heightScale),
     dt(dt), alpha(alpha), gravity(9.8 * dt * dt), sigma(sigma), wake_exp(wakePower),
     parent_node(parentNode), collision_nodes(collisionNodes), collision_nodes_count(numCollisionNodes),
-    ambient_pblock2(ambientPblock2)
+    ambient(ambient)
 {
     float gaussianKernel[5][5];
     GetGaussianKernel(sigma, gaussianKernel);
@@ -105,7 +105,6 @@ Ocean::Ocean(int startFrame, int verticesX, int verticesY, float width, float le
     GetVerticalDerivKernel(verticalDerivKernel);
     verticalDerivConvolution = new Convolution<P, ReflectEdges>(verticalDerivKernel);
 
-    ambient = new float[vertices_total];
     obstruction_raw = new float[vertices_total];
     obstruction = new float[vertices_total];
     source = new float[vertices_total];
@@ -113,7 +112,6 @@ Ocean::Ocean(int startFrame, int verticesX, int verticesY, float width, float le
     previous_height = new float[vertices_total];
     vertical_derivative = new float[vertices_total];
 
-    Clear(ambient, vertices_total, 0.0);
     Clear(obstruction, vertices_total, 1.0);
     Clear(source, vertices_total, 0.0);
     Clear(height, vertices_total, 0.0);
@@ -126,7 +124,6 @@ Ocean::~Ocean(void)
     delete gaussianConvolution;
     delete verticalDerivConvolution;
 
-    delete [] ambient;
     delete [] obstruction_raw;
     delete [] obstruction;
     delete [] source;
@@ -144,18 +141,9 @@ void Ocean::PropagateWaves()
     }
 
     verticalDerivConvolution->Convolve(height, vertical_derivative, vertices_x, vertices_y);
-
-    // Offload ambient wave calculation.
-    if (ambient_pblock2 == NULL)
-    {
-        Clear(ambient, vertices_total, 0.0);
-    }
-    else
-    {
-        Ambient sim(vertices_x, vertices_y, width/length, ambient_pblock2, frame_num);
-        sim.Simulate(ambient);
-    }
     
+    float* ambientHeights = ambient == NULL ? NULL : ambient->GetVertexHeights();
+
     // Actually move the surface waves now!
     float alpha_dt_1 = 2.0 - (alpha * dt);
     float alpha_dt_2 = 1.0 / (1.0 + alpha * dt);
@@ -165,7 +153,11 @@ void Ocean::PropagateWaves()
         height[i] *= alpha_dt_2;
         height[i] += source[i];
         height[i] *= obstruction[i];
-        height[i] -= ambient[i] * (1.0 - obstruction[i]);
+
+        if (ambientHeights != NULL)
+        {
+            height[i] -= ambientHeights[i] * (1.0 - obstruction[i]);
+        }
 
         previous_height[i] = temp;
     }
@@ -176,12 +168,20 @@ Grid* Ocean::GetDisplayGrid()
     Grid* ret = new Grid(width, length, vertices_x - 1, vertices_y - 1);
     float* vertexHeights = ret->GetVertexHeights();
 
+    float* ambientHeights = ambient == NULL ? NULL : ambient->GetVertexHeights();
+
     int vtx = 0;
     for (int i = 0; i < vertices_x; i++)
     {
         for (int j = 0; j < vertices_y; j++)
         {
-            vertexHeights[vtx] = (height[vtx] * height_scale) + ambient[vtx];
+            vertexHeights[vtx] = (height[vtx] * height_scale);
+            
+            if (ambientHeights != NULL)
+            {
+                vertexHeights[vtx] += ambientHeights[vtx];
+            }
+
             vtx++;
         }
     }
@@ -286,6 +286,7 @@ void Ocean::UpdateObstructions()
 }
 
 Grid* Ocean::NextGrid() {
+    UpdateObstructions();
     PropagateWaves();
     Grid* render = GetDisplayGrid();
     frame_num++;

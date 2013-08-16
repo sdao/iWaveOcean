@@ -14,7 +14,7 @@ int Simulator::simStart;
 int Simulator::simLength;
 int Simulator::simCounter;
 
-Simulator::Simulator(iWaveOcean* geom) : _cache(), _cacheStartFrame(0), _liveGrid(1.0, 1.0, 0, 0), _geom(geom), _finished(true), _cancelled(false)
+Simulator::Simulator(iWaveOcean* geom) : _cache(), _cacheStartFrame(0), _staticGrid(NULL), _geom(geom), _finished(true), _cancelled(false)
 {
 }
 
@@ -30,6 +30,9 @@ void Simulator::DoWork(void* ptr)
 
     instance->Reset();
 
+    float frameRate = GetFrameRate();
+    float ticksPerFrame = GetTicksPerFrame();
+
     simStart = modifier->pblock2->GetInt(pb_sim_start, 0);
     simLength = modifier->pblock2->GetInt(pb_sim_length, 0);
     int widthSegs = modifier->pblock2->GetInt(pb_width_segs, 0);
@@ -40,7 +43,6 @@ void Simulator::DoWork(void* ptr)
     float heightScale = modifier->pblock2->GetFloat(pb_height_scale, 0);
     float width = modifier->pblock2->GetFloat(pb_width, 0); // width = plane X width
     float length = modifier->pblock2->GetFloat(pb_length, 0); // length = plane Y length
-    bool makeAmbient = modifier->pblock2->GetInt(pb_ambient_on, 0);
 
     int collisionNodeCount = modifier->pblock2->Count(pb_collision_objs);
     INode** collisionNodes = new INode*[collisionNodeCount];
@@ -50,8 +52,15 @@ void Simulator::DoWork(void* ptr)
         collisionNodes[i] = n;
     }
 
-    float secondsPerFrame = 1.0 / GetFrameRate();
-    Ocean oc(simStart, widthSegs + 1, lengthSegs + 1, width, length, heightScale, secondsPerFrame, alpha, sigma, wakePower, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount, makeAmbient ? modifier->pblock2 : NULL);
+    Ambient* amb = NULL;
+    if (modifier->pblock2->GetInt(pb_ambient_on, 0))
+    {
+        int ambientSeed = modifier->pblock2->GetInt(pb_seed, 0);
+        float ambientDuration = modifier->pblock2->GetInt(pb_duration, 0) / frameRate;
+        amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration); 
+    }
+
+    Ocean oc(simStart, widthSegs + 1, lengthSegs + 1, width, length, heightScale, 1.0 / frameRate, alpha, sigma, wakePower, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount, amb);
 
     for (simCounter = simStart; simCounter < simStart + simLength; simCounter++)
     {
@@ -60,13 +69,24 @@ void Simulator::DoWork(void* ptr)
             break;
         }
 
-        oc.UpdateObstructions();
+        if (amb)
+        {
+            TimeValue t = simCounter * ticksPerFrame;
+
+            amb->Simulate(simCounter / frameRate,
+                modifier->pblock2->GetFloat(pb_amplitude, t),
+                modifier->pblock2->GetFloat(pb_wind_speed, t),
+                modifier->pblock2->GetFloat(pb_wind_direction, t),
+                modifier->pblock2->GetFloat(pb_ambient_scale, t),
+                modifier->pblock2->GetFloat(pb_min_wave_size, t));
+        }
 
         Grid *data = oc.NextGrid();
         instance->_cache.push_back(data);
     }
 
     delete [] collisionNodes;
+    delete amb;
     instance->_finished = true;
 }
 
@@ -113,6 +133,8 @@ bool Simulator::IsFinished()
 
 void Simulator::Reset()
 {
+    delete _staticGrid;
+
     for (int i = 0; i < _cache.size(); i++)
     {
         Grid* ref = _cache[i];
@@ -142,25 +164,38 @@ Grid* Simulator::GetSimulatedGrid(int frame)
     }
     else
     {
+        delete _staticGrid;
+
         float width = _geom->pblock2->GetFloat(pb_width, 0); // width = plane X width
         float length = _geom->pblock2->GetFloat(pb_length, 0); // length = plane Y length
         int widthSegs = _geom->pblock2->GetInt(pb_width_segs, 0);
         int lengthSegs = _geom->pblock2->GetInt(pb_length_segs, 0);
-        bool makeAmbient = _geom->pblock2->GetInt(pb_ambient_on, 0);
 
-        _liveGrid.Redim(width, length, widthSegs, lengthSegs);
-        if (makeAmbient)
+        if (_geom->pblock2->GetInt(pb_ambient_on, 0))
         {
-            float* heights = _liveGrid.GetVertexHeights();
-            Ambient ambient(widthSegs + 1, lengthSegs + 1, width/length, _geom->pblock2, frame);
-            ambient.Simulate(heights);
+            float frameRate = GetFrameRate();
+            float ticksPerFrame = GetTicksPerFrame();
+            int ambientSeed = _geom->pblock2->GetInt(pb_seed, 0);
+            float ambientDuration = _geom->pblock2->GetInt(pb_duration, 0) / frameRate;
+
+            Ambient* amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration);
+            TimeValue t = frame * ticksPerFrame;
+
+            amb->Simulate(frame / frameRate,
+                _geom->pblock2->GetFloat(pb_amplitude, t),
+                _geom->pblock2->GetFloat(pb_wind_speed, t),
+                _geom->pblock2->GetFloat(pb_wind_direction, t),
+                _geom->pblock2->GetFloat(pb_ambient_scale, t),
+                _geom->pblock2->GetFloat(pb_min_wave_size, t));
+
+            _staticGrid = amb;
         }
         else
         {
-            _liveGrid.Clear();
+            _staticGrid = new Grid(width, length, widthSegs, lengthSegs);
         }
 
-        return &_liveGrid;
+        return _staticGrid;
     }
 }
 

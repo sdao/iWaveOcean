@@ -70,15 +70,3 @@ void Grid::Clear()
         }
     }
 }
-
-void Grid::Redim(float width, float length, int widthSegs, int lengthSegs)
-{
-    delete [] _vertices;
-
-    _width = width;
-    _length = length;
-    _widthSegs = widthSegs;
-    _lengthSegs = lengthSegs;
-
-    _vertices = new float[(_widthSegs + 1) * (_lengthSegs + 1)];
-}

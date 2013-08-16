@@ -1,7 +1,6 @@
 #pragma once
 #include "Grid.h"
 #include <object.h>
-#include <iparamb2.h>
 #include "IConvolution.h"
 
 #define P 6 /* The radius of the iWave kernel. */
@@ -13,8 +12,6 @@ class Ocean
     INode* parent_node;
     INode** collision_nodes;
     int collision_nodes_count;
-
-    IParamBlock2* ambient_pblock2;
 
     float dt;       /* Time between each frame of the simulation, i.e. 24 fps => dt = 0.4 */
     float alpha;    /* Wave damping factor. Realistic damping is 0.2 <= alpha <= 0.4, suggested is 0.3 */
@@ -33,13 +30,17 @@ class Ocean
     IConvolution<2>* gaussianConvolution;
     IConvolution<P>* verticalDerivConvolution;
 
-    float *ambient;                 /* Ambient waves calculated by a FFT simulation. */
-    float *obstruction_raw;         /* Water obstruction(s) before Gaussian smoothing. */
-    float *obstruction;             /* Water obstruction(s). 1.0 = no obstruction, 0.0 = total obstruction. */
-    float *source;                  /* Water source(s). 0.0 = no source. */
-    float *height;                  /* Height map of waves. 0.0 = no height. */
-    float *previous_height;         /* Height map of waves at previous time. */
-    float *vertical_derivative;     /* Used for calculating convolution. */
+    float* obstruction_raw;         /* Water obstruction(s) before Gaussian smoothing. */
+    float* obstruction;             /* Water obstruction(s). 1.0 = no obstruction, 0.0 = total obstruction. */
+    float* source;                  /* Water source(s). 0.0 = no source. */
+    float* height;                  /* Height map of waves. 0.0 = no height. */
+    float* previous_height;         /* Height map of waves at previous time. */
+    float* vertical_derivative;     /* Used for calculating convolution. */
+
+    Grid* ambient;                 /* Ambient waves calculated by an external simulation. Note: pointer is not owned by us. */
+
+    /* Updates the obstructions and sources for the current simulation time. */
+    void UpdateObstructions();
 
     /* Propagates the waves in the simulation one step (one dt). */
     void PropagateWaves();
@@ -63,15 +64,15 @@ public:
     \param parentNode the node hosting the wave simulation
     \param collisionNodes the nodes creating collisions and dynamics in the water
     \param numCollisionNodes the size of the collisionNodes array
-    \param ambientPblock2 the parameter block containing the ambient wave parameters
+    \param ambient an ambient wave simulation
     */
-    Ocean(int startFrame, int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, float wakePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes, IParamBlock2* ambientPblock2);
+    Ocean(int startFrame, int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, float wakePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes, Grid* ambient);
     ~Ocean(void);
 
-    /* Updates the obstructions and sources for the current simulation time. */
-    void UpdateObstructions();
-
-    /* Advances the simulation one step and returns the resultant grid. The Grid returned needs to be destroyed once it is unused. */
+    /*
+    Advances the simulation one step and returns the resultant grid.
+    The Grid returned needs to be destroyed once it is unused; the Ocean object relinquishes responsibility for this pointer.
+    */
     Grid* NextGrid();
 };
 

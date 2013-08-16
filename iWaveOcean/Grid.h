@@ -3,6 +3,7 @@
 /* Represents a grid mesh that can be deformed. */
 class Grid
 {
+protected:
     float _width;
     float _length;
     int _widthSegs;
@@ -62,14 +63,5 @@ public:
     Zeroes out all of the values on the height map.
     */
     void Clear();
-
-    /*
-    Redimensions the grid.
-    \param width the width along the U-axis
-    \param length the length along the V-axis
-    \param widthSegs the new number of faces along the U-axis
-    \param lengthSegs the new number of faces along the V-axis
-    */
-    void Redim(float width, float length, int widthSegs, int lengthSegs);
 };
 

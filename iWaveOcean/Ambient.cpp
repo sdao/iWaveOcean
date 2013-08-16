@@ -1,58 +1,28 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <fftw3.h>
-#include <units.h>
 #include "Ambient.h"
-#include "iWaveOcean.h"
 
-Ambient::Ambient(float amplitude, float speed, Point3 direction, float time, float phaseDuration, int verticesX, int verticesY, float scaleX, float scaleY, float waveSizeLimit, unsigned long rngSeed)
+Ambient::Ambient(float width, float length, int verticesX, int verticesY, unsigned long rngSeed, float phaseDuration) : Grid(width, length, verticesX - 1, verticesY - 1)
 {
-    // Parameters.
-    A = amplitude;
-    V = speed;
-    w_hat = direction.FNormalize();
-    t = time;
+    // Static parameters.
     M = verticesX;
     N = verticesY;
-    Lx = scaleX;
-    Ly = scaleY;
-    l = waveSizeLimit;
     T = phaseDuration;
+
     omega_0 = 2. * M_PI / T;
     seed = rngSeed;
     engine = std::tr1::mt19937();
 
-    // Precalculate known constants.
-    P_h__L = pow(V, 2) / GRAVITY;
-    P_h__l_2 = pow(l, 2);
+    h_tildes_in = new complex[M * N];
+    h_tildes_out = new complex[M * N];
 }
 
-Ambient::Ambient(int verticesX, int verticesY, float aspect, IParamBlock2* pblock2, int frameNumber)
-{
-    float frameRate = GetFrameRate();
-    float windDirection = pblock2->GetFloat(pb_wind_direction, t);
-
-    // Parameters.
-    A = pblock2->GetFloat(pb_amplitude, t);
-    V = pblock2->GetFloat(pb_wind_speed, t);
-    w_hat = Point3(cos(windDirection), sin(windDirection), 0.0f).FNormalize();
-    t = frameNumber / frameRate; // frames * seconds/frame
-    M = verticesX;
-    N = verticesY;
-    Lx = pblock2->GetFloat(pb_ambient_scale, t);
-    Ly = Lx / aspect; // Lx / (Lx/Ly) = Lx * Ly/Lx = Ly
-    l = pblock2->GetFloat(pb_min_wave_size, t);
-    T = pblock2->GetInt(pb_duration, t) / frameRate;
-    omega_0 = 2. * M_PI / T;
-    seed = pblock2->GetInt(pb_seed, t);
-    engine = std::tr1::mt19937();
-
-    // Precalculate known constants.
-    P_h__L = pow(V, 2) / GRAVITY;
-    P_h__l_2 = pow(l, 2);
+Ambient::~Ambient()
+{   
+    delete [] h_tildes_in;
+    delete [] h_tildes_out;
 }
-
-Ambient::~Ambient() {}
 
 float Ambient::omega(Point3 k)
 {
@@ -97,13 +67,24 @@ complex Ambient::h_tilde(Point3 k)
     return h_tilde_0_k * c0 + h_tilde_0_k_star * c1;
 }
 
-void Ambient::Simulate(float* heights)
+void Ambient::Simulate(float time, float amplitude, float speed, float direction, float scale, float waveSizeLimit)
 {
+    // Animatable parameters.
+    A = amplitude;
+    V = speed;
+    w_hat = Point3(cos(direction), sin(direction), 0.0f);
+    t = time;
+    Lx = scale;
+    Ly = scale / (_width / _length);
+    l = waveSizeLimit;
+
+    // Precalculate known constants.
+    P_h__L = pow(V, 2) / GRAVITY;
+    P_h__l_2 = pow(l, 2);
+
     engine.seed(seed);
 
-    complex* h_tildes_in = new complex[M*N];
-    complex* h_tildes_out = new complex[M*N];
-
+    // Actual simulation begins here.
     for (int m = 0; m < M; m++) {
         for (int n = 0; n < N; n++) {
             int index = m * N + n;
@@ -132,10 +113,7 @@ void Ambient::Simulate(float* heights)
             float m_ = m - M / 2.0f;  // m coord offsetted.
             float n_ = n - N / 2.0f;  // n coord offsetted.
 
-            heights[index] = real(h_tildes_out[index]) * sign;
+            _vertices[index] = real(h_tildes_out[index]) * sign;
         }
     }
-
-    delete [] h_tildes_in;
-    delete [] h_tildes_out;
 }
