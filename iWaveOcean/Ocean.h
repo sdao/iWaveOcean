@@ -47,6 +47,9 @@ class Ocean
 
     /* Gets the Grid representation of the ocean waves at the current simulation time. */
     Grid* GetDisplayGrid();
+
+    static void GetGaussianKernel(float sigma, float(& arr)[5][5]);
+    static void GetVerticalDerivKernel(float(& arr)[2 * P + 1][2 * P + 1]);
 public:
 
     /*

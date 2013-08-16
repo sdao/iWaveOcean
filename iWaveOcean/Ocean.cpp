@@ -35,62 +35,6 @@ TriObject* GetTriObjectFromNode(INode *node, int &deleteIt, TimeValue t)
     }
 }
 
-void GetGaussianKernel(float sigma, float(& arr)[5][5])
-{
-    float double_sigma_2 = 2.0 * sigma * sigma;
-    float sum = 0.0f;
-
-    for (int i = -2; i <= 2; i++)
-    {
-        int i_2 = i * i;
-        for (int j = -2; j <= 2; j++)
-        {
-            int j_2 = j * j;
-            float val = exp(-(i_2 + j_2) / double_sigma_2);
-            arr[i + 2][j + 2] = val;
-            sum += val;
-        }
-    }
-
-    for (int i = 0; i < 5; i++)
-    {
-        for (int j = 0; j < 5; j++)
-        {
-            arr[i][j] /= sum;
-        }
-    }
-}
-
-void GetVerticalDerivKernel(float(& arr)[2 * P + 1][2 * P + 1])
-{
-    float dq = 0.001;
-    float sigma = 1.0;
-
-    double G_0 = 0.0; // Norm value.
-    for (float q = 0.0; q < 10.0; q += dq)
-    {
-        // From the paper, we want dq = .001 and calculate q_n for 1 <= n <= 10000.
-        // This gives us 0 <= q < 10.
-        G_0 += q * q * exp(-sigma * q * q);
-    }
-
-    for (int i = -P; i <= P; i++)
-    {
-        for (int j = -P; j <= P; j++)
-        {
-            float r = sqrt((float)(i * i + j * j));
-            float kern = 0.0;
-
-            for (float q = 0.0; q < 10.0; q += dq)
-            {
-                kern += q * q * exp(-sigma * q * q) * j0(r * q);
-            }
-
-            arr[i + P][j + P] = kern / G_0;
-        }
-    }
-}
-
 Ocean::Ocean(int startFrame, int verticesX, int verticesY, float width, float length, float heightScale, float dt, float alpha, float sigma, float wakePower, INode* parentNode, INode** collisionNodes, int numCollisionNodes, Grid* ambient)
     : frame_num(startFrame), vertices_x(verticesX), vertices_y(verticesY), vertices_total(verticesX * verticesY), width(width), length(length), height_scale(heightScale),
     dt(dt), alpha(alpha), gravity(9.8 * dt * dt), sigma(sigma), wake_exp(wakePower),
@@ -130,6 +74,62 @@ Ocean::~Ocean(void)
     delete [] height;
     delete [] previous_height;
     delete [] vertical_derivative;
+}
+
+void Ocean::GetGaussianKernel(float sigma, float(& arr)[5][5])
+{
+    float double_sigma_2 = 2.0 * sigma * sigma;
+    float sum = 0.0f;
+
+    for (int i = -2; i <= 2; i++)
+    {
+        int i_2 = i * i;
+        for (int j = -2; j <= 2; j++)
+        {
+            int j_2 = j * j;
+            float val = exp(-(i_2 + j_2) / double_sigma_2);
+            arr[i + 2][j + 2] = val;
+            sum += val;
+        }
+    }
+
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            arr[i][j] /= sum;
+        }
+    }
+}
+
+void Ocean::GetVerticalDerivKernel(float(& arr)[2 * P + 1][2 * P + 1])
+{
+    float dq = 0.001;
+    float sigma = 1.0;
+
+    double G_0 = 0.0; // Norm value.
+    for (float q = 0.0; q < 10.0; q += dq)
+    {
+        // From the paper, we want dq = .001 and calculate q_n for 1 <= n <= 10000.
+        // This gives us 0 <= q < 10.
+        G_0 += q * q * exp(-sigma * q * q);
+    }
+
+    for (int i = -P; i <= P; i++)
+    {
+        for (int j = -P; j <= P; j++)
+        {
+            float r = sqrt((float)(i * i + j * j));
+            float kern = 0.0;
+
+            for (float q = 0.0; q < 10.0; q += dq)
+            {
+                kern += q * q * exp(-sigma * q * q) * j0(r * q);
+            }
+
+            arr[i + P][j + P] = kern / G_0;
+        }
+    }
 }
 
 void Ocean::PropagateWaves()
