@@ -193,6 +193,7 @@ Grid* Simulator::GetSimulatedGrid(int frame)
         else
         {
             _staticGrid = new Grid(width, length, widthSegs, lengthSegs);
+            _staticGrid->Clear();
         }
 
         return _staticGrid;
