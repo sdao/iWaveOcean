@@ -134,6 +134,7 @@ bool Simulator::IsFinished()
 void Simulator::Reset()
 {
     delete _staticGrid;
+    _staticGrid = NULL;
 
     for (int i = 0; i < _cache.size(); i++)
     {

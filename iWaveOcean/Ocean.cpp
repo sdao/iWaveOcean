@@ -132,63 +132,6 @@ void Ocean::GetVerticalDerivKernel(float(& arr)[2 * P + 1][2 * P + 1])
     }
 }
 
-void Ocean::PropagateWaves()
-{
-    // Apply obstruction; prevents waves from crossing obstructions.
-    for (int i = 0; i < vertices_total; i++)
-    {
-        height[i] *= obstruction[i];
-    }
-
-    verticalDerivConvolution->Convolve(height, vertical_derivative, vertices_x, vertices_y);
-    
-    float* ambientHeights = ambient == NULL ? NULL : ambient->GetVertexHeights();
-
-    // Actually move the surface waves now!
-    float alpha_dt_1 = 2.0 - (alpha * dt);
-    float alpha_dt_2 = 1.0 / (1.0 + alpha * dt);
-    for (int i = 0; i < vertices_total; i++) {
-        float temp = height[i]; // Save previous position before modifying
-        height[i] = height[i] * alpha_dt_1 - previous_height[i] - gravity * vertical_derivative[i];
-        height[i] *= alpha_dt_2;
-        height[i] += source[i];
-        height[i] *= obstruction[i];
-
-        if (ambientHeights != NULL)
-        {
-            height[i] -= ambientHeights[i] * (1.0 - obstruction[i]);
-        }
-
-        previous_height[i] = temp;
-    }
-}
-
-Grid* Ocean::GetDisplayGrid()
-{
-    Grid* ret = new Grid(width, length, vertices_x - 1, vertices_y - 1);
-    float* vertexHeights = ret->GetVertexHeights();
-
-    float* ambientHeights = ambient == NULL ? NULL : ambient->GetVertexHeights();
-
-    int vtx = 0;
-    for (int i = 0; i < vertices_x; i++)
-    {
-        for (int j = 0; j < vertices_y; j++)
-        {
-            vertexHeights[vtx] = (height[vtx] * height_scale);
-            
-            if (ambientHeights != NULL)
-            {
-                vertexHeights[vtx] += ambientHeights[vtx];
-            }
-
-            vtx++;
-        }
-    }
-
-    return ret;
-}
-
 void Ocean::UpdateObstructions()
 {
     TimeValue t = frame_num * GetTicksPerFrame();
@@ -283,6 +226,63 @@ void Ocean::UpdateObstructions()
         // Thus, wake_exp=1.0 is the natural/minimum, wake_exp=2.0+ gives slightly exaggerated wakes.
         source[i] = 1.0 - pow(obstruction[i], wake_exp);
     }
+}
+
+void Ocean::PropagateWaves()
+{
+    // Apply obstruction; prevents waves from crossing obstructions.
+    for (int i = 0; i < vertices_total; i++)
+    {
+        height[i] *= obstruction[i];
+    }
+
+    verticalDerivConvolution->Convolve(height, vertical_derivative, vertices_x, vertices_y);
+    
+    float* ambientHeights = ambient == NULL ? NULL : ambient->GetVertexHeights();
+
+    // Actually move the surface waves now!
+    float alpha_dt_1 = 2.0 - (alpha * dt);
+    float alpha_dt_2 = 1.0 / (1.0 + alpha * dt);
+    for (int i = 0; i < vertices_total; i++) {
+        float temp = height[i]; // Save previous position before modifying
+        height[i] = height[i] * alpha_dt_1 - previous_height[i] - gravity * vertical_derivative[i];
+        height[i] *= alpha_dt_2;
+        height[i] += source[i];
+        height[i] *= obstruction[i];
+
+        if (ambientHeights != NULL)
+        {
+            height[i] -= ambientHeights[i] * (1.0 - obstruction[i]);
+        }
+
+        previous_height[i] = temp;
+    }
+}
+
+Grid* Ocean::GetDisplayGrid()
+{
+    Grid* ret = new Grid(width, length, vertices_x - 1, vertices_y - 1);
+    float* vertexHeights = ret->GetVertexHeights();
+
+    float* ambientHeights = ambient == NULL ? NULL : ambient->GetVertexHeights();
+
+    int vtx = 0;
+    for (int i = 0; i < vertices_x; i++)
+    {
+        for (int j = 0; j < vertices_y; j++)
+        {
+            vertexHeights[vtx] = (height[vtx] * height_scale);
+            
+            if (ambientHeights != NULL)
+            {
+                vertexHeights[vtx] += ambientHeights[vtx];
+            }
+
+            vtx++;
+        }
+    }
+
+    return ret;
 }
 
 Grid* Ocean::NextGrid() {
