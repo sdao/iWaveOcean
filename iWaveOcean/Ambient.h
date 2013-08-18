@@ -23,6 +23,7 @@ class Ambient : public Grid {
     float               Lx;                         /** "Real-life" length of plane along X-axis (in m). */
     float               Ly;                         /** "Real-life" length of plane along Y-axis (in m). */
     float               l;                          /** Size limit that waves must surpass to be rendered. */
+    float               A;                          /** Controls height of Phillips spectrum. */
     float               V;                          /** Wind speed (in m/s). */
     Point3              w_hat;                      /** Direction of wind. */
     float               t;                          /** Time (in s). */
@@ -53,15 +54,17 @@ public:
 
     /**
     Generates the wave surface and performs Fast Fourier Transforms (FFTs) to calculate the displacement.
+    The main height displacement is based on the Fourier series in Tessendorf's equation (19).
+    The horizontal displacement is based on the Fourier series in equation (29).
 
     \param time time (in s)
+    \param amplitude controls height of Phillips spectrum
     \param speed wind speed (in m/s)
     \param direction direction of wind
     \param scale simulated length of plane along X-axis (in m); Y-scale is automatically generated from this value
     \param waveSizeLimit size limit that waves must surpass to be rendered
-    \param desiredMaxHeight height of the tallest wave
     */
-    void                Simulate(float time, float speed, float direction, float scale, float waveSizeLimit, float desiredMaxHeight);
+    void                Simulate(float time, float amplitude, float speed, float direction, float scale, float waveSizeLimit);
 
 private:
     /**
@@ -87,19 +90,4 @@ private:
     Calculated using Tessendorf's equation (26).
     */
     complex             h_tilde(Point3 k);
-
-    /**
-    Generates the wave surface and performs Fast Fourier Transforms (FFTs) to calculate the displacement.
-    The main height displacement is based on the Fourier series in Tessendorf's equation (19).
-    The horizontal displacement is based on the Fourier series in equation (29).
-
-    \param time time (in s)
-    \param speed wind speed (in m/s)
-    \param direction direction of wind
-    \param scale simulated length of plane along X-axis (in m); Y-scale is automatically generated from this value
-    \param waveSizeLimit size limit that waves must surpass to be rendered
-    \param heights the array to which heights are written
-    \param heightScale a factor by which every height is multiplied
-    */
-    void                heights(float time, float speed, Point3 direction, float scaleX, float scaleY, float waveSizeLimit, float* heights, float heightScale);
 };

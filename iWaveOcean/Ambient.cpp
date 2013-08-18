@@ -43,7 +43,7 @@ float Ambient::P_h(Point3 k)
     float denom = pow(k_length, 4);
     float scale = exp(-pow(k_length, 2) * P_h__l_2);
 
-    return nomin / denom * pow(DotProd(k_hat, w_hat), 2) * scale; // Let A = 1.0; A is not a useful user-facing attribute.
+    return A * nomin / denom * pow(DotProd(k_hat, w_hat), 2) * scale;
 }
 
 complex Ambient::h_tilde_0(Point3 k)
@@ -67,14 +67,15 @@ complex Ambient::h_tilde(Point3 k)
     return h_tilde_0_k * c0 + h_tilde_0_k_star * c1;
 }
 
-void Ambient::heights(float time, float speed, Point3 angle, float scaleX, float scaleY, float waveSizeLimit, float* heights, float heightScale)
+void Ambient::Simulate(float time, float amplitude, float speed, float direction, float scale, float waveSizeLimit)
 {
     // Animatable parameters.
+    A = amplitude;
     V = speed;
-    w_hat = angle;
+    w_hat = Point3(cos(direction), sin(direction), 0.0f);
     t = time;
-    Lx = scaleX;
-    Ly = scaleY;
+    Lx = scale;
+    Ly = scale / (_width / _length);
     l = waveSizeLimit;
 
     // Precalculate known constants.
@@ -112,25 +113,7 @@ void Ambient::heights(float time, float speed, Point3 angle, float scaleX, float
             float m_ = m - M / 2.0f;  // m coord offsetted.
             float n_ = n - N / 2.0f;  // n coord offsetted.
 
-            heights[index] = real(h_tildes_out[index]) * sign * heightScale;
+            _vertices[index] = real(h_tildes_out[index]) * sign;
         }
     }
-}
-
-void Ambient::Simulate(float time, float speed, float direction, float scale, float waveSizeLimit, float desiredMaxHeight)
-{
-    Point3 angle(cos(direction), sin(direction), 0.0f);
-    float scaleX = scale;
-    float scaleY = scale / (_width / _length);
-
-    heights(0.0f, speed, angle, scaleX, scaleY, waveSizeLimit, _vertices, 1.0f);
-
-    int numVertices = M * N;
-    float currMaxHeight = 0.0f;
-    for (int i = 0; i < numVertices; i++)
-    {
-        currMaxHeight = max(currMaxHeight, _vertices[i]);
-    }
-
-    heights(time, speed, angle, scaleX, scaleY, waveSizeLimit, _vertices, desiredMaxHeight / currMaxHeight);
 }
