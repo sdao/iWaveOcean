@@ -4,8 +4,6 @@
 #include <iparamb2.h>
 #include "Grid.h"
 
-#define GRAVITY 9.8 // Acceleration due to gravity (m/s^2).
-
 typedef std::complex<float> complex;
 
 /**
@@ -14,6 +12,8 @@ The equations referenced by the documentation comments are those in "Simulating 
 This class assumes the 3ds Max coordinate system, i.e. X- and Y-axes are in the horizontal plane and the Z-axis goes up and down.
 */
 class Ambient : public Grid {
+    float               GRAVITY;                    /** The gravity acceleration constant for the input units, e.g. 9.8 m/s^2 in metric or 386.1 in/s^2 in US customary units. */
+
     std::tr1::mt19937 engine;
     std::tr1::normal_distribution<float> dist;
 
@@ -37,6 +37,9 @@ class Ambient : public Grid {
     complex*            h_tildes_out;
 
 public:
+    static const float  GRAVITY_METRIC;             /** The constant g in m/s^2. */
+    static const float  GRAVITY_US;                 /** The constant g in in/s^2. */
+
     /**
     Creates a new Tessendorf wave simulation at a specified time, given the specified parameters.
 
@@ -46,8 +49,9 @@ public:
     \param verticesY number of vertices along the Y-axis
     \param rngSeed seed for the pseudorandom number generator
     \param phaseDuration duration of one phase (in s)
+    \param accelerationGravity acceleration due to gravity; e.g. if using metric units, 9.8 m/s^2 and if using US customary, 386.1 in/s^2
     */
-    Ambient(float width, float length, int verticesX, int verticesY, unsigned long rngSeed, float phaseDuration);
+    Ambient(float width, float length, int verticesX, int verticesY, unsigned long rngSeed, float phaseDuration, float accelerationGravity);
 
     ~Ambient();
 
@@ -55,9 +59,9 @@ public:
     Generates the wave surface and performs Fast Fourier Transforms (FFTs) to calculate the displacement.
 
     \param time time (in s)
-    \param speed wind speed (in m/s)
+    \param speed wind speed (in distance/s)
     \param direction direction of wind
-    \param scale simulated length of plane along X-axis (in m); Y-scale is automatically generated from this value
+    \param scale simulated length of plane along X-axis; Y-scale is automatically generated from this value
     \param waveSizeLimit size limit that waves must surpass to be rendered
     \param desiredMaxHeight height of the tallest wave
     */
@@ -94,9 +98,9 @@ private:
     The horizontal displacement is based on the Fourier series in equation (29).
 
     \param time time (in s)
-    \param speed wind speed (in m/s)
+    \param speed wind speed (in distance/s)
     \param direction direction of wind
-    \param scale simulated length of plane along X-axis (in m); Y-scale is automatically generated from this value
+    \param scale simulated length of plane along X-axis; Y-scale is automatically generated from this value
     \param waveSizeLimit size limit that waves must surpass to be rendered
     \param heights the array to which heights are written
     \param heightScale a factor by which every height is multiplied

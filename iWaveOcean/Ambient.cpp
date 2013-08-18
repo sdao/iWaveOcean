@@ -3,17 +3,13 @@
 #include <fftw3.h>
 #include "Ambient.h"
 
-Ambient::Ambient(float width, float length, int verticesX, int verticesY, unsigned long rngSeed, float phaseDuration) : Grid(width, length, verticesX - 1, verticesY - 1)
+const float Ambient::GRAVITY_METRIC = 9.81;
+const float Ambient::GRAVITY_US = 386.1;
+
+Ambient::Ambient(float width, float length, int verticesX, int verticesY, unsigned long rngSeed, float phaseDuration, float accelerationGravity)
+    : Grid(width, length, verticesX - 1, verticesY - 1), M(verticesX), N(verticesY), T(phaseDuration), omega_0(2.0f * M_PI / phaseDuration),
+    GRAVITY(accelerationGravity),seed(rngSeed), engine()
 {
-    // Static parameters.
-    M = verticesX;
-    N = verticesY;
-    T = phaseDuration;
-
-    omega_0 = 2. * M_PI / T;
-    seed = rngSeed;
-    engine = std::tr1::mt19937();
-
     h_tildes_in = new complex[M * N];
     h_tildes_out = new complex[M * N];
 }
@@ -33,7 +29,7 @@ float Ambient::P_h(Point3 k)
 {
     float k_length = k.FLength();
 
-    if (k_length < DBL_EPSILON) {
+    if (k_length < FLT_EPSILON) {
         return 0.; // Avoid divison by zero error.
     }
 
@@ -126,10 +122,10 @@ void Ambient::Simulate(float time, float speed, float direction, float scale, fl
     heights(0.0f, speed, angle, scaleX, scaleY, waveSizeLimit, _vertices, 1.0f);
 
     int numVertices = M * N;
-    float currMaxHeight = 0.0f;
+    float currMaxHeight = FLT_MIN;
     for (int i = 0; i < numVertices; i++)
     {
-        currMaxHeight = max(currMaxHeight, _vertices[i]);
+        currMaxHeight = max(currMaxHeight, fabs(_vertices[i]));
     }
 
     heights(time, speed, angle, scaleX, scaleY, waveSizeLimit, _vertices, desiredMaxHeight / currMaxHeight);

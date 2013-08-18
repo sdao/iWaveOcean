@@ -57,7 +57,7 @@ void Simulator::DoWork(void* ptr)
     {
         int ambientSeed = modifier->pblock2->GetInt(pb_seed, 0);
         float ambientDuration = modifier->pblock2->GetInt(pb_duration, 0) / frameRate;
-        amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration); 
+        amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration, Ambient::GRAVITY_US); 
     }
 
     Ocean oc(simStart, widthSegs + 1, lengthSegs + 1, width, length, heightScale, 1.0 / frameRate, alpha, sigma, wakePower, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount, amb);
@@ -179,7 +179,7 @@ Grid* Simulator::GetSimulatedGrid(int frame)
             int ambientSeed = _geom->pblock2->GetInt(pb_seed, 0);
             float ambientDuration = _geom->pblock2->GetInt(pb_duration, 0) / frameRate;
 
-            Ambient* amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration);
+            Ambient* amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration, Ambient::GRAVITY_US);
             TimeValue t = frame * ticksPerFrame;
 
             amb->Simulate(frame / frameRate,
