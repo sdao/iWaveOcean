@@ -1,13 +1,23 @@
 #pragma once
 #include "IConvolution.h"
 
+/** @file */
+/** The behavior of the convolution kernel when it requires values that extend off the edges of the input. */
 enum ConvolutionEdgeBehavior
 {
+    /** Use the closest values on the input matrix's edge. */
     ExtendEdges,
+    /** Use the values on the opposite edge. */
     WrapEdges,
+    /** Reflect the index requested across the edge boundary. */
     ReflectEdges
 };
 
+/**
+Convolution of a specified kernel onto an input matrix, with customizable edge behavior.
+\tparam radius the radius of the kernel; the kernel will be of size (2P+1) by (2P+1)
+\tparam behavior a ::ConvolutionEdgeBehavior that specifies how the kernel handles boundary conditions
+*/
 template <int radius, ConvolutionEdgeBehavior behavior>
 class Convolution : public IConvolution<radius>
 {
