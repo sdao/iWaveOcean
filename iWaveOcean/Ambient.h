@@ -38,7 +38,7 @@ class Ambient : public Grid {
 
 public:
     static const float  GRAVITY_METRIC;             /** The constant g in m/s^2. */
-    static const float  GRAVITY_US;                 /** The constant g in in/s^2. */
+    static const float  GRAVITY_US;                 /** Gravity in America. (Just kidding -- it's the constant g in in/s^2.) */
 
     /**
     Creates a new Tessendorf wave simulation at a specified time, given the specified parameters.

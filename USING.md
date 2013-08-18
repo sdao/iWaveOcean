@@ -1,4 +1,4 @@
-Using the Plugin
+﻿Using the Plugin
 ================
 
 Creating a New Instance
@@ -24,29 +24,60 @@ Ambient Rollup
 If no manual simulation has been run and cached, the ambient waves will be generated live as you scrub the time slider or change the ambient wave properties.
 Most of the ambient wave properties can also be animated, in contrast to the dynamic wave properties.
 
-*Actual Scale*. The width of the plane (meters) used in the ambient wave simulation algorithms.
+*Actual Scale*. The width of the plane used in the ambient wave simulation algorithms.
 The basic effect of increasing this factor is to simulate a larger ocean in the same area, making waves appear smaller and shallower.
 In contrast, increasing this factor simulates a smaller ocean in the same area, making waves appear larger and more powerful.
 Animatable.
 
-*Amplitude*. The height (meters) of the tallest wave, as measured from the origin of the plane.
-
-*Smallest Wave*. The smallest wave size (meters) that will actually be rendered; any wave smaller than this size will be removed from the ambient simulation.
+*Amplitude*. Actually the semi-amplitude.
+The height of the tallest wave, as measured from the origin of the plane.
+(Note that you probably want to increase the amplitude in lockstep with the speed.)
 Animatable.
 
-*Speed*. The speed (meters per second) of the wind blowing on the waves.
+*Smallest Wave*. The smallest wave size that will actually be rendered; any wave smaller than this size will be removed from the ambient simulation.
+Animatable.
+
+*Speed*. The speed of the wind blowing on the waves.
+(Note that you probably want to increase the speed in lockstep with the amplitude.)
 Animatable.
 
 *Direction*. The angle (degrees) of the wind blowing on the waves.
 Animatable.
 
-*Seed*. An integer seed (unitless) used for the random number generator used to generate the ambient wave pattern.
+*Seed*. An integer seed used for the random number generator used to generate the ambient wave pattern.
 Choose a different one to create a different wave pattern.
 
 *Loop Frames*. The number of frames after which the animation will loop.
 
 Dynamics Rollup
 ---------------
+The properties specified under the "Dynamics" rollup cannot be previewed live in the viewport, nor can they be animated.
+To see their effect on the simulation, you must re-run the simulation by using the "Simulate" rollup (see below).
+
+*Sim Start*. The frame on which to start simulating.
+
+*Sim Length*. The number of frames to simulate.
+
+*Collision Objects*. The objects that interact with the waves.
+Use the Add and Remove buttons to choose geometry objects from the scene.
+
+*Damping*. A factor that controls how much the waves are damped; higher values increase damping.
+
+*Smoothing*. A factor that determines the smoothness of the hit-tested outline generated for collision objects.
+This factor is simply σ, the standard deviation for the Gaussian distribution.
+A higher value of σ gives smoother boundaries around a collision object, while a lower value of σ gives sharper boundaries.
+
+*Height Scale*. A factor by which to multiply the height of dynamically-simulated waves.
 
 Simulate Rollup
 ---------------
+*Simulate Dyanmics* button. Click this button to start simulating from the "Sim Start" frame.
+This button will bring up a dialog with the simulation progress, wherein you can cancel the simulation midway.
+
+*Clear All* button. Click this button to erase all saved simulation frames.
+
+*Start Frame*. The first frame of the saved simulation data.
+This number may not match the "Sim Start" property if you have changed the "Sim Start" without re-simulating.
+
+*Simulated*. The number of frames simulated thus far.
+This number may not match the "Sim Length" property if you have cancelled a simulation midway, or if you have changed the "Sim Length" property without re-simulating.
