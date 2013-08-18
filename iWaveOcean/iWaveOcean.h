@@ -118,7 +118,7 @@ enum {
     pb_height_scale,
     // Ambient
     pb_ambient_on,
-    pb_amplitude, 
+    pb_ambient_height, 
     pb_min_wave_size,
     pb_wind_speed,
     pb_wind_direction,

@@ -29,8 +29,7 @@ The basic effect of increasing this factor is to simulate a larger ocean in the 
 In contrast, increasing this factor simulates a smaller ocean in the same area, making waves appear larger and more powerful.
 Animatable.
 
-*Amplitude*. A factor (unitless) that influences the heights of the waves. The factor is proportional to the wave height.
-Animatable.
+*Amplitude*. The height (meters) of the tallest wave, as measured from the origin of the plane.
 
 *Smallest Wave*. The smallest wave size (meters) that will actually be rendered; any wave smaller than this size will be removed from the ambient simulation.
 Animatable.

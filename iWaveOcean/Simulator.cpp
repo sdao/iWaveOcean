@@ -74,11 +74,11 @@ void Simulator::DoWork(void* ptr)
             TimeValue t = simCounter * ticksPerFrame;
 
             amb->Simulate(simCounter / frameRate,
-                modifier->pblock2->GetFloat(pb_amplitude, t),
                 modifier->pblock2->GetFloat(pb_wind_speed, t),
                 modifier->pblock2->GetFloat(pb_wind_direction, t),
                 modifier->pblock2->GetFloat(pb_ambient_scale, t),
-                modifier->pblock2->GetFloat(pb_min_wave_size, t));
+                modifier->pblock2->GetFloat(pb_min_wave_size, t),
+                modifier->pblock2->GetFloat(pb_ambient_height, t));
         }
 
         Grid *data = oc.NextGrid();
@@ -183,11 +183,11 @@ Grid* Simulator::GetSimulatedGrid(int frame)
             TimeValue t = frame * ticksPerFrame;
 
             amb->Simulate(frame / frameRate,
-                _geom->pblock2->GetFloat(pb_amplitude, t),
                 _geom->pblock2->GetFloat(pb_wind_speed, t),
                 _geom->pblock2->GetFloat(pb_wind_direction, t),
                 _geom->pblock2->GetFloat(pb_ambient_scale, t),
-                _geom->pblock2->GetFloat(pb_min_wave_size, t));
+                _geom->pblock2->GetFloat(pb_min_wave_size, t),
+                _geom->pblock2->GetFloat(pb_ambient_height, t));
 
             _staticGrid = amb;
         }
