@@ -105,9 +105,6 @@ void Ambient::heights(float time, float speed, Point3 angle, float scaleX, float
             int index = m * N + n;
             int sign = signs[(m + n) & 1]; // Sign-flip all of the odd coefficients.
 
-            float m_ = m - M / 2.0f;  // m coord offsetted.
-            float n_ = n - N / 2.0f;  // n coord offsetted.
-
             heights[index] = real(h_tildes_out[index]) * sign * heightScale;
         }
     }
