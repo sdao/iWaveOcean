@@ -11,6 +11,7 @@ var searchData=
   ['getwidth',['GetWidth',['../class_grid.html#a8d287eb14c30b9918c34f1f4753f71d5',1,'Grid']]],
   ['getwidthsegs',['GetWidthSegs',['../class_grid.html#a050c80262bc669982ff4248c79e1ff01',1,'Grid']]],
   ['getwidthvertices',['GetWidthVertices',['../class_grid.html#a63ff27c1c634c52cf3788c7e03c9142e',1,'Grid']]],
+  ['gravity_5fmetric',['GRAVITY_METRIC',['../class_ambient.html#ad244f6eb10078b76ff6ad532279d0ae6',1,'Ambient']]],
   ['gravity_5fus',['GRAVITY_US',['../class_ambient.html#ab567edec06ed2f3bfcbcf25ae74c6133',1,'Ambient']]],
   ['grid',['Grid',['../class_grid.html',1,'Grid'],['../class_grid.html#a9b8ce8fac68bc5ed68dff8546dd5d22f',1,'Grid::Grid(float width, float length, int widthSegs, int lengthSegs)'],['../class_grid.html#ae4cefe1ee149cf2ddde95eefd180b42f',1,'Grid::Grid(float width, float length, int widthSegs, int lengthSegs, float *vertexHeights)']]]
 ];

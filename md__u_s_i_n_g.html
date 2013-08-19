@@ -158,14 +158,14 @@ $(document).ready(function(){initNavTree('md__u_s_i_n_g.html','');});
 </table>
 <p><em>Direction</em>. The angle (degrees) of the wind blowing on the waves. Animatable.</p>
 <p><em>Seed</em>. An integer seed used for the random number generator used to generate the ambient wave pattern. Choose a different one to create a different wave pattern.</p>
-<p><em>Loop Frames</em>. The number of frames after which the animation will loop.</p>
+<p><em>Loop Length</em>. The amount of time after which the animation will loop. By default, this is specified in frames unless you have changed your 3ds Max Time Configuration.</p>
 <h2>Dynamics Rollup </h2>
 <div class="image">
 <img src="dynamics.png"  alt="Dynamics rollup controls"/>
 </div>
 <p>The properties specified under the "Dynamics" rollup cannot be previewed live in the viewport, nor can they be animated. To see their effect on the simulation, you must re-run the simulation by using the "Simulate" rollup (see below).</p>
-<p><em>Sim Start</em>. The frame on which to start simulating.</p>
-<p><em>Sim Length</em>. The number of frames to simulate.</p>
+<p><em>Sim Start</em>. The time on which to start simulating. By default, this is specified in frames unless you have changed your 3ds Max Time Configuration.</p>
+<p><em>Sim Length</em>. The amount of time for which to simulate. By default, this is specified in frames unless you have changed your 3ds Max Time Configuration.</p>
 <p><em>Collision Objects</em>. The objects that interact with the waves. Use the Add and Remove buttons to choose geometry objects from the scene.</p>
 <p><em>Damping</em>. A factor that controls how much the waves are damped; higher values increase damping.</p>
 <p><em>Smoothing</em>. A factor that determines the smoothness of the hit-tested outline generated for collision objects. This factor is simply σ, the standard deviation for the Gaussian distribution. A higher value of σ gives smoother boundaries around a collision object, while a lower value of σ gives sharper boundaries.</p>
@@ -176,14 +176,14 @@ $(document).ready(function(){initNavTree('md__u_s_i_n_g.html','');});
 </div>
 <p><em>Simulate Dyanmics</em> button. Click this button to start simulating from the "Sim Start" frame. This button will bring up a dialog with the simulation progress, wherein you can cancel the simulation midway.</p>
 <p><em>Clear All</em> button. Click this button to erase all saved simulation frames.</p>
-<p><em>Start Frame</em>. The first frame of the saved simulation data. This number may not match the "Sim Start" property if you have changed the "Sim Start" without re-simulating.</p>
-<p><em>Simulated</em>. The number of frames simulated thus far. This number may not match the "Sim Length" property if you have cancelled a simulation midway, or if you have changed the "Sim Length" property without re-simulating. </p>
+<p><em>Start Frame</em>. The first frame of the saved simulation data. This value is specified in frames regardless of the current Time Configuration. This number may not match the "Sim Start" property if you have changed the "Sim Start" without re-simulating.</p>
+<p><em>Simulated</em>. The number of frames simulated thus far. This value is specified in frames regardless of the current Time Configuration. This number may not match the "Sim Length" property if you have cancelled a simulation midway, or if you have changed the "Sim Length" property without re-simulating. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Mon Aug 19 2013 00:34:05 for iWaveOcean by
+    <li class="footer">Generated on Mon Aug 19 2013 01:36:50 for iWaveOcean by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.4 </li>
   </ul>
