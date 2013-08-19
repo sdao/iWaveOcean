@@ -80,12 +80,12 @@ static ParamBlockDesc2 iwaveocean_param_blk ( iwaveocean_params, _T("params"),  
     pb_sim_start,       _T("sim_start"),        TYPE_INT,       0,                  IDS_START_FRAME,
         p_default,      SecToTicks(0),
         p_range,        SecToTicks(0), INT_MAX,
-        p_ui,           pb_map_dynamics,        TYPE_SPINNER,   EDITTYPE_TIME,      IDC_START_EDIT,         IDC_START_SPIN,         0.05f,
+        p_ui,           pb_map_dynamics,        TYPE_SPINNER,   EDITTYPE_TIME,      IDC_START_EDIT,         IDC_START_SPIN,         (float)GetTicksPerFrame(),
         p_end,
     pb_sim_length,      _T("sim_length"),       TYPE_INT,       0,                  IDS_FRAME_COUNT,
         p_default,      SecToTicks(5),
         p_range,        SecToTicks(1), INT_MAX,
-        p_ui,           pb_map_dynamics,        TYPE_SPINNER,   EDITTYPE_TIME,      IDC_FRAMES_EDIT,        IDC_FRAMES_SPIN,        0.05f,
+        p_ui,           pb_map_dynamics,        TYPE_SPINNER,   EDITTYPE_TIME,      IDC_FRAMES_EDIT,        IDC_FRAMES_SPIN,        (float)GetTicksPerFrame(),
         p_end,
     pb_collision_objs,  _T("sim_collision"),    TYPE_INODE_TAB, 0,  0,              IDS_COLLISION_OBJS,
         p_ui,           pb_map_dynamics,        TYPE_NODELISTBOX,IDC_COLLISION_LIST,IDC_COLLISION_PICK_BUTTON,0,IDC_COLLISION_DELETE_BUTTON,
@@ -149,7 +149,7 @@ static ParamBlockDesc2 iwaveocean_param_blk ( iwaveocean_params, _T("params"),  
     pb_duration,		_T("duration"),	        TYPE_INT,        0,          		IDS_DURATION,
         p_default,		SecToTicks(600), // 10 min
         p_range,		SecToTicks(1),SecToTicks(60000), // 1000 min
-        p_ui,			pb_map_ambient,         TYPE_SPINNER,	EDITTYPE_TIME,	    IDC_DURATION_EDIT,      IDC_DURATION_SPIN,  	0.05f,
+        p_ui,			pb_map_ambient,         TYPE_SPINNER,	EDITTYPE_TIME,	    IDC_DURATION_EDIT,      IDC_DURATION_SPIN,  	(float)GetTicksPerFrame(),
         p_end,
 
 

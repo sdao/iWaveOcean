@@ -87,6 +87,7 @@ void Simulator::DoWork(void* ptr)
 
     delete [] collisionNodes;
     delete amb;
+    instance->_cacheStartFrame = simStart;
     instance->_finished = true;
 }
 
