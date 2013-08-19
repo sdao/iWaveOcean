@@ -116,10 +116,10 @@ $(document).ready(function(){initNavTree('md__u_s_i_n_g.html','');});
 <img src="ambient.png"  alt="Ambient rollup controls"/>
 </div>
 <p><em>Make <a class="el" href="class_ambient.html">Ambient</a> Waves</em>. Check this box if you would like ambient waves, such as those in an ocean or a lake, to be generated. If no manual simulation has been run and cached, the ambient waves will be generated live as you scrub the time slider or change the ambient wave properties. Most of the ambient wave properties can also be animated, in contrast to the dynamic wave properties.</p>
-<p><em>Actual Scale</em>. The width of the plane used in the ambient wave simulation algorithms. The basic effect of increasing this factor is to simulate a larger ocean in the same area, making waves appear smaller and shallower. In contrast, increasing this factor simulates a smaller ocean in the same area, making waves appear larger and more powerful. Animatable.</p>
+<p><em>Sim Width</em>. The width of the plane as used in the ambient wave simulation algorithms. The length used in simulation will automatically be calculated using the simulation width and the proportions of the geometry. The basic effect of increasing this factor is to simulate a larger ocean in the same area, making waves appear bunched closer together (denser). In contrast, decreasing this factor simulates a smaller ocean in the same area, making waves appear spread farther apart (sparser). Animatable.</p>
 <table class="doxtable">
 <tr>
-<th>Actual Scale = 1000.0 in </th><th>Actual Scale = 3000.0 in  </th></tr>
+<th>Sim Width = 1000.0 in </th><th>Sim Width = 3000.0 in  </th></tr>
 <tr>
 <td><div class="image">
 <img src="compare_scale_a.png"  alt="Rendered waves with actual scale = 1000.0 in"/>
@@ -183,7 +183,7 @@ $(document).ready(function(){initNavTree('md__u_s_i_n_g.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Mon Aug 19 2013 01:36:50 for iWaveOcean by
+    <li class="footer">Generated on Mon Aug 19 2013 17:03:51 for iWaveOcean by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.4 </li>
   </ul>
