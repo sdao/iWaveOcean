@@ -21,6 +21,7 @@
   $(document).ready(function() { searchBox.OnSelectItem(0); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="extra.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -116,9 +117,45 @@ $(document).ready(function(){initNavTree('md__u_s_i_n_g.html','');});
 </div>
 <p><em>Make <a class="el" href="class_ambient.html">Ambient</a> Waves</em>. Check this box if you would like ambient waves, such as those in an ocean or a lake, to be generated. If no manual simulation has been run and cached, the ambient waves will be generated live as you scrub the time slider or change the ambient wave properties. Most of the ambient wave properties can also be animated, in contrast to the dynamic wave properties.</p>
 <p><em>Actual Scale</em>. The width of the plane used in the ambient wave simulation algorithms. The basic effect of increasing this factor is to simulate a larger ocean in the same area, making waves appear smaller and shallower. In contrast, increasing this factor simulates a smaller ocean in the same area, making waves appear larger and more powerful. Animatable.</p>
+<table class="doxtable">
+<tr>
+<th>Actual Scale = 1000.0 in </th><th>Actual Scale = 3000.0 in  </th></tr>
+<tr>
+<td><div class="image">
+<img src="compare_scale_a.png"  alt="Rendered waves with actual scale = 1000.0 in"/>
+</div>
+ </td><td><div class="image">
+<img src="compare_scale_b.png"  alt="Rendered waves with actual scale = 3000.0 in"/>
+</div>
+ </td></tr>
+</table>
 <p><em>Amplitude</em>. Actually the semi-amplitude. The height of the tallest wave, as measured from the origin of the plane. (Note that you probably want to increase the amplitude in lockstep with the speed.) Animatable.</p>
+<table class="doxtable">
+<tr>
+<th>Amplitude = 1.0 </th><th>Amplitude = 4.0  </th></tr>
+<tr>
+<td><div class="image">
+<img src="compare_amplitude_a.png"  alt="Rendered waves with amplitude = 1.0"/>
+</div>
+ </td><td><div class="image">
+<img src="compare_amplitude_b.png"  alt="Rendered waves with amplitude = 4.0"/>
+</div>
+ </td></tr>
+</table>
 <p><em>Smallest Wave</em>. The smallest wave size that will actually be rendered; any wave smaller than this size will be removed from the ambient simulation. Animatable.</p>
-<p><em>Speed</em>. The speed of the wind blowing on the waves. (Note that you probably want to increase the speed in lockstep with the amplitude.) Animatable.</p>
+<p><em>Speed</em>. The speed of the wind blowing on the waves. Faster speed will give larger waves at higher frequencies. (Note that you probably want to increase the speed in lockstep with the amplitude.) Animatable.</p>
+<table class="doxtable">
+<tr>
+<th>Speed = 200.0 in/second </th><th>Speed = 400.0 in/second  </th></tr>
+<tr>
+<td><div class="image">
+<img src="compare_speed_a.png"  alt="Rendered waves with speed = 200.0 in/s"/>
+</div>
+ </td><td><div class="image">
+<img src="compare_speed_b.png"  alt="Rendered waves with speed = 400.0 in/s"/>
+</div>
+ </td></tr>
+</table>
 <p><em>Direction</em>. The angle (degrees) of the wind blowing on the waves. Animatable.</p>
 <p><em>Seed</em>. An integer seed used for the random number generator used to generate the ambient wave pattern. Choose a different one to create a different wave pattern.</p>
 <p><em>Loop Frames</em>. The number of frames after which the animation will loop.</p>
@@ -146,7 +183,7 @@ $(document).ready(function(){initNavTree('md__u_s_i_n_g.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sun Aug 18 2013 23:36:23 for iWaveOcean by
+    <li class="footer">Generated on Mon Aug 19 2013 00:34:05 for iWaveOcean by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.4 </li>
   </ul>
