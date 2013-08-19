@@ -33,8 +33,8 @@ void Simulator::DoWork(void* ptr)
     float frameRate = GetFrameRate();
     float ticksPerFrame = GetTicksPerFrame();
 
-    simStart = modifier->pblock2->GetInt(pb_sim_start, 0);
-    simLength = modifier->pblock2->GetInt(pb_sim_length, 0);
+    simStart = modifier->pblock2->GetInt(pb_sim_start, 0) / GetTicksPerFrame();
+    simLength = modifier->pblock2->GetInt(pb_sim_length, 0) / GetTicksPerFrame();
     int widthSegs = modifier->pblock2->GetInt(pb_width_segs, 0);
     int lengthSegs = modifier->pblock2->GetInt(pb_length_segs, 0);
     float alpha = modifier->pblock2->GetFloat(pb_wave_damping, 0);
@@ -56,7 +56,7 @@ void Simulator::DoWork(void* ptr)
     if (modifier->pblock2->GetInt(pb_ambient_on, 0))
     {
         int ambientSeed = modifier->pblock2->GetInt(pb_seed, 0);
-        float ambientDuration = modifier->pblock2->GetInt(pb_duration, 0) / frameRate;
+        float ambientDuration = TicksToSec(modifier->pblock2->GetInt(pb_duration, 0));
         amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration, Ambient::GRAVITY_US); 
     }
 
@@ -177,7 +177,7 @@ Grid* Simulator::GetSimulatedGrid(int frame)
             float frameRate = GetFrameRate();
             float ticksPerFrame = GetTicksPerFrame();
             int ambientSeed = _geom->pblock2->GetInt(pb_seed, 0);
-            float ambientDuration = _geom->pblock2->GetInt(pb_duration, 0) / frameRate;
+            float ambientDuration = TicksToSec(_geom->pblock2->GetInt(pb_duration, 0));
 
             Ambient* amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration, Ambient::GRAVITY_US);
             TimeValue t = frame * ticksPerFrame;

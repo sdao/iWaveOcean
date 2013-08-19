@@ -64,7 +64,8 @@ Animatable.
 *Seed*. An integer seed used for the random number generator used to generate the ambient wave pattern.
 Choose a different one to create a different wave pattern.
 
-*Loop Frames*. The number of frames after which the animation will loop.
+*Loop Length*. The amount of time after which the animation will loop.
+By default, this is specified in frames unless you have changed your 3ds Max Time Configuration.
 
 Dynamics Rollup
 ---------------
@@ -73,9 +74,11 @@ Dynamics Rollup
 The properties specified under the "Dynamics" rollup cannot be previewed live in the viewport, nor can they be animated.
 To see their effect on the simulation, you must re-run the simulation by using the "Simulate" rollup (see below).
 
-*Sim Start*. The frame on which to start simulating.
+*Sim Start*. The time on which to start simulating.
+By default, this is specified in frames unless you have changed your 3ds Max Time Configuration.
 
-*Sim Length*. The number of frames to simulate.
+*Sim Length*. The amount of time for which to simulate.
+By default, this is specified in frames unless you have changed your 3ds Max Time Configuration.
 
 *Collision Objects*. The objects that interact with the waves.
 Use the Add and Remove buttons to choose geometry objects from the scene.
@@ -98,7 +101,9 @@ This button will bring up a dialog with the simulation progress, wherein you can
 *Clear All* button. Click this button to erase all saved simulation frames.
 
 *Start Frame*. The first frame of the saved simulation data.
+This value is specified in frames regardless of the current Time Configuration.
 This number may not match the "Sim Start" property if you have changed the "Sim Start" without re-simulating.
 
 *Simulated*. The number of frames simulated thus far.
+This value is specified in frames regardless of the current Time Configuration.
 This number may not match the "Sim Length" property if you have cancelled a simulation midway, or if you have changed the "Sim Length" property without re-simulating.
