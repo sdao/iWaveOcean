@@ -18,3 +18,10 @@ However, you can still use later versions of Visual Studio, such as VS 2012, to 
 Note that, in most cases, you cannot debug the plugin from VS using the "Debug" configuration, since you probably don't have the debug symbols for `3dsmax.exe`.
 You will have to use the Hybrid configuration to load the debugger only for the plugin's code and not for Max.
 
+Credits
+-------
+The iWave plugin uses [FFTW](http://fftw.org) in order to simulate ambient waves using Tessendorf's FFT-based method.
+The FFTW binary DLLs are included in the `src/fftw-3.3.3-dll64` folder.
+
+The plugin uses algorithms published by Jerry Tessendorf, chief amongst which are the FFT method for simulating ambient waves and the iWave method for dynamical waves.
+The papers and course notes explaining these algorithms are available in the `notes` folder, or you can visit [Tessendorf's website](http://jerrytessendorf.blogspot.com).
