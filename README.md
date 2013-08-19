@@ -8,7 +8,7 @@ The plugin will appear in the Command Panel > Simulations category > iWaveOcean.
 License
 -------
 This software is licensed under the GNU General Public License, version 3.
-For more information, please see the `LICENSE` file.
+For more information, please see the LICENSE file included with the source code.
 
 Compiling
 ---------

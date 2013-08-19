@@ -10,6 +10,8 @@ Thus, you will be able to clone the object as a copy, but not as an instance or 
 
 Size Rollup
 -----------
+![Size rollup controls](size.png)
+
 *Width*. The width of the simulation plane.
 
 *Length*. The length of the simulation plane.
@@ -20,6 +22,8 @@ Size Rollup
 
 Ambient Rollup
 --------------
+![Ambient rollup controls](ambient.png)
+
 *Make Ambient Waves*. Check this box if you would like ambient waves, such as those in an ocean or a lake, to be generated.
 If no manual simulation has been run and cached, the ambient waves will be generated live as you scrub the time slider or change the ambient wave properties.
 Most of the ambient wave properties can also be animated, in contrast to the dynamic wave properties.
@@ -51,6 +55,8 @@ Choose a different one to create a different wave pattern.
 
 Dynamics Rollup
 ---------------
+![Dynamics rollup controls](dynamics.png)
+
 The properties specified under the "Dynamics" rollup cannot be previewed live in the viewport, nor can they be animated.
 To see their effect on the simulation, you must re-run the simulation by using the "Simulate" rollup (see below).
 
@@ -71,6 +77,8 @@ A higher value of σ gives smoother boundaries around a collision object, while 
 
 Simulate Rollup
 ---------------
+![Simulate rollup controls](simulate.png)
+
 *Simulate Dyanmics* button. Click this button to start simulating from the "Sim Start" frame.
 This button will bring up a dialog with the simulation progress, wherein you can cancel the simulation midway.
 
