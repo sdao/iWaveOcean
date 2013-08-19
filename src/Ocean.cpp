@@ -1,7 +1,7 @@
 #define _USE_MATH_DEFINES 
 
 #include "Ocean.h"
-#include <math.h>
+#include <cmath>
 #include <triobj.h>
 #include <units.h>
 #include "Convolution.h"

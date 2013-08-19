@@ -28,12 +28,13 @@ Ambient Rollup
 If no manual simulation has been run and cached, the ambient waves will be generated live as you scrub the time slider or change the ambient wave properties.
 Most of the ambient wave properties can also be animated, in contrast to the dynamic wave properties.
 
-*Actual Scale*. The width of the plane used in the ambient wave simulation algorithms.
-The basic effect of increasing this factor is to simulate a larger ocean in the same area, making waves appear smaller and shallower.
-In contrast, increasing this factor simulates a smaller ocean in the same area, making waves appear larger and more powerful.
+*Sim Width*. The width of the plane as used in the ambient wave simulation algorithms.
+The length used in simulation will automatically be calculated using the simulation width and the proportions of the geometry.
+The basic effect of increasing this factor is to simulate a larger ocean in the same area, making waves appear bunched closer together (denser).
+In contrast, decreasing this factor simulates a smaller ocean in the same area, making waves appear spread farther apart (sparser).
 Animatable.
 
-Actual Scale = 1000.0 in                                             | Actual Scale = 3000.0 in
+Sim Width = 1000.0 in                                                | Sim Width = 3000.0 in
 -------------------------------------------------------------------- | --------------------------------------------------------------------
 ![Rendered waves with actual scale = 1000.0 in](compare_scale_a.png) | ![Rendered waves with actual scale = 3000.0 in](compare_scale_b.png)
 

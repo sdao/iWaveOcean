@@ -27,14 +27,12 @@ void Simulator::DoWork(void* ptr)
 {
     Simulator* instance = (Simulator*)ptr;
     iWaveOcean* modifier = instance->_geom;
+    TimeValue ticksPerFrame = GetTicksPerFrame();
 
     instance->Reset();
 
-    float frameRate = GetFrameRate();
-    float ticksPerFrame = GetTicksPerFrame();
-
-    simStart = modifier->pblock2->GetInt(pb_sim_start, 0) / GetTicksPerFrame();
-    simLength = modifier->pblock2->GetInt(pb_sim_length, 0) / GetTicksPerFrame();
+    simStart = (int)((float)modifier->pblock2->GetInt(pb_sim_start, 0) / (float)ticksPerFrame);     // Round to nearest frame.
+    simLength = (int)((float)modifier->pblock2->GetInt(pb_sim_length, 0) / (float)ticksPerFrame);   // Round to nearest # of frames.
     int widthSegs = modifier->pblock2->GetInt(pb_width_segs, 0);
     int lengthSegs = modifier->pblock2->GetInt(pb_length_segs, 0);
     float alpha = modifier->pblock2->GetFloat(pb_wave_damping, 0);
@@ -60,7 +58,7 @@ void Simulator::DoWork(void* ptr)
         amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration, Ambient::GRAVITY_US); 
     }
 
-    Ocean oc(simStart, widthSegs + 1, lengthSegs + 1, width, length, heightScale, 1.0 / frameRate, alpha, sigma, wakePower, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount, amb);
+    Ocean oc(simStart, widthSegs + 1, lengthSegs + 1, width, length, heightScale, TicksToSec(ticksPerFrame), alpha, sigma, wakePower, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount, amb);
 
     for (simCounter = simStart; simCounter < simStart + simLength; simCounter++)
     {
@@ -72,8 +70,7 @@ void Simulator::DoWork(void* ptr)
         if (amb)
         {
             TimeValue t = simCounter * ticksPerFrame;
-
-            amb->Simulate(simCounter / frameRate,
+            amb->Simulate(TicksToSec(t),
                 modifier->pblock2->GetFloat(pb_wind_speed, t),
                 modifier->pblock2->GetFloat(pb_wind_direction, t),
                 modifier->pblock2->GetFloat(pb_ambient_scale, t),
@@ -152,17 +149,17 @@ int Simulator::GetSimulatedStartFrame()
 
 int Simulator::GetSimulatedFrameCount()
 {
-    return _cache.size();
+    return (int)_cache.size();
 }
 
 Grid* Simulator::GetSimulatedGrid(int frame)
 {
     if (!_cache.empty())
     {
-        frame = max(frame, _cacheStartFrame);
-        frame = min(frame, _cacheStartFrame + _cache.size() - 1);
+        frame = max(frame, GetSimulatedStartFrame());
+        frame = min(frame, GetSimulatedStartFrame() + GetSimulatedFrameCount() - 1);
 
-        return _cache[frame - _cacheStartFrame];
+        return _cache[frame - GetSimulatedStartFrame()];
     }
     else
     {
@@ -175,15 +172,13 @@ Grid* Simulator::GetSimulatedGrid(int frame)
 
         if (_geom->pblock2->GetInt(pb_ambient_on, 0))
         {
-            float frameRate = GetFrameRate();
-            float ticksPerFrame = GetTicksPerFrame();
+            TimeValue ticksPerFrame = GetTicksPerFrame();
             int ambientSeed = _geom->pblock2->GetInt(pb_seed, 0);
             float ambientDuration = TicksToSec(_geom->pblock2->GetInt(pb_duration, 0));
 
             Ambient* amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration, Ambient::GRAVITY_US);
             TimeValue t = frame * ticksPerFrame;
-
-            amb->Simulate(frame / frameRate,
+            amb->Simulate(TicksToSec(t),
                 _geom->pblock2->GetFloat(pb_wind_speed, t),
                 _geom->pblock2->GetFloat(pb_wind_direction, t),
                 _geom->pblock2->GetFloat(pb_ambient_scale, t),
@@ -202,7 +197,7 @@ Grid* Simulator::GetSimulatedGrid(int frame)
     }
 }
 
-HRESULT CALLBACK Simulator::SimulateTaskDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, LONG_PTR dwRefData)
+HRESULT CALLBACK Simulator::SimulateTaskDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM /*lParam*/, LONG_PTR dwRefData)
 {
     WStr str;
     Simulator* instance = (Simulator*)dwRefData;
@@ -290,7 +285,7 @@ IOResult Simulator::Save(ISave* isave)
     res = isave->Write(&_cacheStartFrame, sizeof(int), &nb);
     CheckResult(res);
 
-    int size = _cache.size();
+    int size = (int)_cache.size();
     res = isave->Write(&size, sizeof(int), &nb);
     CheckResult(res);
 
