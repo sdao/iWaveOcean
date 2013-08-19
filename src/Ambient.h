@@ -12,33 +12,33 @@ The equations referenced by the documentation comments are those in "Simulating 
 This class assumes the 3ds Max coordinate system, i.e. X- and Y-axes are in the horizontal plane and the Z-axis goes up and down.
 */
 class Ambient : public Grid {
-    float               GRAVITY;                    /** The gravity acceleration constant for the input units, e.g. 9.8 m/s^2 in metric or 386.1 in/s^2 in US customary units. */
+    float               GRAVITY;                    /**< The gravity acceleration constant for the input units, e.g. 9.8 m/s^2 in metric or 386.1 in/s^2 in US customary units. */
 
     std::tr1::mt19937 engine;
     std::tr1::normal_distribution<float> dist;
 
-    float               omega_0;                    /** Dispersion-sub-naught; calculated using Tessendorf's equation (17). */
-    int                 M;                          /** Resolution of grid vertices along X-axis (16 <= M <= 2048; where M = 2^x for integer x). */
-    int                 N;                          /** Resolution of grid vertices Y-axis (16 <= N <= 2048; where N = 2^y for integer y). */
-    float               Lx;                         /** "Real-life" length of plane along X-axis (in m). */
-    float               Ly;                         /** "Real-life" length of plane along Y-axis (in m). */
-    float               l;                          /** Size limit that waves must surpass to be rendered. */
-    float               V;                          /** Wind speed (in m/s). */
-    Point3              w_hat;                      /** Direction of wind. */
-    float               t;                          /** Time (in s). */
-    float               T;                          /** Time of one phase of simulation. */
-    unsigned long       seed;                       /** Seed for the pseudorandom number generator. */
+    float               omega_0;                    /**< Dispersion-sub-naught; calculated using Tessendorf's equation (17). */
+    int                 M;                          /**< Resolution of grid vertices along X-axis (16 <= M <= 2048; where M = 2^x for integer x). */
+    int                 N;                          /**< Resolution of grid vertices Y-axis (16 <= N <= 2048; where N = 2^y for integer y). */
+    float               Lx;                         /**< "Real-life" length of plane along X-axis (in m). */
+    float               Ly;                         /**< "Real-life" length of plane along Y-axis (in m). */
+    float               l;                          /**< Size limit that waves must surpass to be rendered. */
+    float               V;                          /**< Wind speed (in m/s). */
+    Point3              w_hat;                      /**< Direction of wind. */
+    float               t;                          /**< Time (in s). */
+    float               T;                          /**< Time of one phase of simulation. */
+    unsigned long       seed;                       /**< Seed for the pseudorandom number generator. */
 
     // Values precached on initialization.
-    float               P_h__L;                     /** Precached for tessendorf::P_h. Largest possible waves arising from a continuous wind of speed V. */
-    float               P_h__l_2;                   /** Precached for tessendorf::P_h. Square of l (l being the wave size limit). */
+    float               P_h__L;                     /**< Precached for tessendorf::P_h. Largest possible waves arising from a continuous wind of speed V. */
+    float               P_h__l_2;                   /**< Precached for tessendorf::P_h. Square of l (l being the wave size limit). */
 
     complex*            h_tildes_in;
     complex*            h_tildes_out;
 
 public:
-    static const float  GRAVITY_METRIC;             /** The constant g in m/s^2. */
-    static const float  GRAVITY_US;                 /** Gravity in America. (Just kidding -- it's the constant g in in/s^2.) */
+    static const float  GRAVITY_METRIC;             /**< The constant g in m/s^2. */
+    static const float  GRAVITY_US;                 /**< Gravity in America. (Just kidding -- it's the constant g in in/s^2.) */
 
     /**
     Creates a new Tessendorf wave simulation at a specified time, given the specified parameters.
