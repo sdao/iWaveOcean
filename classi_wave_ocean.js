@@ -1,0 +1,28 @@
+var classi_wave_ocean =
+[
+    [ "iWaveOcean", "classi_wave_ocean.html#a059cedef6f5c2439ae4487ed08eb885f", null ],
+    [ "~iWaveOcean", "classi_wave_ocean.html#a964467aa817a418d43876a0c7f2bfa14", null ],
+    [ "BeginEditParams", "classi_wave_ocean.html#a0bfc3b84350a2d1093d24143d2e94a1f", null ],
+    [ "BuildMesh", "classi_wave_ocean.html#a7e05b168695bab6aeb211b282c739454", null ],
+    [ "CanConvertToType", "classi_wave_ocean.html#a93699ede0c344f1b0e217304c0271a0b", null ],
+    [ "ClassID", "classi_wave_ocean.html#a3da8328fcf8c5509d3682c4f9a65e8e8", null ],
+    [ "Clone", "classi_wave_ocean.html#ac0060a987d33f8ebe407c167d6e7b53c", null ],
+    [ "ConvertToType", "classi_wave_ocean.html#a7fb86a4e124ded9487f66040475646e9", null ],
+    [ "DeleteThis", "classi_wave_ocean.html#a0cbf59dcbc54544b1e55c06ae6c59b11", null ],
+    [ "EndEditParams", "classi_wave_ocean.html#a3bb7e9ad044fa69dad52d0abfe6b72c1", null ],
+    [ "GetClassName", "classi_wave_ocean.html#a420d3b70923a7f96c973bea3a0f73197", null ],
+    [ "GetCollapseTypes", "classi_wave_ocean.html#adef646b5e2152ed1cccc0928cfed0d93", null ],
+    [ "GetCreateMouseCallBack", "classi_wave_ocean.html#aa041eac49067c28970f103697ab54e94", null ],
+    [ "GetObjectName", "classi_wave_ocean.html#a7d8f071859539300a766d863dd1a489f", null ],
+    [ "GetParamBlock", "classi_wave_ocean.html#a0d19ef55d0677630ff9880647fb88710", null ],
+    [ "GetParamBlockByID", "classi_wave_ocean.html#a3080e20fcd6630e0f3731d6bbfdf84fa", null ],
+    [ "HasUVW", "classi_wave_ocean.html#a9eee43287fa5f683eb00b8f0ae31b1ab", null ],
+    [ "IntersectRay", "classi_wave_ocean.html#a3ac43bf83aa1024d21942a624118a273", null ],
+    [ "InvalidateUI", "classi_wave_ocean.html#a32fdb212190a595c01bc6f04c2b591c9", null ],
+    [ "IsWorldSpaceObject", "classi_wave_ocean.html#aba0420e95dafd6d27c255c91a0214335", null ],
+    [ "Load", "classi_wave_ocean.html#ae3cfd309ccde9ca6fc6b3f982c160652", null ],
+    [ "NumParamBlocks", "classi_wave_ocean.html#a0e2162a2df7623b52b71bcda42e1a46b", null ],
+    [ "Save", "classi_wave_ocean.html#a967866f87876b6ef544121bcde0f1c01", null ],
+    [ "SetGenUVW", "classi_wave_ocean.html#a6558aff1fa19c1dcbf78e73df821bc5c", null ],
+    [ "SuperClassID", "classi_wave_ocean.html#a1121f534ad86d013c35da22dd5b9d3d5", null ]
+];
