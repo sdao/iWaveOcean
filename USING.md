@@ -33,17 +33,30 @@ The basic effect of increasing this factor is to simulate a larger ocean in the 
 In contrast, increasing this factor simulates a smaller ocean in the same area, making waves appear larger and more powerful.
 Animatable.
 
+Actual Scale = 1000.0 in                                             | Actual Scale = 3000.0 in
+-------------------------------------------------------------------- | --------------------------------------------------------------------
+![Rendered waves with actual scale = 1000.0 in](compare_scale_a.png) | ![Rendered waves with actual scale = 3000.0 in](compare_scale_b.png)
+
 *Amplitude*. Actually the semi-amplitude.
 The height of the tallest wave, as measured from the origin of the plane.
 (Note that you probably want to increase the amplitude in lockstep with the speed.)
 Animatable.
 
+Amplitude = 1.0                                                 | Amplitude = 4.0
+--------------------------------------------------------------- | ---------------------------------------------------------------
+![Rendered waves with amplitude = 1.0](compare_amplitude_a.png) | ![Rendered waves with amplitude = 4.0](compare_amplitude_b.png)
+
 *Smallest Wave*. The smallest wave size that will actually be rendered; any wave smaller than this size will be removed from the ambient simulation.
 Animatable.
 
 *Speed*. The speed of the wind blowing on the waves.
+Faster speed will give larger waves at higher frequencies.
 (Note that you probably want to increase the speed in lockstep with the amplitude.)
 Animatable.
+
+Speed = 200.0 in/second                                        | Speed = 400.0 in/second
+-------------------------------------------------------------- | --------------------------------------------------------------
+![Rendered waves with speed = 200.0 in/s](compare_speed_a.png) | ![Rendered waves with speed = 400.0 in/s](compare_speed_b.png)
 
 *Direction*. The angle (degrees) of the wind blowing on the waves.
 Animatable.

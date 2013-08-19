@@ -967,7 +967,7 @@ HTML_STYLESHEET        =
 # robust against future updates. Doxygen will copy the style sheet file to 
 # the output directory.
 
-HTML_EXTRA_STYLESHEET  = 
+HTML_EXTRA_STYLESHEET  = docs/extra.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or 
 # other source files which should be copied to the HTML output directory. Note 
@@ -979,7 +979,13 @@ HTML_EXTRA_STYLESHEET  =
 HTML_EXTRA_FILES       = docs/ambient.png \
                          docs/dynamics.png \
                          docs/simulate.png \
-                         docs/size.png
+                         docs/size.png \
+                         docs/compare_amplitude_a.png \
+                         docs/compare_amplitude_b.png \
+                         docs/compare_scale_a.png \
+                         docs/compare_scale_b.png \
+                         docs/compare_speed_a.png \
+                         docs/compare_speed_b.png
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. 
 # Doxygen will adjust the colors in the style sheet and background images 
