@@ -93,11 +93,17 @@ private:
     complex             h_tilde(Point3 k);
 
     /**
+    Gets the largest height at time t = 0.
+    */
+    float               max_height();
+
+    /**
     Generates the wave surface and performs Fast Fourier Transforms (FFTs) to calculate the displacement.
     The main height displacement is based on the Fourier series in Tessendorf's equation (19).
     The horizontal displacement is based on the Fourier series in equation (29).
 
     \param heightScale a factor by which every height is multiplied
+    \param time time (in s)
     */
-    void                heights(float heightScale);
+    void                heights(float heightScale, float time);
 };

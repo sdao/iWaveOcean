@@ -63,8 +63,43 @@ complex Ambient::h_tilde(Point3 k)
     return h_tilde_0_k * c0 + h_tilde_0_k_star * c1;
 }
 
-void Ambient::heights(float heightScale)
+float Ambient::max_height()
 {
+    t = 0.0f;
+    engine.seed(seed);
+
+    // Actual simulation begins here.
+    for (int m = 0; m < M; m++) {
+        for (int n = 0; n < N; n++) {
+            int index = m * N + n;
+
+            int m_ = m - M / 2;  // m coord offsetted.
+            int n_ = n - N / 2; // n coord offsetted.
+
+            Point3 k(2. * M_PI * n_ / Lx, 2. * M_PI * m_ / Ly, 0.);
+
+            complex h_tilde_k = h_tilde(k);
+            h_tildes_in[index] = h_tilde_k;
+        }
+    }
+
+    fftwf_plan p_h = fftwf_plan_dft_1d(M*N, reinterpret_cast<fftwf_complex*>(h_tildes_in), reinterpret_cast<fftwf_complex*>(h_tildes_out), FFTW_FORWARD, FFTW_ESTIMATE);
+    fftwf_execute(p_h);
+    fftwf_destroy_plan(p_h);
+
+    float maxHeight = FLT_MIN;
+
+    int numVertices = GetTotalVertices();
+    for (int i = 0; i < numVertices; i++) {
+        maxHeight = max(maxHeight, fabs(real(h_tildes_out[i])));
+    }
+
+    return maxHeight;
+}
+
+void Ambient::heights(float heightScale, float time)
+{
+    t = time;
     engine.seed(seed);
 
     // Actual simulation begins here.
@@ -103,7 +138,6 @@ void Ambient::Simulate(float time, float speed, float direction, float scale, fl
     // Animatable parameters.
     V = speed;
     w_hat = Point3(cos(direction), sin(direction), 0.0f);
-    t = time;
     Lx = scale;
     Ly = scale / (_width / _length);
     l = waveSizeLimit;
@@ -112,14 +146,6 @@ void Ambient::Simulate(float time, float speed, float direction, float scale, fl
     P_h__L = pow(V, 2) / GRAVITY;
     P_h__l_2 = pow(l, 2);
 
-    heights(1.0f);
-
-    int numVertices = M * N;
-    float currMaxHeight = FLT_MIN;
-    for (int i = 0; i < numVertices; i++)
-    {
-        currMaxHeight = max(currMaxHeight, fabs(_vertices[i]));
-    }
-
-    heights(desiredMaxHeight / currMaxHeight);
+    // Do simulation.
+    heights(desiredMaxHeight / max_height(), time);
 }
