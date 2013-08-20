@@ -97,13 +97,7 @@ private:
     The main height displacement is based on the Fourier series in Tessendorf's equation (19).
     The horizontal displacement is based on the Fourier series in equation (29).
 
-    \param time time (in s)
-    \param speed wind speed (in distance/s)
-    \param direction direction of wind
-    \param scale simulated length of plane along X-axis; Y-scale is automatically generated from this value
-    \param waveSizeLimit size limit that waves must surpass to be rendered
-    \param heights the array to which heights are written
     \param heightScale a factor by which every height is multiplied
     */
-    void                heights(float time, float speed, Point3 direction, float scaleX, float scaleY, float waveSizeLimit, float* heights, float heightScale);
+    void                heights(float heightScale);
 };

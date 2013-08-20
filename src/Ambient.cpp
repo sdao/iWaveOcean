@@ -8,7 +8,7 @@ const float Ambient::GRAVITY_US = 386.1;
 
 Ambient::Ambient(float width, float length, int verticesX, int verticesY, unsigned long rngSeed, float phaseDuration, float accelerationGravity)
     : Grid(width, length, verticesX - 1, verticesY - 1), M(verticesX), N(verticesY), T(phaseDuration), omega_0(2.0f * M_PI / phaseDuration),
-    GRAVITY(accelerationGravity),seed(rngSeed), engine()
+    GRAVITY(accelerationGravity), seed(rngSeed), engine(), dist()
 {
     h_tildes_in = new complex[M * N];
     h_tildes_out = new complex[M * N];
@@ -63,20 +63,8 @@ complex Ambient::h_tilde(Point3 k)
     return h_tilde_0_k * c0 + h_tilde_0_k_star * c1;
 }
 
-void Ambient::heights(float time, float speed, Point3 angle, float scaleX, float scaleY, float waveSizeLimit, float* heights, float heightScale)
+void Ambient::heights(float heightScale)
 {
-    // Animatable parameters.
-    V = speed;
-    w_hat = angle;
-    t = time;
-    Lx = scaleX;
-    Ly = scaleY;
-    l = waveSizeLimit;
-
-    // Precalculate known constants.
-    P_h__L = pow(V, 2) / GRAVITY;
-    P_h__l_2 = pow(l, 2);
-
     engine.seed(seed);
 
     // Actual simulation begins here.
@@ -105,18 +93,26 @@ void Ambient::heights(float time, float speed, Point3 angle, float scaleX, float
             int index = m * N + n;
             int sign = signs[(m + n) & 1]; // Sign-flip all of the odd coefficients.
 
-            heights[index] = real(h_tildes_out[index]) * sign * heightScale;
+            _vertices[index] = real(h_tildes_out[index]) * sign * heightScale;
         }
     }
 }
 
 void Ambient::Simulate(float time, float speed, float direction, float scale, float waveSizeLimit, float desiredMaxHeight)
 {
-    Point3 angle(cos(direction), sin(direction), 0.0f);
-    float scaleX = scale;
-    float scaleY = scale / (_width / _length);
+    // Animatable parameters.
+    V = speed;
+    w_hat = Point3(cos(direction), sin(direction), 0.0f);
+    t = time;
+    Lx = scale;
+    Ly = scale / (_width / _length);
+    l = waveSizeLimit;
 
-    heights(0.0f, speed, angle, scaleX, scaleY, waveSizeLimit, _vertices, 1.0f);
+    // Precalculate known constants.
+    P_h__L = pow(V, 2) / GRAVITY;
+    P_h__l_2 = pow(l, 2);
+
+    heights(1.0f);
 
     int numVertices = M * N;
     float currMaxHeight = FLT_MIN;
@@ -125,5 +121,5 @@ void Ambient::Simulate(float time, float speed, float direction, float scale, fl
         currMaxHeight = max(currMaxHeight, fabs(_vertices[i]));
     }
 
-    heights(time, speed, angle, scaleX, scaleY, waveSizeLimit, _vertices, desiredMaxHeight / currMaxHeight);
+    heights(desiredMaxHeight / currMaxHeight);
 }
