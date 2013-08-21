@@ -6,12 +6,12 @@
 const float Ambient::GRAVITY_METRIC = 9.81;
 const float Ambient::GRAVITY_US = 386.1;
 
-Ambient::Ambient(float width, float length, int verticesX, int verticesY, unsigned long rngSeed, float phaseDuration, float accelerationGravity)
-    : Grid(width, length, verticesX - 1, verticesY - 1), M(verticesX), N(verticesY), T(phaseDuration), omega_0(2.0f * M_PI / phaseDuration),
-    GRAVITY(accelerationGravity), seed(rngSeed), engine(), dist()
+Ambient::Ambient(float width, float length, int widthSegs, int lengthSegs, unsigned long rngSeed, float phaseDuration, float accelerationGravity)
+    : Grid(width, length, widthSegs, lengthSegs), T(phaseDuration), omega_0(2.0f * M_PI / phaseDuration),
+    gravity(accelerationGravity), seed(rngSeed), engine(), dist()
 {
-    h_tildes_in = new complex[M * N];
-    h_tildes_out = new complex[M * N];
+    h_tildes_in = new complex[GetTotalVertices()];
+    h_tildes_out = new complex[GetTotalVertices()];
 }
 
 Ambient::~Ambient()
@@ -22,7 +22,7 @@ Ambient::~Ambient()
 
 float Ambient::omega(Point3 k)
 {
-    return floor(sqrt(GRAVITY * k.FLength()) / omega_0) * omega_0;
+    return floor(sqrt(gravity * k.FLength()) / omega_0) * omega_0;
 }
 
 float Ambient::P_h(Point3 k)
@@ -69,12 +69,12 @@ float Ambient::max_height()
     engine.seed(seed);
 
     // Actual simulation begins here.
-    for (int m = 0; m < M; m++) {
-        for (int n = 0; n < N; n++) {
-            int index = m * N + n;
+    for (int m = 0; m < GetWidthVertices(); m++) {
+        for (int n = 0; n < GetLengthVertices(); n++) {
+            int index = m * GetLengthVertices() + n;
 
-            int m_ = m - M / 2;  // m coord offsetted.
-            int n_ = n - N / 2; // n coord offsetted.
+            int m_ = m - GetWidthVertices() / 2;  // m coord offsetted.
+            int n_ = n - GetLengthVertices() / 2; // n coord offsetted.
 
             Point3 k(2. * M_PI * n_ / Lx, 2. * M_PI * m_ / Ly, 0.);
 
@@ -83,14 +83,13 @@ float Ambient::max_height()
         }
     }
 
-    fftwf_plan p_h = fftwf_plan_dft_1d(M*N, reinterpret_cast<fftwf_complex*>(h_tildes_in), reinterpret_cast<fftwf_complex*>(h_tildes_out), FFTW_FORWARD, FFTW_ESTIMATE);
+    fftwf_plan p_h = fftwf_plan_dft_1d(GetTotalVertices(), reinterpret_cast<fftwf_complex*>(h_tildes_in), reinterpret_cast<fftwf_complex*>(h_tildes_out), FFTW_FORWARD, FFTW_ESTIMATE);
     fftwf_execute(p_h);
     fftwf_destroy_plan(p_h);
 
     float maxHeight = FLT_MIN;
 
-    int numVertices = GetTotalVertices();
-    for (int i = 0; i < numVertices; i++) {
+    for (int i = 0; i < GetTotalVertices(); i++) {
         maxHeight = max(maxHeight, fabs(real(h_tildes_out[i])));
     }
 
@@ -103,12 +102,12 @@ void Ambient::heights(float heightScale, float time)
     engine.seed(seed);
 
     // Actual simulation begins here.
-    for (int m = 0; m < M; m++) {
-        for (int n = 0; n < N; n++) {
-            int index = m * N + n;
+    for (int m = 0; m < GetWidthVertices(); m++) {
+        for (int n = 0; n < GetLengthVertices(); n++) {
+            int index = m * GetLengthVertices() + n;
 
-            int m_ = m - M / 2;  // m coord offsetted.
-            int n_ = n - N / 2; // n coord offsetted.
+            int m_ = m - GetWidthVertices() / 2; // m coord offsetted.
+            int n_ = n - GetLengthVertices() / 2; // n coord offsetted.
 
             Point3 k(2. * M_PI * n_ / Lx, 2. * M_PI * m_ / Ly, 0.);
 
@@ -117,15 +116,15 @@ void Ambient::heights(float heightScale, float time)
         }
     }
 
-    fftwf_plan p_h = fftwf_plan_dft_1d(M*N, reinterpret_cast<fftwf_complex*>(h_tildes_in), reinterpret_cast<fftwf_complex*>(h_tildes_out), FFTW_FORWARD, FFTW_ESTIMATE);
+    fftwf_plan p_h = fftwf_plan_dft_1d(GetTotalVertices(), reinterpret_cast<fftwf_complex*>(h_tildes_in), reinterpret_cast<fftwf_complex*>(h_tildes_out), FFTW_FORWARD, FFTW_ESTIMATE);
     fftwf_execute(p_h);
     fftwf_destroy_plan(p_h);
 
     float signs[2] = { -1., 1. };
 
-    for (int m = 0; m < M; m++) {
-        for (int n = 0; n < N; n++) {
-            int index = m * N + n;
+    for (int m = 0; m < GetWidthVertices(); m++) {
+        for (int n = 0; n < GetLengthVertices(); n++) {
+            int index = m * GetLengthVertices() + n;
             int sign = signs[(m + n) & 1]; // Sign-flip all of the odd coefficients.
 
             _vertices[index] = real(h_tildes_out[index]) * sign * heightScale;
@@ -143,7 +142,7 @@ void Ambient::Simulate(float time, float speed, float direction, float scale, fl
     l = waveSizeLimit;
 
     // Precalculate known constants.
-    P_h__L = pow(V, 2) / GRAVITY;
+    P_h__L = pow(V, 2) / gravity;
     P_h__l_2 = pow(l, 2);
 
     // Do simulation.

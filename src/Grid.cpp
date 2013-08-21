@@ -2,13 +2,13 @@
 
 
 Grid::Grid(float width, float length, int widthSegs, int lengthSegs)
-    : _width(width), _length(length), _widthSegs(widthSegs), _lengthSegs(lengthSegs)
+    : _width(width), _length(length), _widthSegs(widthSegs), _lengthSegs(lengthSegs), _widthVtex(widthSegs + 1), _lengthVtex(lengthSegs + 1)
 {
     _vertices = new float[(_widthSegs + 1) * (_lengthSegs + 1)];
 }
 
 Grid::Grid(float width, float length, int widthSegs, int lengthSegs, float* vertexHeights)
-    : _width(width), _length(length), _widthSegs(widthSegs), _lengthSegs(lengthSegs)
+    : _width(width), _length(length), _widthSegs(widthSegs), _lengthSegs(lengthSegs), _widthVtex(widthSegs + 1), _lengthVtex(lengthSegs + 1)
 {
     _vertices = vertexHeights;
 }
@@ -18,42 +18,42 @@ Grid::~Grid(void)
     delete [] _vertices;
 }
 
-float Grid::GetWidth()
+float Grid::GetWidth() const
 {
     return _width;
 }
 
-float Grid::GetLength()
+float Grid::GetLength() const
 {
     return _length;
 }
 
-int Grid::GetWidthSegs()
+int Grid::GetWidthSegs() const
 {
     return _widthSegs;
 }
 
-int Grid::GetLengthSegs()
+int Grid::GetLengthSegs() const
 {
     return _lengthSegs;
 }
 
-int Grid::GetWidthVertices()
+int Grid::GetWidthVertices() const
 {
-    return _widthSegs + 1;
+    return _widthVtex;
 }
 
-int Grid::GetLengthVertices()
+int Grid::GetLengthVertices() const
 {
-    return _lengthSegs + 1;
+    return _lengthVtex;
 }
 
-int Grid::GetTotalVertices()
+int Grid::GetTotalVertices() const
 {
-    return (_widthSegs + 1) * (_lengthSegs + 1);
+    return _widthVtex * _lengthVtex;
 }
 
-float* Grid::GetVertexHeights()
+float* Grid::GetVertexHeights() const
 {
     return _vertices;
 }

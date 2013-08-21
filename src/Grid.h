@@ -4,10 +4,12 @@
 class Grid
 {
 protected:
-    float _width;
-    float _length;
-    int _widthSegs;
-    int _lengthSegs;
+    const float _width;
+    const float _length;
+    const int _widthSegs;
+    const int _lengthSegs;
+    const int _widthVtex;
+    const int _lengthVtex;
     float* _vertices;
 
 public:
@@ -33,31 +35,31 @@ public:
     ~Grid(void);
 
     /** Gets the display width. */
-    float GetWidth();
+    float GetWidth() const;
 
     /** Gets the display height. */
-    float GetLength();
+    float GetLength() const;
 
     /** Gets the number of faces along the U-axis. */
-    int GetWidthSegs();
+    int GetWidthSegs() const;
 
     /** Gets the number of faces along the V-axis. */
-    int GetLengthSegs();
+    int GetLengthSegs() const;
 
     /** Gets the number of vertices along the U-axis. */
-    int GetWidthVertices();
+    int GetWidthVertices() const;
 
     /** Gets the number of vertices along the V-axis. */
-    int GetLengthVertices();
+    int GetLengthVertices() const;
 
     /** Gets the total number of vertices. */
-    int GetTotalVertices();
+    int GetTotalVertices() const;
 
     /**
     Gets the array of heights corresponding to each UV coordinate on the grid.
     The vertices are arranged U-major; e.g. UV coords (0, 0.1), (0, 0.2), (0, 0.3), ..., (0.1, 0.1), (0.1, 0.2), (0.1, 0.3), ..., (1.0, 1.0).
     */
-    float* GetVertexHeights();
+    float* GetVertexHeights() const;
 
     /**
     Zeroes out all of the values on the height map.

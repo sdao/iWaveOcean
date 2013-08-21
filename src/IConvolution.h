@@ -14,6 +14,6 @@ public:
     \param rows the number of rows in each matrix
     \param cols the number of columns in each matrix
     */
-    virtual void Convolve(float* in, float* out, int rows, int cols) = 0;
+    virtual void Convolve(float* in, float* out, int rows, int cols) const = 0;
 };
 

@@ -74,10 +74,10 @@ public:
     void Reset();
 
     /** Gets the first frame number in the simulation. */
-    int GetSimulatedStartFrame();
+    int GetSimulatedStartFrame() const;
 
     /** Gets the number of simulated frames in the simulation. */
-    int GetSimulatedFrameCount();
+    int GetSimulatedFrameCount() const;
 
     /**
     Gets the deformed grid as calculated by the simulation at a specified frame.

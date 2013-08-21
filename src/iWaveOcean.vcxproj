@@ -53,7 +53,7 @@
     <ClCompile Include="iWaveOcean.cpp" />
     <ClCompile Include="DllEntry.cpp" />
     <ClCompile Include="Grid.cpp" />
-    <ClCompile Include="Ocean.cpp" />
+    <ClCompile Include="Dynamics.cpp" />
     <ClCompile Include="Simulator.cpp" />
     <ClCompile Include="Ambient.cpp" />
   </ItemGroup>
@@ -66,7 +66,7 @@
     <ClInclude Include="IConvolution.h" />
     <ClInclude Include="iWaveOcean.h" />
     <ClInclude Include="Grid.h" />
-    <ClInclude Include="Ocean.h" />
+    <ClInclude Include="Dynamics.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Simulator.h" />
     <ClInclude Include="Ambient.h" />

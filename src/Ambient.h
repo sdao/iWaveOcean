@@ -12,22 +12,20 @@ The equations referenced by the documentation comments are those in "Simulating 
 This class assumes the 3ds Max coordinate system, i.e. X- and Y-axes are in the horizontal plane and the Z-axis goes up and down.
 */
 class Ambient : public Grid {
-    float               GRAVITY;                    /**< The gravity acceleration constant for the input units, e.g. 9.8 m/s^2 in metric or 386.1 in/s^2 in US customary units. */
-
     std::tr1::mt19937 engine;
     std::tr1::normal_distribution<float> dist;
 
-    float               omega_0;                    /**< Dispersion-sub-naught; calculated using Tessendorf's equation (17). */
-    int                 M;                          /**< Resolution of grid vertices along X-axis (16 <= M <= 2048; where M = 2^x for integer x). */
-    int                 N;                          /**< Resolution of grid vertices Y-axis (16 <= N <= 2048; where N = 2^y for integer y). */
+    const float         gravity;                    /**< The gravity acceleration constant for the input units, e.g. 9.8 m/s^2 in metric or 386.1 in/s^2 in US customary units. */
+    const float         omega_0;                    /**< Dispersion-sub-naught; calculated using Tessendorf's equation (17). */
+    const float         T;                          /**< Time of one phase of simulation. */
+    const unsigned long seed;                       /**< Seed for the pseudorandom number generator. */
+
     float               Lx;                         /**< "Real-life" length of plane along X-axis (in m). */
     float               Ly;                         /**< "Real-life" length of plane along Y-axis (in m). */
     float               l;                          /**< Size limit that waves must surpass to be rendered. */
     float               V;                          /**< Wind speed (in m/s). */
     Point3              w_hat;                      /**< Direction of wind. */
     float               t;                          /**< Time (in s). */
-    float               T;                          /**< Time of one phase of simulation. */
-    unsigned long       seed;                       /**< Seed for the pseudorandom number generator. */
 
     // Values precached on initialization.
     float               P_h__L;                     /**< Precached for tessendorf::P_h. Largest possible waves arising from a continuous wind of speed V. */
@@ -45,13 +43,13 @@ public:
 
     \param width the width along the X-axis
     \param length the length along the Y-axis
-    \param verticesX number of vertices along the X-axis
-    \param verticesY number of vertices along the Y-axis
+    \param widthSegs the number of faces along the X-axis
+    \param lengthSegs the number of faces along the Y-axis
     \param rngSeed seed for the pseudorandom number generator
     \param phaseDuration duration of one phase (in s)
     \param accelerationGravity acceleration due to gravity; e.g. if using metric units, 9.8 m/s^2 and if using US customary, 386.1 in/s^2
     */
-    Ambient(float width, float length, int verticesX, int verticesY, unsigned long rngSeed, float phaseDuration, float accelerationGravity);
+    Ambient(float width, float length, int widthSegs, int lengthSegs, unsigned long rngSeed, float phaseDuration, float accelerationGravity);
 
     ~Ambient();
 

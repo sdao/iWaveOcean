@@ -7,8 +7,8 @@
 #include <process.h>
 #include <units.h>
 #include "iWaveOcean.h"
-#include "Ocean.h"
 #include "Ambient.h"
+#include "Dynamics.h"
 
 int Simulator::simStart;
 int Simulator::simLength;
@@ -55,10 +55,10 @@ void Simulator::DoWork(void* ptr)
     {
         int ambientSeed = modifier->pblock2->GetInt(pb_seed, 0);
         float ambientDuration = TicksToSec(modifier->pblock2->GetInt(pb_duration, 0));
-        amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration, Ambient::GRAVITY_US); 
+        amb = new Ambient(width, length, widthSegs, lengthSegs, ambientSeed, ambientDuration, Ambient::GRAVITY_US); 
     }
 
-    Ocean oc(simStart, widthSegs + 1, lengthSegs + 1, width, length, heightScale, TicksToSec(ticksPerFrame), alpha, sigma, wakePower, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount, amb);
+    Dynamics dyn(simStart, width, length, widthSegs, lengthSegs, heightScale, TicksToSec(ticksPerFrame), alpha, sigma, wakePower, instance->_geom->GetWorldSpaceObjectNode(), collisionNodes, collisionNodeCount, amb);
 
     for (simCounter = simStart; simCounter < simStart + simLength; simCounter++)
     {
@@ -78,7 +78,7 @@ void Simulator::DoWork(void* ptr)
                 modifier->pblock2->GetFloat(pb_ambient_height, t));
         }
 
-        Grid *data = oc.NextGrid();
+        Grid *data = dyn.NextGrid();
         instance->_cache.push_back(data);
     }
 
@@ -142,12 +142,12 @@ void Simulator::Reset()
     _cache.clear();
 }
 
-int Simulator::GetSimulatedStartFrame()
+int Simulator::GetSimulatedStartFrame() const
 {
     return _cacheStartFrame;
 }
 
-int Simulator::GetSimulatedFrameCount()
+int Simulator::GetSimulatedFrameCount() const
 {
     return (int)_cache.size();
 }
@@ -176,7 +176,7 @@ Grid* Simulator::GetSimulatedGrid(int frame)
             int ambientSeed = _geom->pblock2->GetInt(pb_seed, 0);
             float ambientDuration = TicksToSec(_geom->pblock2->GetInt(pb_duration, 0));
 
-            Ambient* amb = new Ambient(width, length, widthSegs + 1, lengthSegs + 1, ambientSeed, ambientDuration, Ambient::GRAVITY_US);
+            Ambient* amb = new Ambient(width, length, widthSegs, lengthSegs, ambientSeed, ambientDuration, Ambient::GRAVITY_US);
             TimeValue t = frame * ticksPerFrame;
             amb->Simulate(TicksToSec(t),
                 _geom->pblock2->GetFloat(pb_wind_speed, t),

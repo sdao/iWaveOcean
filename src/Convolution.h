@@ -40,7 +40,7 @@ public:
     {
     }
 
-    void Convolve(float* in, float* out, int rows, int cols)
+    void Convolve(float* in, float* out, int rows, int cols) const
     {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
