@@ -63,6 +63,7 @@
   <ItemGroup>
     <ClInclude Include="3dsmaxsdk_preinclude.h" />
     <ClInclude Include="Convolution.h" />
+    <ClInclude Include="GaussianConvolution.h" />
     <ClInclude Include="IConvolution.h" />
     <ClInclude Include="iWaveOcean.h" />
     <ClInclude Include="Grid.h" />
@@ -70,6 +71,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Simulator.h" />
     <ClInclude Include="Ambient.h" />
+    <ClInclude Include="VerticalDerivativeConvolution.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="iWaveOcean.rc" />

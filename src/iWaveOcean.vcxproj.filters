@@ -67,6 +67,12 @@
     <ClInclude Include="Dynamics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GaussianConvolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VerticalDerivativeConvolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="iWaveOcean.rc">

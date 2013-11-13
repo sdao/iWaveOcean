@@ -4,7 +4,8 @@
 #include <cmath>
 #include <triobj.h>
 #include <units.h>
-#include "Convolution.h"
+#include "GaussianConvolution.h"
+#include "VerticalDerivativeConvolution.h"
 #include "Ambient.h"
 
 void Clear(float* arr, int size, float val)
@@ -41,13 +42,8 @@ Dynamics::Dynamics(int startFrame, float width, float length, int widthSegs, int
     parent_node(parentNode), collision_nodes(collisionNodes), collision_nodes_count(numCollisionNodes),
     ambient(ambient)
 {
-    float gaussianKernel[5][5];
-    GetGaussianKernel(sigma, gaussianKernel);
-    gaussianConvolution = new Convolution<2, ExtendEdges>(gaussianKernel);
-
-    float verticalDerivKernel[2 * P + 1][2 * P + 1];
-    GetVerticalDerivKernel(verticalDerivKernel);
-    verticalDerivConvolution = new Convolution<P, ReflectEdges>(verticalDerivKernel);
+    gaussianConvolution = new GaussianConvolution(sigma);
+    verticalDerivConvolution = new VerticalDerivativeConvolution<P>();
 
     obstruction_raw = new float[vertices_total];
     obstruction = new float[vertices_total];
@@ -74,62 +70,6 @@ Dynamics::~Dynamics(void)
     delete [] height;
     delete [] previous_height;
     delete [] vertical_derivative;
-}
-
-void Dynamics::GetGaussianKernel(float sigma, float(& arr)[5][5])
-{
-    float double_sigma_2 = 2.0 * sigma * sigma;
-    float sum = 0.0f;
-
-    for (int i = -2; i <= 2; i++)
-    {
-        int i_2 = i * i;
-        for (int j = -2; j <= 2; j++)
-        {
-            int j_2 = j * j;
-            float val = exp(-(i_2 + j_2) / double_sigma_2);
-            arr[i + 2][j + 2] = val;
-            sum += val;
-        }
-    }
-
-    for (int i = 0; i < 5; i++)
-    {
-        for (int j = 0; j < 5; j++)
-        {
-            arr[i][j] /= sum;
-        }
-    }
-}
-
-void Dynamics::GetVerticalDerivKernel(float(& arr)[2 * P + 1][2 * P + 1])
-{
-    float dq = 0.001;
-    float sigma = 1.0;
-
-    double G_0 = 0.0; // Norm value.
-    for (float q = 0.0; q < 10.0; q += dq)
-    {
-        // From the paper, we want dq = .001 and calculate q_n for 1 <= n <= 10000.
-        // This gives us 0 <= q < 10.
-        G_0 += q * q * exp(-sigma * q * q);
-    }
-
-    for (int i = -P; i <= P; i++)
-    {
-        for (int j = -P; j <= P; j++)
-        {
-            float r = sqrt((float)(i * i + j * j));
-            float kern = 0.0;
-
-            for (float q = 0.0; q < 10.0; q += dq)
-            {
-                kern += q * q * exp(-sigma * q * q) * j0(r * q);
-            }
-
-            arr[i + P][j + P] = kern / G_0;
-        }
-    }
 }
 
 void Dynamics::UpdateObstructions()

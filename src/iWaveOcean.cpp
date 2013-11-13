@@ -79,7 +79,7 @@ static ParamBlockDesc2 iwaveocean_param_blk ( iwaveocean_params, _T("params"),  
 
     pb_sim_start,       _T("sim_start"),        TYPE_INT,       0,                  IDS_START_FRAME,
         p_default,      SecToTicks(0),
-        p_range,        SecToTicks(0), INT_MAX,
+        p_range,        INT_MIN, INT_MAX,
         p_ui,           pb_map_dynamics,        TYPE_SPINNER,   EDITTYPE_TIME,      IDC_START_EDIT,         IDC_START_SPIN,         (float)GetTicksPerFrame(),
         p_end,
     pb_sim_length,      _T("sim_length"),       TYPE_INT,       0,                  IDS_FRAME_COUNT,
