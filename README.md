@@ -39,3 +39,7 @@ The FFTW binary DLLs are included in the `src/fftw-3.3.3-dll64` folder.
 
 The plugin uses algorithms published by Jerry Tessendorf, chief amongst which are the FFT method for simulating ambient waves and the iWave method for dynamical waves.
 The papers and course notes explaining these algorithms are available in the `notes` folder, or you can visit [Tessendorf's website](http://jerrytessendorf.blogspot.com).
+
+Known Issues
+------------
+Please see the [bug tracker](https://github.com/sdao/iWaveOcean/issues) for this project.
