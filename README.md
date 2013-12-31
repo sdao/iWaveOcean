@@ -1,3 +1,5 @@
+Check out [an example](http://vimeo.com/83004760) on Vimeo!
+
 iWave Ocean Simulation Plugin
 =============================
 
