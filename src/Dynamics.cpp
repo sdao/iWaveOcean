@@ -42,6 +42,9 @@ Dynamics::Dynamics(int startFrame, float width, float length, int widthSegs, int
     parent_node(parentNode), collision_nodes(collisionNodes), collision_nodes_count(numCollisionNodes),
     ambient(ambient)
 {
+    assert(parentNode != NULL);
+    assert(collisionNodes != NULL);
+
     gaussianConvolution = new GaussianConvolution(sigma);
     verticalDerivConvolution = new VerticalDerivativeConvolution<P>();
 

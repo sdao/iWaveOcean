@@ -94,23 +94,45 @@ void Simulator::BeginSimulation(HWND hDlg)
         return;
     }
 
-    _cancelled = false;
-    _finished = false;
+    if (IsTopmostModifier())
+    {
+        _cancelled = false;
+        _finished = false;
 
-    TASKDIALOGCONFIG config = {0};
-    const TASKDIALOG_BUTTON buttons[] = {{ IDCANCEL, _T("Stop simulation" )}};
-    config.cbSize = sizeof(config);
-    config.hInstance = hInstance;
-    config.hwndParent = hDlg;
-    config.pszWindowTitle = _T("iWave");
-    config.pszMainInstruction = _T("Simulating iWave, please wait...");
-    config.pszContent = _T("Starting");
-    config.dwFlags = TDF_SHOW_PROGRESS_BAR | TDF_CALLBACK_TIMER;
-    config.pfCallback = SimulateTaskDlgProc;
-    config.lpCallbackData = (LONG_PTR)this;
-    config.pButtons = buttons;
-    config.cButtons = ARRAYSIZE(buttons);
-    TaskDialogIndirect(&config, NULL, NULL, NULL);   
+        TASKDIALOGCONFIG config = {0};
+        const TASKDIALOG_BUTTON buttons[] = {{ IDCANCEL, _T("Stop simulation" )}};
+        config.cbSize = sizeof(config);
+        config.hInstance = hInstance;
+        config.hwndParent = hDlg;
+        config.pszWindowTitle = _T("iWave");
+        config.pszMainInstruction = _T("Simulating iWave, please wait...");
+        config.pszContent = _T("Starting");
+        config.dwFlags = TDF_SHOW_PROGRESS_BAR | TDF_CALLBACK_TIMER;
+        config.pfCallback = SimulateTaskDlgProc;
+        config.lpCallbackData = (LONG_PTR)this;
+        config.pButtons = buttons;
+        config.cButtons = ARRAYSIZE(buttons);
+        TaskDialogIndirect(&config, NULL, NULL, NULL);
+    }
+    else
+    {
+        // Currently, we can't get the world-space node if there are other modifiers above it, 
+        // so prevent simulations from starting in that case.
+        TASKDIALOGCONFIG config = {0};
+        const TASKDIALOG_BUTTON buttons[] = {{ IDCANCEL, _T("OK" )}};
+        config.cbSize = sizeof(config);
+        config.hInstance = hInstance;
+        config.hwndParent = hDlg;
+        config.pszWindowTitle = _T("iWave");
+        config.pszMainInstruction = _T("iWave is not the topmost modifier.");
+        config.pszContent = _T("Delete the modifiers above the iWave modifier and try simulating again.");
+        config.dwFlags = 0;
+        config.pfCallback = NULL;
+        config.lpCallbackData = NULL;
+        config.pButtons = buttons;
+        config.cButtons = ARRAYSIZE(buttons);
+        TaskDialogIndirect(&config, NULL, NULL, NULL);
+    }
 }
 
 void Simulator::Cancel()
@@ -119,14 +141,19 @@ void Simulator::Cancel()
     _cancelled = true;
 }
 
-bool Simulator::IsCancelled()
+bool Simulator::IsCancelled() const
 {
     return _cancelled;
 }
 
-bool Simulator::IsFinished()
+bool Simulator::IsFinished() const
 {
     return _finished;
+}
+
+bool Simulator::IsTopmostModifier() const
+{
+    return _geom->GetWorldSpaceObjectNode() != NULL;
 }
 
 void Simulator::Reset()

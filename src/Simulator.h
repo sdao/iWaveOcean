@@ -47,10 +47,13 @@ class Simulator
     static HRESULT CALLBACK SimulateTaskDlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, LONG_PTR dwRefData);
 
     /** Gets whether cancellation has been requested for the running simulation. */
-    bool IsCancelled();
+    bool IsCancelled() const;
 
     /** Gets whether the running simulation has finished. Returns true if no simulation has been started yet. */
-    bool IsFinished();
+    bool IsFinished() const;
+
+    /** Gets whether the simulator's modifier is the top-most world-space modifier. */
+    bool IsTopmostModifier() const;
 public:
     /** Creates a new Simulator for the specified geometry object. */
     Simulator(iWaveOcean* geom);
