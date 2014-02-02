@@ -1,3 +1,5 @@
+Check out [an example](http://vimeo.com/83008229) on Vimeo!
+
 iWave Ocean Simulation Plugin
 =============================
 
@@ -7,7 +9,21 @@ The plugin will appear in the Command Panel > Simulations category > iWaveOcean.
 
 License
 -------
-This software is licensed under the GNU General Public License, version 3.
+Copyright (C) 2013 by Steven Dao
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see [http://www.gnu.org/licenses/].
+    
 For more information, please see the LICENSE file included with the source code.
 
 Compiling
@@ -25,3 +41,7 @@ The FFTW binary DLLs are included in the `src/fftw-3.3.3-dll64` folder.
 
 The plugin uses algorithms published by Jerry Tessendorf, chief amongst which are the FFT method for simulating ambient waves and the iWave method for dynamical waves.
 The papers and course notes explaining these algorithms are available in the `notes` folder, or you can visit [Tessendorf's website](http://jerrytessendorf.blogspot.com).
+
+Known Issues
+------------
+Please see the [bug tracker](https://github.com/sdao/iWaveOcean/issues) for this project.
