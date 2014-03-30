@@ -4,7 +4,7 @@ iWave Ocean Simulation Plugin
 =============================
 
 This plugin for Autodesk 3ds Max simulates both ambient waves and dynamic, collision-driven waves.
-To install it, simply copy the `iWaveOcean.dlo` file to your 3ds Max plugins folder (for 3ds Max 2014, this should be `C:\Program Files\Autodesk\3ds Max 2014\plugins`).
+To install it after compiling, simply copy the output `iWaveOcean.dlo` file to your 3ds Max plugins folder (for 3ds Max 2014, this should be `C:\Program Files\Autodesk\3ds Max 2014\plugins`), and copy the included `libfftw3f-3.dll` library to your 3ds Max application folder (e.g. `C:\Program Files\Autodesk\3ds Max 2014`).
 The plugin will appear in the Command Panel > Simulations category > iWaveOcean.
 
 License
