@@ -110,6 +110,16 @@ BEGIN
     CONTROL         "Make Ambient Waves",IDC_AMBIENT_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,86,10
 END
 
+IDD_SAVEDATA DIALOGEX 0, 0, 108, 70
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Save simulation data:",-1,7,7,94,8
+    CONTROL         "In current 3ds Max file",IDC_RADIO_MAXFILE,"Button",BS_AUTORADIOBUTTON,7,18,85,10
+    CONTROL         "In the specified file:",IDC_RADIO_EXTERNALFILE,"Button",BS_AUTORADIOBUTTON,7,30,77,10
+    CONTROL         "",IDC_BROWSE_BUTTON,"CustButton",WS_DISABLED | WS_TABSTOP,7,46,94,16
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -149,6 +159,14 @@ BEGIN
         RIGHTMARGIN, 101
         TOPMARGIN, 7
         BOTTOMMARGIN, 108
+    END
+
+    IDD_SAVEDATA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 101
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 63
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -218,6 +236,8 @@ BEGIN
     IDS_DURATION            "Ambient Loop Duration"
     IDS_AMPLITUDE           "Amplitude"
     IDS_AMBIENT_ON          "Make Ambient Waves"
+    IDS_SAVEDATA_ROLLUP     "Save Data"
+    IDS_EXTERNAL_FILE       "External File"
 END
 
 #endif    // English (United States) resources

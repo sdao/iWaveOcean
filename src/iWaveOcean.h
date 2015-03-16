@@ -40,21 +40,27 @@ class iWaveOcean : public SimpleObject2
     // Simulation cache
     Simulator _sim;
     HWND _simulateRollup;
+	HWND _saveDataRollup;
 
 public:
     //Constructor/Destructor
     iWaveOcean();
     virtual ~iWaveOcean();
 
+	// Static stuff for rollup management
+    static iWaveOcean* instanceForSimulate;
+    static iWaveOcean* instanceForSaveData;
+	
     // Static stuff for simulation cache
-    static iWaveOcean* instance;
-
     static HWND startFrameStatic;
     static HWND numFramesStatic;
 
     static INT_PTR CALLBACK SimulateRollupDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK SaveDataRollupDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
     static void UpdateStatus();
+	static void UpdateSaveInfo(HWND hDlg);
+	static void OpenBrowseDialog(HWND hDlg);
     static void SimulateProgress(Simulator* simulator);
     static void SimulateDone(Simulator* simulator);
 
@@ -124,5 +130,7 @@ enum {
     pb_wind_direction,
     pb_seed,
     pb_duration,
-    pb_ambient_scale
+    pb_ambient_scale,
+	// Save Data
+	pb_external_file
 };

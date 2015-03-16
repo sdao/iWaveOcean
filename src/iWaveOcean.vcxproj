@@ -24,6 +24,10 @@
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Hybrid|x64'">
     <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CharacterSet>
+    </CharacterSet>
+  </PropertyGroup>
   <Import Project="$(MaxSDK)\ProjectSettings\PropertySheets\3dsmax.general.project.settings.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
@@ -45,7 +49,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(ProjectDir)\fftw-3.3.3-dll64;$(MaxSdkLib);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfftw3f-3.lib;bmm.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;manipsys.lib;paramblk2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfftw3f-3.lib;bmm.lib;core.lib;geom.lib;gfx.lib;mesh.lib;maxutil.lib;maxscrpt.lib;manipsys.lib;paramblk2.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>iWaveOcean.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>

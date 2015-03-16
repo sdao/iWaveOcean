@@ -12,8 +12,13 @@
 // AUTHOR: 
 //***************************************************************************/
 
+#define _WIN32_WINNT _WIN32_WINNT_VISTA
+
 #include "iWaveOcean.h"
 #include "Simulator.h"
+#include <Windowsx.h>
+#include <Shlwapi.h>
+#include <Shobjidl.h>
 #include <vector>
 #include <limits>
 
@@ -152,6 +157,9 @@ static ParamBlockDesc2 iwaveocean_param_blk ( iwaveocean_params, _T("params"),  
         p_ui,			pb_map_ambient,         TYPE_SPINNER,	EDITTYPE_TIME,	    IDC_DURATION_EDIT,      IDC_DURATION_SPIN,  	(float)GetTicksPerFrame(),
         p_end,
 
+	pb_external_file,	_T("external_file"),	TYPE_STRING,	0,					IDS_EXTERNAL_FILE,
+		p_default,		_T(""),
+		p_end,
 
     p_end
     );
@@ -163,7 +171,8 @@ static ParamBlockDesc2 iwaveocean_param_blk ( iwaveocean_params, _T("params"),  
 
 IObjParam* iWaveOcean::ip = NULL;
 
-iWaveOcean* iWaveOcean::instance = NULL;
+iWaveOcean* iWaveOcean::instanceForSimulate = NULL;
+iWaveOcean* iWaveOcean::instanceForSaveData = NULL;
 
 HWND iWaveOcean::startFrameStatic = NULL;
 HWND iWaveOcean::numFramesStatic = NULL;
@@ -185,12 +194,16 @@ void iWaveOcean::BeginEditParams(IObjParam* ip, ULONG flags, Animatable* prev)
     GetiWaveOceanDesc()->BeginEditParams(ip, this, flags, prev);
 
     _simulateRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SIMULATE), SimulateRollupDlgProc, GetString(IDS_SIMULATE_ROLLUP), (LPARAM)this);
+	_saveDataRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SAVEDATA), SaveDataRollupDlgProc, GetString(IDS_SAVEDATA_ROLLUP), (LPARAM)this);
 }
 
 void iWaveOcean::EndEditParams( IObjParam* ip, ULONG flags, Animatable* next )
 {
     ip->DeleteRollupPage(_simulateRollup);
     _simulateRollup = NULL;
+
+	ip->DeleteRollupPage(_saveDataRollup);
+	_saveDataRollup = NULL;
 
     //TODO: Save plugin parameter values into class variables, if they are not hosted in ParamBlocks. 
     SimpleObject2::EndEditParams(ip,flags,next);
@@ -204,7 +217,7 @@ INT_PTR CALLBACK iWaveOcean::SimulateRollupDlgProc(HWND hDlg, UINT message, WPAR
     switch (message)
     { // Respond to the message ...
     case WM_INITDIALOG: // Initialize the Controls here.
-        instance = (iWaveOcean*)lParam;
+        instanceForSimulate = (iWaveOcean*)lParam;
 
         startFrameStatic = GetDlgItem(hDlg, IDC_STARTFRAME_STATIC);
         numFramesStatic = GetDlgItem(hDlg, IDC_NUMFRAMES_STATIC);
@@ -212,19 +225,59 @@ INT_PTR CALLBACK iWaveOcean::SimulateRollupDlgProc(HWND hDlg, UINT message, WPAR
         UpdateStatus();
         return TRUE;
     case WM_DESTROY: // Release the Controls here.
-        instance = NULL;
+        instanceForSimulate = NULL;
         startFrameStatic = NULL;
         numFramesStatic = NULL;
         return FALSE;
     case WM_COMMAND: // Various messages come in this way.
         switch (LOWORD(wParam)) {
         case IDC_SIMULATE_BUTTON:
-            instance->_sim.BeginSimulation(hDlg); // Waits for dialog to exit.
+            instanceForSimulate->_sim.BeginSimulation(hDlg); // Waits for dialog to exit.
             UpdateStatus();
-            break;
+            return TRUE;
         case IDC_CLEAR_BUTTON:
-            instance->_sim.Reset();
+            instanceForSimulate->_sim.Reset();
             UpdateStatus();
+			return TRUE;
+        }
+        break;
+    case WM_NOTIFY: // Others this way...
+        break;
+        // Other cases...
+    default:
+        break;
+    }
+    return FALSE;
+}
+
+INT_PTR CALLBACK iWaveOcean::SaveDataRollupDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    { // Respond to the message ...
+    case WM_INITDIALOG: // Initialize the Controls here.
+        instanceForSaveData = (iWaveOcean*)lParam;
+		UpdateSaveInfo(hDlg);
+        return TRUE;
+    case WM_DESTROY: // Release the Controls here.
+		instanceForSaveData = NULL;
+        return FALSE;
+    case WM_COMMAND: // Various messages come in this way.
+        switch (LOWORD(wParam)) {
+        case IDC_BROWSE_BUTTON:
+            OpenBrowseDialog(hDlg);
+            return TRUE;
+		case IDC_RADIO_MAXFILE:
+		case IDC_RADIO_EXTERNALFILE:
+			{
+				HWND radioMaxFile = GetDlgItem(hDlg, IDC_RADIO_MAXFILE);
+				if (Button_GetCheck(radioMaxFile)) {
+					instanceForSaveData->pblock2->SetValue(pb_external_file, 0, _T(""));
+					UpdateSaveInfo(hDlg);
+				} else {
+					OpenBrowseDialog(hDlg);
+				}
+			}
+			return TRUE;
         }
         break;
     case WM_NOTIFY: // Others this way...
@@ -238,17 +291,96 @@ INT_PTR CALLBACK iWaveOcean::SimulateRollupDlgProc(HWND hDlg, UINT message, WPAR
 
 void iWaveOcean::UpdateStatus()
 {
-    if (instance != NULL) {
+    if (instanceForSimulate != NULL) {
         if (startFrameStatic != NULL)
         {
-            SetWindowTextInt(startFrameStatic, instance->_sim.GetSimulatedStartFrame());
+            SetWindowTextInt(startFrameStatic, instanceForSimulate->_sim.GetSimulatedStartFrame());
         }
 
         if (numFramesStatic != NULL)
         {
-            SetWindowTextInt(numFramesStatic, instance->_sim.GetSimulatedFrameCount());
+            SetWindowTextInt(numFramesStatic, instanceForSimulate->_sim.GetSimulatedFrameCount());
         }
     }
+}
+
+void iWaveOcean::UpdateSaveInfo(HWND hDlg)
+{
+	if (instanceForSaveData) {
+		const wchar_t* saveFileRaw(instanceForSaveData->pblock2->GetStr(pb_external_file, 0));
+		std::wstring saveFile(saveFileRaw);
+		std::wstring saveFileNameOnly(PathFindFileNameW(saveFileRaw));
+
+		HWND radioMaxFile = GetDlgItem(hDlg, IDC_RADIO_MAXFILE);
+		HWND radioExternalFile = GetDlgItem(hDlg, IDC_RADIO_EXTERNALFILE);
+		HWND browseButton = GetDlgItem(hDlg, IDC_BROWSE_BUTTON);
+
+		if (saveFile.empty()) {
+			Button_SetCheck(radioMaxFile, BST_CHECKED);
+			Button_SetCheck(radioExternalFile, BST_UNCHECKED);
+			Button_Enable(browseButton, FALSE);
+			Button_SetText(browseButton, _T("(no file)"));
+		} else {
+			Button_SetCheck(radioMaxFile, BST_UNCHECKED);
+			Button_SetCheck(radioExternalFile, BST_CHECKED);
+			Button_Enable(browseButton, TRUE);
+			Button_SetText(browseButton, saveFileNameOnly.c_str());
+		}
+	}
+}
+
+void iWaveOcean::OpenBrowseDialog(HWND hDlg)
+{
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+    if (SUCCEEDED(hr))
+    {
+        IFileSaveDialog *pFileSave;
+
+        // Create the FileOpenDialog object.
+        hr = CoCreateInstance(CLSID_FileSaveDialog,
+							  NULL,
+							  CLSCTX_ALL, 
+							  IID_IFileSaveDialog,
+							  reinterpret_cast<void**>(&pFileSave));
+
+        if (SUCCEEDED(hr))
+        {
+			// Set file types.
+			COMDLG_FILTERSPEC fileSpec[] =
+			{ 
+				{ L"iWave simulation data", L"*.iwdata" },
+				{ L"", L"*.*" },
+			};
+			hr = pFileSave->SetFileTypes(2, fileSpec);
+
+            // Show the Save dialog box.
+            hr &= pFileSave->Show(hDlg);
+
+            // Get the file name from the dialog box.
+            if (SUCCEEDED(hr))
+            {
+                IShellItem *pItem;
+                hr = pFileSave->GetResult(&pItem);
+                if (SUCCEEDED(hr))
+                {
+                    PWSTR pszFilePath;
+                    hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+                    // Display the file name to the user.
+                    if (SUCCEEDED(hr))
+                    {
+						instanceForSaveData->pblock2->SetValue(pb_external_file, 0, pszFilePath);
+                        CoTaskMemFree(pszFilePath);
+                    }
+                    pItem->Release();
+                }
+            }
+            pFileSave->Release();
+        }
+        CoUninitialize();
+    }
+
+	UpdateSaveInfo(hDlg);
 }
 
 //From Object

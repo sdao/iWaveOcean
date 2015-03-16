@@ -31,10 +31,13 @@
 #define IDS_DURATION                    25
 #define IDS_AMPLITUDE                   26
 #define IDS_AMBIENT_ON                  27
+#define IDS_SAVEDATA_ROLLUP             28
+#define IDS_EXTERNAL_FILE               29
 #define IDD_PANEL                       101
 #define IDD_PANEL_DYNAMICS              101
 #define IDD_PANEL_SIZE                  102
 #define IDD_PANEL_AMBIENT               103
+#define IDD_SAVEDATA                    104
 #define IDC_CLOSEBUTTON                 1000
 #define IDC_DOSTUFF                     1000
 #define IDC_AMPLITUDE_EDIT              1000
@@ -50,6 +53,10 @@
 #define IDC_DURATION_EDIT               1011
 #define IDC_SCALE_EDIT                  1012
 #define IDC_AMBIENT_CHECK               1013
+#define IDC_RADIO_MAXFILE               1014
+#define IDC_RADIO2                      1015
+#define IDC_RADIO_EXTERNALFILE          1015
+#define IDC_BROWSE_BUTTON               1016
 #define IDC_COLOR                       1456
 #define IDC_EDIT                        1490
 #define IDC_WIDTH_EDIT                  1490
@@ -89,7 +96,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        103
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1014
+#define _APS_NEXT_CONTROL_VALUE         1017
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
