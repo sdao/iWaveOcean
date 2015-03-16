@@ -61,6 +61,7 @@ public:
     static void UpdateStatus();
 	static void UpdateSaveInfo(HWND hDlg);
 	static void OpenBrowseDialog(HWND hDlg);
+	static bool ProvisionNewFile(HWND hDlg, std::wstring file);
     static void SimulateProgress(Simulator* simulator);
     static void SimulateDone(Simulator* simulator);
 

@@ -21,6 +21,7 @@
 #include <Shobjidl.h>
 #include <vector>
 #include <limits>
+#include <sstream>
 
 #define PBLOCK_REF 0
 #define SIM_DATA_CHUNK 1000 
@@ -349,7 +350,7 @@ void iWaveOcean::OpenBrowseDialog(HWND hDlg)
 			COMDLG_FILTERSPEC fileSpec[] =
 			{ 
 				{ L"iWave simulation data", L"*.iwdata" },
-				{ L"", L"*.*" },
+				{ L"All files", L"*.*" },
 			};
 			hr = pFileSave->SetFileTypes(2, fileSpec);
 
@@ -369,7 +370,10 @@ void iWaveOcean::OpenBrowseDialog(HWND hDlg)
                     // Display the file name to the user.
                     if (SUCCEEDED(hr))
                     {
-						instanceForSaveData->pblock2->SetValue(pb_external_file, 0, pszFilePath);
+						if (ProvisionNewFile(hDlg, std::wstring(pszFilePath))) {
+							instanceForSaveData->pblock2->SetValue(pb_external_file, 0, pszFilePath);
+						}
+
                         CoTaskMemFree(pszFilePath);
                     }
                     pItem->Release();
@@ -381,6 +385,55 @@ void iWaveOcean::OpenBrowseDialog(HWND hDlg)
     }
 
 	UpdateSaveInfo(hDlg);
+}
+
+bool iWaveOcean::ProvisionNewFile(HWND hDlg, std::wstring file)
+{
+	int numFramesFile = 25;
+	int numFramesScene = 36;
+
+	std::wstringstream keepSceneTextWss;
+	keepSceneTextWss << L"Keep data from scene\n"
+					 << L"The " << numFramesScene << " frames in the scene will replace the contents of the file.";
+	std::wstring keepSceneText = keepSceneTextWss.str();
+
+	std::wstringstream keepFileTextWss;
+	keepFileTextWss << L"Keep data from " << PathFindFileNameW(file.c_str()) << "\n"
+					<< L"The " << numFramesFile << " frames from this file will replace the scene's current simulation.";
+	std::wstring keepFileText = keepFileTextWss.str();
+
+	int nButtonPressed                  = 0;
+	TASKDIALOGCONFIG config             = {0};
+	const TASKDIALOG_BUTTON buttons[]   = { 
+											{ IDYES, keepSceneText.c_str() },
+											{ IDNO, keepFileText.c_str() }
+										  };
+	config.cbSize                       = sizeof(config);
+	config.hInstance                    = hInstance;
+	config.dwCommonButtons              = TDCBF_CANCEL_BUTTON;
+	config.pszMainIcon                  = TD_WARNING_ICON;
+	config.pszMainInstruction           = L"Which data should be kept?";
+	config.pszContent                   = L"Both the current scene and the selected file contain simulation data, but you can only keep one set of data. WARNING: This process cannot be undone.";
+	config.pszWindowTitle				= L"iWave";
+	config.pButtons                     = buttons;
+	config.cButtons                     = ARRAYSIZE(buttons);
+	config.dwFlags						= TDF_USE_COMMAND_LINKS;
+	config.nDefaultButton				= IDCANCEL;
+
+	TaskDialogIndirect(&config, &nButtonPressed, NULL, NULL);
+	switch (nButtonPressed)
+	{
+		case IDYES:
+			break; // the user chose to keep the current scene data
+		case IDNO:
+			break; // the user chose to keep the file's data
+		case IDCANCEL:
+			return false; // user canceled the dialog
+		default:
+			break; // should never happen
+	}
+
+	return true;
 }
 
 //From Object
