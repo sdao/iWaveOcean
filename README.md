@@ -13,7 +13,7 @@ If you used a version of this plugin from before March 2015, please see [the doc
 
 License
 -------
-Copyright (C) 2013 by Steven Dao
+Copyright (C) 2013-2015 by Steven Dao
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
