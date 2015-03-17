@@ -8,6 +8,14 @@ To create a new object instance, simply click on the iWaveOcean button and then 
 Note that this object is a "world-space object" and relies on its position in world space in order to calculate collisions.
 Thus, you will be able to clone the object as a copy, but not as an instance or reference.
 
+Versions and Compatibility
+--------------------------
+The binary format of the plugin's simulation data changed in March 2015.
+If you used a compiled binary from before March 2015 or the source code from before Git revision `f4158c4`,
+be aware that newer versions of the plugin are partially incompatible.
+Although settings such as size, wave height, and speed will be preserved between the old and new plugins,
+you will have to re-run the wave simulations when switching plugin versions.
+
 Size Rollup
 -----------
 ![Size rollup controls](size.png)
@@ -96,7 +104,7 @@ Simulate Rollup
 ---------------
 ![Simulate rollup controls](simulate.png)
 
-*Simulate Dyanmics* button. Click this button to start simulating from the "Sim Start" frame.
+*Simulate Dynamics* button. Click this button to start simulating from the "Sim Start" frame.
 This button will bring up a dialog with the simulation progress, wherein you can cancel the simulation midway.
 
 *Clear All* button. Click this button to erase all saved simulation frames.
@@ -108,3 +116,18 @@ This number may not match the "Sim Start" property if you have changed the "Sim 
 *Simulated*. The number of frames simulated thus far.
 This value is specified in frames regardless of the current Time Configuration.
 This number may not match the "Sim Length" property if you have cancelled a simulation midway, or if you have changed the "Sim Length" property without re-simulating.
+
+Data Location Rollup
+--------------------
+![Data location rollup controls](dataloc.png)
+
+*In current 3ds Max file* radio option (default). Select this option to keep the simulation data saved in the scene file.
+This is the safest option, as the simulation data will always travel with your scene.
+
+*In the specified file* radio option. Select this option to choose a custom location for the simulation data.
+You might choose this option if you have a lot of simulation data and you want to keep your scene file light.
+If you misplace the simulation file, you will have to re-simulate the water dynamics again.
+
+If you choose a simulation file that already contains simulation data, then the iWave plugin will load the existing simulation data from that file into the scene.
+
+*File selection* button. If you have chosen to use a custom file to save your data, you can select a different file location here.
