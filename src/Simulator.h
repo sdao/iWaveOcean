@@ -4,6 +4,7 @@
 #include <iparamb2.h>
 #include <vector>
 #include "Grid.h"
+#include "ExternalFile.h"
 
 class iWaveOcean;
 
@@ -31,6 +32,12 @@ class Simulator
     /** A pointer back to the geometry object that renders the simulation. */
     iWaveOcean* _geom;
 
+	/** Whether data should be saved to an external file instead of to the Max file. */
+	bool _saveExternal;
+
+	/** The external file path, if _saveExternal is true. */
+	std::wstring _saveExternalPath;
+
     /** Used for updating UI. */
     static int simStart;
 
@@ -54,6 +61,9 @@ class Simulator
 
     /** Gets whether the simulator's modifier is the top-most world-space modifier. */
     bool IsTopmostModifier() const;
+
+	bool CompleteSelectExternalFile(HWND hDlg, std::wstring file);
+
 public:
     /** Creates a new Simulator for the specified geometry object. */
     Simulator(iWaveOcean* geom);
@@ -92,5 +102,13 @@ public:
 
     IOResult Load(ILoad* iload);
     IOResult Save(ISave* isave);
+	bool LoadExternal(ExternalFile& file);
+
+	void BeginSelectExternalFile(HWND hDlg);
+	void UseNativeStorage();
+	bool IsUsingExternalStorage() const;
+	std::wstring GetExternalFileName() const;
+
+	void ErrorDialog(HWND hDlg, std::wstring main, std::wstring detail) const;
 };
 

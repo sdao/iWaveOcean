@@ -54,6 +54,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ExternalFile.cpp" />
     <ClCompile Include="iWaveOcean.cpp" />
     <ClCompile Include="DllEntry.cpp" />
     <ClCompile Include="Grid.cpp" />
@@ -67,6 +68,7 @@
   <ItemGroup>
     <ClInclude Include="3dsmaxsdk_preinclude.h" />
     <ClInclude Include="Convolution.h" />
+    <ClInclude Include="ExternalFile.h" />
     <ClInclude Include="GaussianConvolution.h" />
     <ClInclude Include="IConvolution.h" />
     <ClInclude Include="iWaveOcean.h" />

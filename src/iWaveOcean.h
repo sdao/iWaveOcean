@@ -56,14 +56,13 @@ public:
     static HWND numFramesStatic;
 
     static INT_PTR CALLBACK SimulateRollupDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    static INT_PTR CALLBACK SaveDataRollupDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-
     static void UpdateStatus();
-	static void UpdateSaveInfo(HWND hDlg);
-	static void OpenBrowseDialog(HWND hDlg);
-	static bool ProvisionNewFile(HWND hDlg, std::wstring file);
     static void SimulateProgress(Simulator* simulator);
     static void SimulateDone(Simulator* simulator);
+
+	// Static stuff for save data picker
+    static INT_PTR CALLBACK SaveDataRollupDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static void UpdateSaveInfo(HWND hDlg);
 
     // Parameter block handled by parent
     static IObjParam *ip; // Access to the interface
@@ -131,7 +130,5 @@ enum {
     pb_wind_direction,
     pb_seed,
     pb_duration,
-    pb_ambient_scale,
-	// Save Data
-	pb_external_file
+    pb_ambient_scale
 };

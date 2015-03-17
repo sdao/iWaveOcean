@@ -16,15 +16,15 @@
 
 #include "iWaveOcean.h"
 #include "Simulator.h"
+#include "ExternalFile.h"
 #include <Windowsx.h>
-#include <Shlwapi.h>
-#include <Shobjidl.h>
 #include <vector>
 #include <limits>
 #include <sstream>
 
 #define PBLOCK_REF 0
-#define SIM_DATA_CHUNK 1000 
+#define SIM_DATA_CHUNK_V1 1000 
+#define SIM_DATA_CHUNK_V2 1001
 
 #define MIN_WIDTH 1.0f
 #define MIN_LENGTH 1.0f
@@ -158,10 +158,6 @@ static ParamBlockDesc2 iwaveocean_param_blk ( iwaveocean_params, _T("params"),  
         p_ui,			pb_map_ambient,         TYPE_SPINNER,	EDITTYPE_TIME,	    IDC_DURATION_EDIT,      IDC_DURATION_SPIN,  	(float)GetTicksPerFrame(),
         p_end,
 
-	pb_external_file,	_T("external_file"),	TYPE_STRING,	0,					IDS_EXTERNAL_FILE,
-		p_default,		_T(""),
-		p_end,
-
     p_end
     );
 
@@ -265,18 +261,21 @@ INT_PTR CALLBACK iWaveOcean::SaveDataRollupDlgProc(HWND hDlg, UINT message, WPAR
     case WM_COMMAND: // Various messages come in this way.
         switch (LOWORD(wParam)) {
         case IDC_BROWSE_BUTTON:
-            OpenBrowseDialog(hDlg);
+            instanceForSaveData->_sim.BeginSelectExternalFile(hDlg);
+			UpdateSaveInfo(hDlg);
+			UpdateStatus();
             return TRUE;
 		case IDC_RADIO_MAXFILE:
 		case IDC_RADIO_EXTERNALFILE:
 			{
 				HWND radioMaxFile = GetDlgItem(hDlg, IDC_RADIO_MAXFILE);
 				if (Button_GetCheck(radioMaxFile)) {
-					instanceForSaveData->pblock2->SetValue(pb_external_file, 0, _T(""));
-					UpdateSaveInfo(hDlg);
+					instanceForSaveData->_sim.UseNativeStorage();
 				} else {
-					OpenBrowseDialog(hDlg);
+					instanceForSaveData->_sim.BeginSelectExternalFile(hDlg);
 				}
+				UpdateSaveInfo(hDlg);
+				UpdateStatus();
 			}
 			return TRUE;
         }
@@ -308,15 +307,11 @@ void iWaveOcean::UpdateStatus()
 void iWaveOcean::UpdateSaveInfo(HWND hDlg)
 {
 	if (instanceForSaveData) {
-		const wchar_t* saveFileRaw(instanceForSaveData->pblock2->GetStr(pb_external_file, 0));
-		std::wstring saveFile(saveFileRaw);
-		std::wstring saveFileNameOnly(PathFindFileNameW(saveFileRaw));
-
 		HWND radioMaxFile = GetDlgItem(hDlg, IDC_RADIO_MAXFILE);
 		HWND radioExternalFile = GetDlgItem(hDlg, IDC_RADIO_EXTERNALFILE);
 		HWND browseButton = GetDlgItem(hDlg, IDC_BROWSE_BUTTON);
 
-		if (saveFile.empty()) {
+		if (!instanceForSaveData->_sim.IsUsingExternalStorage()) {
 			Button_SetCheck(radioMaxFile, BST_CHECKED);
 			Button_SetCheck(radioExternalFile, BST_UNCHECKED);
 			Button_Enable(browseButton, FALSE);
@@ -325,115 +320,9 @@ void iWaveOcean::UpdateSaveInfo(HWND hDlg)
 			Button_SetCheck(radioMaxFile, BST_UNCHECKED);
 			Button_SetCheck(radioExternalFile, BST_CHECKED);
 			Button_Enable(browseButton, TRUE);
-			Button_SetText(browseButton, saveFileNameOnly.c_str());
+			Button_SetText(browseButton, instanceForSaveData->_sim.GetExternalFileName().c_str());
 		}
 	}
-}
-
-void iWaveOcean::OpenBrowseDialog(HWND hDlg)
-{
-	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-    if (SUCCEEDED(hr))
-    {
-        IFileSaveDialog *pFileSave;
-
-        // Create the FileOpenDialog object.
-        hr = CoCreateInstance(CLSID_FileSaveDialog,
-							  NULL,
-							  CLSCTX_ALL, 
-							  IID_IFileSaveDialog,
-							  reinterpret_cast<void**>(&pFileSave));
-
-        if (SUCCEEDED(hr))
-        {
-			// Set file types.
-			COMDLG_FILTERSPEC fileSpec[] =
-			{ 
-				{ L"iWave simulation data", L"*.iwdata" },
-				{ L"All files", L"*.*" },
-			};
-			hr = pFileSave->SetFileTypes(2, fileSpec);
-
-            // Show the Save dialog box.
-            hr &= pFileSave->Show(hDlg);
-
-            // Get the file name from the dialog box.
-            if (SUCCEEDED(hr))
-            {
-                IShellItem *pItem;
-                hr = pFileSave->GetResult(&pItem);
-                if (SUCCEEDED(hr))
-                {
-                    PWSTR pszFilePath;
-                    hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-
-                    // Display the file name to the user.
-                    if (SUCCEEDED(hr))
-                    {
-						if (ProvisionNewFile(hDlg, std::wstring(pszFilePath))) {
-							instanceForSaveData->pblock2->SetValue(pb_external_file, 0, pszFilePath);
-						}
-
-                        CoTaskMemFree(pszFilePath);
-                    }
-                    pItem->Release();
-                }
-            }
-            pFileSave->Release();
-        }
-        CoUninitialize();
-    }
-
-	UpdateSaveInfo(hDlg);
-}
-
-bool iWaveOcean::ProvisionNewFile(HWND hDlg, std::wstring file)
-{
-	int numFramesFile = 25;
-	int numFramesScene = 36;
-
-	std::wstringstream keepSceneTextWss;
-	keepSceneTextWss << L"Keep data from scene\n"
-					 << L"The " << numFramesScene << " frames in the scene will replace the contents of the file.";
-	std::wstring keepSceneText = keepSceneTextWss.str();
-
-	std::wstringstream keepFileTextWss;
-	keepFileTextWss << L"Keep data from " << PathFindFileNameW(file.c_str()) << "\n"
-					<< L"The " << numFramesFile << " frames from this file will replace the scene's current simulation.";
-	std::wstring keepFileText = keepFileTextWss.str();
-
-	int nButtonPressed                  = 0;
-	TASKDIALOGCONFIG config             = {0};
-	const TASKDIALOG_BUTTON buttons[]   = { 
-											{ IDYES, keepSceneText.c_str() },
-											{ IDNO, keepFileText.c_str() }
-										  };
-	config.cbSize                       = sizeof(config);
-	config.hInstance                    = hInstance;
-	config.dwCommonButtons              = TDCBF_CANCEL_BUTTON;
-	config.pszMainIcon                  = TD_WARNING_ICON;
-	config.pszMainInstruction           = L"Which data should be kept?";
-	config.pszContent                   = L"Both the current scene and the selected file contain simulation data, but you can only keep one set of data. WARNING: This process cannot be undone.";
-	config.pszWindowTitle				= L"iWave";
-	config.pButtons                     = buttons;
-	config.cButtons                     = ARRAYSIZE(buttons);
-	config.dwFlags						= TDF_USE_COMMAND_LINKS;
-	config.nDefaultButton				= IDCANCEL;
-
-	TaskDialogIndirect(&config, &nButtonPressed, NULL, NULL);
-	switch (nButtonPressed)
-	{
-		case IDYES:
-			break; // the user chose to keep the current scene data
-		case IDNO:
-			break; // the user chose to keep the file's data
-		case IDCANCEL:
-			return false; // user canceled the dialog
-		default:
-			break; // should never happen
-	}
-
-	return true;
 }
 
 //From Object
@@ -652,11 +541,12 @@ IOResult iWaveOcean::Load(ILoad* iload)
 {
     ULONG nb;
     IOResult res;
+
     while (IO_OK == (res = iload->OpenChunk()))
     {
         switch(iload->CurChunkID())
         {
-        case SIM_DATA_CHUNK:
+        case SIM_DATA_CHUNK_V2:
             res = _sim.Load(iload);
             break;
         }
@@ -672,7 +562,7 @@ IOResult iWaveOcean::Save(ISave* isave)
     ULONG nb;
     IOResult res;
 
-    isave->BeginChunk(SIM_DATA_CHUNK);
+    isave->BeginChunk(SIM_DATA_CHUNK_V2);
     res = _sim.Save(isave);
     if (res != IO_OK) return res;
     isave->EndChunk();
