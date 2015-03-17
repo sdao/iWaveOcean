@@ -1,4 +1,5 @@
 Check out [an example](http://vimeo.com/83008229) on Vimeo!
+And to quickly get started, look at [the documentation](http://sdao.github.io/iWaveOcean/).
 
 iWave Ocean Simulation Plugin
 =============================
