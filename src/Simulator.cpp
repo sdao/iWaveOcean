@@ -10,6 +10,7 @@
 #include <Shobjidl.h>
 #include <process.h>
 #include <units.h>
+#include <Path.h>
 #include "iWaveOcean.h"
 #include "Ambient.h"
 #include "Dynamics.h"
@@ -263,7 +264,7 @@ IOResult Simulator::Load(ILoad* iload)
 	res = iload->Read(&_saveExternal, sizeof(bool), &nb);
 	CheckResult(res);
 	
-	// Save path length (int size; wchar_t buf string).
+	// Save path (int size; wchar_t buf string).
 	int pathLength;
 	res = iload->Read(&pathLength, sizeof(int), &nb);
 	CheckResult(res);
@@ -273,8 +274,12 @@ IOResult Simulator::Load(ILoad* iload)
 		res = iload->Read(pathBuf, sizeof(wchar_t) * pathLength, &nb);
 		CheckResult(res);
 
-		_saveExternalPath = std::wstring(pathBuf, pathLength);
+		std::wstring relativeExternalWstring(pathBuf, pathLength);
 		delete [] pathBuf;
+
+		MaxSDK::Util::Path absoluteExternalPath(relativeExternalWstring.c_str());
+		absoluteExternalPath.ConvertToAbsolute();
+		_saveExternalPath = std::wstring(absoluteExternalPath.GetString());
 	}
 
 	if (_saveExternal) {
@@ -351,14 +356,22 @@ IOResult Simulator::Save(ISave* isave)
 	res = isave->Write(&_saveExternal, sizeof(bool), &nb);
 	CheckResult(res);
 
-	// Save path length (int size; wchar_t buf string).
-	int pathLength = _saveExternalPath.size();
-	res = isave->Write(&pathLength, sizeof(int), &nb);
-	CheckResult(res);
-
-	if (pathLength > 0) {
-		const wchar_t* pathBuf = _saveExternalPath.c_str();
+	// Save path (int size; wchar_t buf string).
+	if (_saveExternalPath.size() > 0) {
+		MaxSDK::Util::Path relativeExternalPath(_saveExternalPath.c_str());
+		relativeExternalPath.ConvertToRelativeToProjectFolder();
+		std::wstring relativeExternalWstring(relativeExternalPath.GetString());
+		
+		int pathLength = relativeExternalWstring.size();
+		res = isave->Write(&pathLength, sizeof(int), &nb);
+		CheckResult(res);
+		
+		const wchar_t* pathBuf = relativeExternalWstring.c_str();
 		res = isave->Write(pathBuf, sizeof(wchar_t) * pathLength, &nb);
+		CheckResult(res);
+	} else {
+		int pathLength = 0;
+		res = isave->Write(&pathLength, sizeof(int), &nb);
 		CheckResult(res);
 	}
 
