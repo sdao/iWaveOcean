@@ -114,7 +114,7 @@ IDD_SAVEDATA DIALOGEX 0, 0, 108, 70
 STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Save simulation data:",-1,7,7,94,8
+    LTEXT           "Save/read simulation data:",-1,7,7,94,8
     CONTROL         "In current 3ds Max file",IDC_RADIO_MAXFILE,"Button",BS_AUTORADIOBUTTON,7,18,85,10
     CONTROL         "In the specified file:",IDC_RADIO_EXTERNALFILE,"Button",BS_AUTORADIOBUTTON,7,30,77,10
     CONTROL         "",IDC_BROWSE_BUTTON,"CustButton",WS_DISABLED | WS_TABSTOP,7,46,94,16
@@ -236,7 +236,7 @@ BEGIN
     IDS_DURATION            "Ambient Loop Duration"
     IDS_AMPLITUDE           "Amplitude"
     IDS_AMBIENT_ON          "Make Ambient Waves"
-    IDS_SAVEDATA_ROLLUP     "Save Data"
+    IDS_SAVEDATA_ROLLUP     "Data Location"
     IDS_EXTERNAL_FILE       "External File"
 END
 

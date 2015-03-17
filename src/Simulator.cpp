@@ -508,17 +508,12 @@ bool Simulator::CompleteSelectExternalFile(HWND hDlg, std::wstring file) {
 		}
 	}
 
-	if (needFileRead) {
-		if (LoadExternal(saveExternalFile)) {
-			// Success reading file.
-			return true;
-		} else {
-			// Error reading file.
-			ErrorDialog(hDlg,
-				L"The file could not be read.",
-				L"It may be corrupted. Try again with a different file.");
-			return false;
-		}
+	if (needFileRead && !LoadExternal(saveExternalFile)) {
+		// Error reading file.
+		ErrorDialog(hDlg,
+			L"The file could not be read.",
+			L"It may be corrupted. Try again with a different file.");
+		return false;
 	}
 
 	return true;
