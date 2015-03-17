@@ -12,8 +12,6 @@
 // AUTHOR: 
 //***************************************************************************/
 
-#define _WIN32_WINNT _WIN32_WINNT_VISTA
-
 #include "iWaveOcean.h"
 #include "Simulator.h"
 #include "ExternalFile.h"
@@ -539,7 +537,6 @@ RefTargetHandle iWaveOcean::Clone(RemapDir& remap)
 
 IOResult iWaveOcean::Load(ILoad* iload)
 {
-    ULONG nb;
     IOResult res;
 
     while (IO_OK == (res = iload->OpenChunk()))
@@ -559,7 +556,6 @@ IOResult iWaveOcean::Load(ILoad* iload)
 
 IOResult iWaveOcean::Save(ISave* isave)
 {
-    ULONG nb;
     IOResult res;
 
     isave->BeginChunk(SIM_DATA_CHUNK_V2);
