@@ -7,7 +7,6 @@
 #include "Simulator.h"
 #include <Windows.h>
 #include <Shlwapi.h>
-#include <Shobjidl.h>
 #include <process.h>
 #include <units.h>
 #include <Path.h>
@@ -435,63 +434,26 @@ IOResult Simulator::Save(ISave* isave)
 }
 
 void Simulator::BeginSelectExternalFile(HWND hDlg) {
-	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-    if (SUCCEEDED(hr))
-    {
-        IFileSaveDialog *pFileSave;
+	MSTR filename = L"";
+	MSTR initialDirectory = L"";
 
-        // Create the FileOpenDialog object.
-        hr = CoCreateInstance(CLSID_FileSaveDialog,
-							  NULL,
-							  CLSCTX_ALL, 
-							  IID_IFileSaveDialog,
-							  reinterpret_cast<void**>(&pFileSave));
+	FilterList filterList;
+	filterList.Append(_M("iWave simulation cache (*.iwdata)"));
+	filterList.Append(_M("*.iwdata"));
 
-        if (SUCCEEDED(hr))
-        {
-			// Set file types and options.
-			COMDLG_FILTERSPEC fileSpec[] =
-			{ 
-				{ L"iWave simulation data", L"*.iwdata" },
-				{ L"All files", L"*.*" },
-			};
-			hr &= pFileSave->SetDefaultExtension(L"iwdata");
-			hr &= pFileSave->SetFileTypes(2, fileSpec);
-			hr &= pFileSave->SetOkButtonLabel(L"Choose");
-			hr &= pFileSave->SetTitle(L"Choose Cache File");
+	bool gotFile = GetCOREInterface8()->DoMaxSaveAsDialog(hDlg,
+		L"Choose Simulation Cache",
+		filename,
+		initialDirectory,
+		filterList);
 
-            // Show the Save dialog box.
-            hr &= pFileSave->Show(hDlg);
-
-            // Get the file name from the dialog box.
-            if (SUCCEEDED(hr))
-            {
-                IShellItem *pItem;
-                hr = pFileSave->GetResult(&pItem);
-                if (SUCCEEDED(hr))
-                {
-                    PWSTR pszFilePath;
-                    hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-
-                    // Display the file name to the user.
-                    if (SUCCEEDED(hr))
-                    {
-						std::wstring filePath(pszFilePath);
-
-						if (CompleteSelectExternalFile(hDlg, filePath)) {
-							_saveExternal = true;
-							_saveExternalPath = filePath;
-						}
-
-                        CoTaskMemFree(pszFilePath);
-                    }
-                    pItem->Release();
-                }
-            }
-            pFileSave->Release();
-        }
-        CoUninitialize();
-    }
+	if (gotFile) {
+		std::wstring filenameWstring(filename);
+		if (CompleteSelectExternalFile(hDlg, filenameWstring)) {
+			_saveExternal = true;
+			_saveExternalPath = filenameWstring;
+		}
+	}
 }
 
 bool Simulator::CompleteSelectExternalFile(HWND hDlg, std::wstring file) {
