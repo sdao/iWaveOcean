@@ -2,6 +2,8 @@
 
 #define CheckResult(res) if (res != IO_OK) return res;
 
+#define FRIENDLY_ERRORS
+
 #include "Simulator.h"
 #include <Windows.h>
 #include <Shlwapi.h>
@@ -272,12 +274,31 @@ IOResult Simulator::Load(ILoad* iload)
 		CheckResult(res);
 
 		_saveExternalPath = std::wstring(pathBuf, pathLength);
+		delete [] pathBuf;
 	}
 
 	if (_saveExternal) {
 		ExternalFile ef(_saveExternalPath);
 		res = LoadExternal(ef) ? IO_OK : IO_ERROR;
+#ifdef FRIENDLY_ERRORS
+		if (res != IO_OK) {
+			std::wstringstream errorWss;
+			errorWss << L"Error reading simulation data from "
+					 << PathFindFileNameW(_saveExternalPath.c_str());
+			std::wstring error = errorWss.str();
+			ErrorDialog(
+				GetCOREInterface7()->GetMAXHWnd(),
+				error.c_str(),
+				L"The iWave plugin could not read the external simulation cache. The plugin has been reset to save data in the current 3ds Max scene instead.");
+			
+			_saveExternal = false;
+			_saveExternalPath = L"";
+
+			return IO_OK; // Tell Max things are OK so the modifier will load.
+		}
+#else
 		CheckResult(res);
+#endif
 	} else {
 		// Cache start frame (int).
 		res = iload->Read(&_cacheStartFrame, sizeof(int), &nb);
@@ -344,7 +365,22 @@ IOResult Simulator::Save(ISave* isave)
 	if (_saveExternal) {
 		ExternalFile ef(_saveExternalPath);
 		res = ef.Write(_cacheStartFrame, _cache) ? IO_OK : IO_ERROR;
+#ifdef FRIENDLY_ERRORS
+		if (res != IO_OK) {
+			std::wstringstream errorWss;
+			errorWss << L"Error saving simulation data to "
+					 << PathFindFileNameW(_saveExternalPath.c_str());
+			std::wstring error = errorWss.str();
+			ErrorDialog(
+				GetCOREInterface7()->GetMAXHWnd(),
+				error.c_str(),
+				L"The iWave plugin could not save to the external simulation cache. Double-check your iWave data location settings.");
+			
+			return IO_ERROR; // Tell Max things have gone awry even though it seems to ignore this :(
+		}
+#else
 		CheckResult(res);
+#endif
 	} else {
 		// Cache start frame (int).
 		res = isave->Write(&_cacheStartFrame, sizeof(int), &nb);
@@ -544,6 +580,7 @@ void Simulator::ErrorDialog(HWND hDlg, std::wstring main, std::wstring detail) c
     config.hwndParent = hDlg;
     config.pszWindowTitle = _T("iWave");
     config.pszMainInstruction = main.c_str();
+	config.pszMainIcon = TD_WARNING_ICON;
     config.pszContent = detail.c_str();
     config.dwFlags = 0;
     config.pfCallback = NULL;

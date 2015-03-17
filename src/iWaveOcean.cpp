@@ -560,8 +560,7 @@ IOResult iWaveOcean::Save(ISave* isave)
 
     isave->BeginChunk(SIM_DATA_CHUNK_V2);
     res = _sim.Save(isave);
-    if (res != IO_OK) return res;
     isave->EndChunk();
 
-    return IO_OK;
+    return res;
 }
