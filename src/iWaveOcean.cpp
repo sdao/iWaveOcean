@@ -172,7 +172,7 @@ iWaveOcean* iWaveOcean::instanceForSaveData = NULL;
 HWND iWaveOcean::startFrameStatic = NULL;
 HWND iWaveOcean::numFramesStatic = NULL;
 
-iWaveOcean::iWaveOcean() : _sim(this)
+iWaveOcean::iWaveOcean() : _sim(this), _simulateRollup(NULL), _saveDataRollup(NULL)
 {
     GetiWaveOceanDesc()->MakeAutoParamBlocks(this);
 }
@@ -188,17 +188,23 @@ void iWaveOcean::BeginEditParams(IObjParam* ip, ULONG flags, Animatable* prev)
     SimpleObject2::BeginEditParams(ip,flags,prev);
     GetiWaveOceanDesc()->BeginEditParams(ip, this, flags, prev);
 
-    _simulateRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SIMULATE), SimulateRollupDlgProc, GetString(IDS_SIMULATE_ROLLUP), (LPARAM)this);
-	_saveDataRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SAVEDATA), SaveDataRollupDlgProc, GetString(IDS_SAVEDATA_ROLLUP), (LPARAM)this);
+	if (flags != BEGIN_EDIT_CREATE) {
+		_simulateRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SIMULATE), SimulateRollupDlgProc, GetString(IDS_SIMULATE_ROLLUP), (LPARAM)this);
+		_saveDataRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SAVEDATA), SaveDataRollupDlgProc, GetString(IDS_SAVEDATA_ROLLUP), (LPARAM)this);
+	}
 }
 
 void iWaveOcean::EndEditParams( IObjParam* ip, ULONG flags, Animatable* next )
 {
-    ip->DeleteRollupPage(_simulateRollup);
-    _simulateRollup = NULL;
+	if (_simulateRollup) {
+		ip->DeleteRollupPage(_simulateRollup);
+		_simulateRollup = NULL;
+	}
 
-	ip->DeleteRollupPage(_saveDataRollup);
-	_saveDataRollup = NULL;
+	if (_saveDataRollup) {
+		ip->DeleteRollupPage(_saveDataRollup);
+		_saveDataRollup = NULL;
+	}
 
     //TODO: Save plugin parameter values into class variables, if they are not hosted in ParamBlocks. 
     SimpleObject2::EndEditParams(ip,flags,next);
