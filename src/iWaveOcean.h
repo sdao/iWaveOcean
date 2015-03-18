@@ -40,17 +40,17 @@ class iWaveOcean : public SimpleObject2
     // Simulation cache
     Simulator _sim;
     HWND _simulateRollup;
-	HWND _saveDataRollup;
+    HWND _saveDataRollup;
 
 public:
     //Constructor/Destructor
     iWaveOcean();
     virtual ~iWaveOcean();
 
-	// Static stuff for rollup management
+    // Static stuff for rollup management
     static iWaveOcean* instanceForSimulate;
     static iWaveOcean* instanceForSaveData;
-	
+    
     // Static stuff for simulation cache
     static HWND startFrameStatic;
     static HWND numFramesStatic;
@@ -60,9 +60,9 @@ public:
     static void SimulateProgress(Simulator* simulator);
     static void SimulateDone(Simulator* simulator);
 
-	// Static stuff for save data picker
+    // Static stuff for save data picker
     static INT_PTR CALLBACK SaveDataRollupDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	static void UpdateSaveInfo(HWND hDlg);
+    static void UpdateSaveInfo(HWND hDlg);
 
     // Parameter block handled by parent
     static IObjParam *ip; // Access to the interface

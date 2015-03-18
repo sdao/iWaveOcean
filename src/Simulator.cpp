@@ -122,9 +122,9 @@ void Simulator::BeginSimulation(HWND hDlg)
     {
         // Currently, we can't get the world-space node if there are other modifiers above it, 
         // so prevent simulations from starting in that case.
-		ErrorDialog(hDlg,
-			L"iWave is not the topmost modifier.",
-			L"Delete the modifiers above the iWave modifier and try simulating again.");
+        ErrorDialog(hDlg,
+            L"iWave is not the topmost modifier.",
+            L"Delete the modifiers above the iWave modifier and try simulating again.");
     }
 }
 
@@ -258,90 +258,90 @@ IOResult Simulator::Load(ILoad* iload)
 
     ULONG nb;
     IOResult res;
-	
-	// Save external (bool).
-	res = iload->Read(&_saveExternal, sizeof(bool), &nb);
-	CheckResult(res);
-	
-	// Save path (int size; wchar_t buf string).
-	int pathLength;
-	res = iload->Read(&pathLength, sizeof(int), &nb);
-	CheckResult(res);
+    
+    // Save external (bool).
+    res = iload->Read(&_saveExternal, sizeof(bool), &nb);
+    CheckResult(res);
+    
+    // Save path (int size; wchar_t buf string).
+    int pathLength;
+    res = iload->Read(&pathLength, sizeof(int), &nb);
+    CheckResult(res);
 
-	if (pathLength > 0) {
-		wchar_t* pathBuf = new wchar_t[pathLength];
-		res = iload->Read(pathBuf, sizeof(wchar_t) * pathLength, &nb);
-		CheckResult(res);
+    if (pathLength > 0) {
+        wchar_t* pathBuf = new wchar_t[pathLength];
+        res = iload->Read(pathBuf, sizeof(wchar_t) * pathLength, &nb);
+        CheckResult(res);
 
-		std::wstring relativeExternalWstring(pathBuf, pathLength);
-		delete [] pathBuf;
+        std::wstring relativeExternalWstring(pathBuf, pathLength);
+        delete [] pathBuf;
 
-		MaxSDK::Util::Path absoluteExternalPath(relativeExternalWstring.c_str());
-		absoluteExternalPath.ConvertToAbsolute();
-		_saveExternalPath = std::wstring(absoluteExternalPath.GetString());
-	}
+        MaxSDK::Util::Path absoluteExternalPath(relativeExternalWstring.c_str());
+        absoluteExternalPath.ConvertToAbsolute();
+        _saveExternalPath = std::wstring(absoluteExternalPath.GetString());
+    }
 
-	if (_saveExternal) {
-		ExternalFile ef(_saveExternalPath);
-		res = LoadExternal(ef) ? IO_OK : IO_ERROR;
+    if (_saveExternal) {
+        ExternalFile ef(_saveExternalPath);
+        res = LoadExternal(ef) ? IO_OK : IO_ERROR;
 #ifdef FRIENDLY_ERRORS
-		if (res != IO_OK) {
-			std::wstringstream errorWss;
-			errorWss << L"Error reading simulation data from "
-					 << PathFindFileNameW(_saveExternalPath.c_str());
-			std::wstring error = errorWss.str();
-			ErrorDialog(
-				GetCOREInterface7()->GetMAXHWnd(),
-				error.c_str(),
-				L"The iWave plugin could not read the external simulation cache. The plugin has been reset to save data in the current 3ds Max scene instead.");
-			
-			_saveExternal = false;
-			_saveExternalPath = L"";
+        if (res != IO_OK) {
+            std::wstringstream errorWss;
+            errorWss << L"Error reading simulation data from "
+                     << PathFindFileNameW(_saveExternalPath.c_str());
+            std::wstring error = errorWss.str();
+            ErrorDialog(
+                GetCOREInterface7()->GetMAXHWnd(),
+                error.c_str(),
+                L"The iWave plugin could not read the external simulation cache. The plugin has been reset to save data in the current 3ds Max scene instead.");
+            
+            _saveExternal = false;
+            _saveExternalPath = L"";
 
-			return IO_OK; // Tell Max things are OK so the modifier will load.
-		}
+            return IO_OK; // Tell Max things are OK so the modifier will load.
+        }
 #else
-		CheckResult(res);
+        CheckResult(res);
 #endif
-	} else {
-		// Cache start frame (int).
-		res = iload->Read(&_cacheStartFrame, sizeof(int), &nb);
-		CheckResult(res);
-	
-		// Cache size (int).
-		int size;
-		res = iload->Read(&size, sizeof(int), &nb);
-		CheckResult(res);
-	
-		// Cache data (float buf).
-		for (int i = 0; i < size; i++)
-		{
-			float width;
-			float length;
-			int widthSegs;
-			int lengthSegs;
+    } else {
+        // Cache start frame (int).
+        res = iload->Read(&_cacheStartFrame, sizeof(int), &nb);
+        CheckResult(res);
+    
+        // Cache size (int).
+        int size;
+        res = iload->Read(&size, sizeof(int), &nb);
+        CheckResult(res);
+    
+        // Cache data (float buf).
+        for (int i = 0; i < size; i++)
+        {
+            float width;
+            float length;
+            int widthSegs;
+            int lengthSegs;
 
-			res = iload->Read(&width, sizeof(float), &nb);
-			CheckResult(res);
+            res = iload->Read(&width, sizeof(float), &nb);
+            CheckResult(res);
 
-			res = iload->Read(&length, sizeof(float), &nb);
-			CheckResult(res);
+            res = iload->Read(&length, sizeof(float), &nb);
+            CheckResult(res);
 
-			res = iload->Read(&widthSegs, sizeof(int), &nb);
-			CheckResult(res);
+            res = iload->Read(&widthSegs, sizeof(int), &nb);
+            CheckResult(res);
 
-			res = iload->Read(&lengthSegs, sizeof(int), &nb);
-			CheckResult(res);
+            res = iload->Read(&lengthSegs, sizeof(int), &nb);
+            CheckResult(res);
 
-			int numVertices = (widthSegs + 1) * (lengthSegs + 1);
-			float* vertexHeights = new float[numVertices];
-			res = iload->Read(vertexHeights, sizeof(float) * numVertices, &nb);
-			CheckResult(res);
+            int numVertices = (widthSegs + 1) * (lengthSegs + 1);
+            float* vertexHeights = new float[numVertices];
+            res = iload->Read(vertexHeights, sizeof(float) * numVertices, &nb);
+            CheckResult(res);
 
-			Grid* grid = new Grid(width, length, widthSegs, lengthSegs, vertexHeights);
-			_cache.push_back(grid);
-		}
-	}
+            Grid* grid = new Grid(width, length, widthSegs, lengthSegs, vertexHeights);
+            _cache.push_back(grid);
+        }
+    }
 
     return IO_OK;
 }
@@ -351,211 +351,211 @@ IOResult Simulator::Save(ISave* isave)
     ULONG nb;
     IOResult res;
 
-	// Save external (bool).
-	res = isave->Write(&_saveExternal, sizeof(bool), &nb);
-	CheckResult(res);
+    // Save external (bool).
+    res = isave->Write(&_saveExternal, sizeof(bool), &nb);
+    CheckResult(res);
 
-	// Save path (int size; wchar_t buf string).
-	if (_saveExternalPath.size() > 0) {
-		MaxSDK::Util::Path relativeExternalPath(_saveExternalPath.c_str());
-		relativeExternalPath.ConvertToRelativeToProjectFolder();
-		std::wstring relativeExternalWstring(relativeExternalPath.GetString());
-		
-		int pathLength = relativeExternalWstring.size();
-		res = isave->Write(&pathLength, sizeof(int), &nb);
-		CheckResult(res);
-		
-		const wchar_t* pathBuf = relativeExternalWstring.c_str();
-		res = isave->Write(pathBuf, sizeof(wchar_t) * pathLength, &nb);
-		CheckResult(res);
-	} else {
-		int pathLength = 0;
-		res = isave->Write(&pathLength, sizeof(int), &nb);
-		CheckResult(res);
-	}
+    // Save path (int size; wchar_t buf string).
+    if (_saveExternalPath.size() > 0) {
+        MaxSDK::Util::Path relativeExternalPath(_saveExternalPath.c_str());
+        relativeExternalPath.ConvertToRelativeToProjectFolder();
+        std::wstring relativeExternalWstring(relativeExternalPath.GetString());
+        
+        int pathLength = relativeExternalWstring.size();
+        res = isave->Write(&pathLength, sizeof(int), &nb);
+        CheckResult(res);
+        
+        const wchar_t* pathBuf = relativeExternalWstring.c_str();
+        res = isave->Write(pathBuf, sizeof(wchar_t) * pathLength, &nb);
+        CheckResult(res);
+    } else {
+        int pathLength = 0;
+        res = isave->Write(&pathLength, sizeof(int), &nb);
+        CheckResult(res);
+    }
 
-	if (_saveExternal) {
-		ExternalFile ef(_saveExternalPath);
-		res = ef.Write(_cacheStartFrame, _cache) ? IO_OK : IO_ERROR;
+    if (_saveExternal) {
+        ExternalFile ef(_saveExternalPath);
+        res = ef.Write(_cacheStartFrame, _cache) ? IO_OK : IO_ERROR;
 #ifdef FRIENDLY_ERRORS
-		if (res != IO_OK) {
-			std::wstringstream errorWss;
-			errorWss << L"Error saving simulation data to "
-					 << PathFindFileNameW(_saveExternalPath.c_str());
-			std::wstring error = errorWss.str();
-			ErrorDialog(
-				GetCOREInterface7()->GetMAXHWnd(),
-				error.c_str(),
-				L"The iWave plugin could not save to the external simulation cache. Double-check your iWave data location settings.");
-			
-			return IO_ERROR; // Tell Max things have gone awry even though it seems to ignore this :(
-		}
+        if (res != IO_OK) {
+            std::wstringstream errorWss;
+            errorWss << L"Error saving simulation data to "
+                     << PathFindFileNameW(_saveExternalPath.c_str());
+            std::wstring error = errorWss.str();
+            ErrorDialog(
+                GetCOREInterface7()->GetMAXHWnd(),
+                error.c_str(),
+                L"The iWave plugin could not save to the external simulation cache. Double-check your iWave data location settings.");
+            
+            return IO_ERROR; // Tell Max things have gone awry even though it seems to ignore this :(
+        }
 #else
-		CheckResult(res);
+        CheckResult(res);
 #endif
-	} else {
-		// Cache start frame (int).
-		res = isave->Write(&_cacheStartFrame, sizeof(int), &nb);
-		CheckResult(res);
+    } else {
+        // Cache start frame (int).
+        res = isave->Write(&_cacheStartFrame, sizeof(int), &nb);
+        CheckResult(res);
 
-		// Cache size (int).
-		int size = (int)_cache.size();
-		res = isave->Write(&size, sizeof(int), &nb);
-		CheckResult(res);
+        // Cache size (int).
+        int size = (int)_cache.size();
+        res = isave->Write(&size, sizeof(int), &nb);
+        CheckResult(res);
 
-		// Cache data (float buf).
-		for (int i = 0; i < size; i++)
-		{
-			Grid* grid = _cache[i];
-			float width = grid->GetWidth();
-			float length = grid->GetLength();
-			int widthSegs = grid->GetWidthSegs();
-			int lengthSegs = grid->GetLengthSegs();
-			float* vertexHeights = grid->GetVertexHeights();
+        // Cache data (float buf).
+        for (int i = 0; i < size; i++)
+        {
+            Grid* grid = _cache[i];
+            float width = grid->GetWidth();
+            float length = grid->GetLength();
+            int widthSegs = grid->GetWidthSegs();
+            int lengthSegs = grid->GetLengthSegs();
+            float* vertexHeights = grid->GetVertexHeights();
 
-			res = isave->Write(&width, sizeof(float), &nb);
-			CheckResult(res);
+            res = isave->Write(&width, sizeof(float), &nb);
+            CheckResult(res);
 
-			res = isave->Write(&length, sizeof(float), &nb);
-			CheckResult(res);
+            res = isave->Write(&length, sizeof(float), &nb);
+            CheckResult(res);
 
-			res = isave->Write(&widthSegs, sizeof(int), &nb);
-			CheckResult(res);
+            res = isave->Write(&widthSegs, sizeof(int), &nb);
+            CheckResult(res);
 
-			res = isave->Write(&lengthSegs, sizeof(int), &nb);
-			CheckResult(res);
+            res = isave->Write(&lengthSegs, sizeof(int), &nb);
+            CheckResult(res);
 
-			res = isave->Write(vertexHeights, sizeof(float) * (widthSegs + 1) * (lengthSegs + 1), &nb);
-			CheckResult(res);
-		}
-	}
+            res = isave->Write(vertexHeights, sizeof(float) * (widthSegs + 1) * (lengthSegs + 1), &nb);
+            CheckResult(res);
+        }
+    }
 
     return IO_OK;
 }
 
 void Simulator::BeginSelectExternalFile(HWND hDlg) {
-	MSTR filename = L"";
-	MSTR initialDirectory = L"";
+    MSTR filename = L"";
+    MSTR initialDirectory = L"";
 
-	FilterList filterList;
-	filterList.Append(_M("iWave simulation cache (*.iwdata)"));
-	filterList.Append(_M("*.iwdata"));
+    FilterList filterList;
+    filterList.Append(_M("iWave simulation cache (*.iwdata)"));
+    filterList.Append(_M("*.iwdata"));
 
-	bool gotFile = GetCOREInterface8()->DoMaxSaveAsDialog(hDlg,
-		L"Choose Simulation Cache",
-		filename,
-		initialDirectory,
-		filterList);
+    bool gotFile = GetCOREInterface8()->DoMaxSaveAsDialog(hDlg,
+        L"Choose Simulation Cache",
+        filename,
+        initialDirectory,
+        filterList);
 
-	if (gotFile) {
-		std::wstring filenameWstring(filename);
-		if (CompleteSelectExternalFile(hDlg, filenameWstring)) {
-			_saveExternal = true;
-			_saveExternalPath = filenameWstring;
-		}
-	}
+    if (gotFile) {
+        std::wstring filenameWstring(filename);
+        if (CompleteSelectExternalFile(hDlg, filenameWstring)) {
+            _saveExternal = true;
+            _saveExternalPath = filenameWstring;
+        }
+    }
 }
 
 bool Simulator::CompleteSelectExternalFile(HWND hDlg, std::wstring file) {
-	ExternalFile saveExternalFile(file);
-	
-	int numFramesFile = saveExternalFile.CheckValidity();
-	int numFramesScene = GetSimulatedFrameCount();
+    ExternalFile saveExternalFile(file);
+    
+    int numFramesFile = saveExternalFile.CheckValidity();
+    int numFramesScene = GetSimulatedFrameCount();
 
-	bool needFileRead = false;
-	if (numFramesFile < 0) {
-		// File error--doesn't appear valid.
-		ErrorDialog(hDlg,
-			L"The file could not be read.",
-			L"It doesn't appear to be a valid iWave simulation cache. Please try again with another file.");
-		return false;
-	} else if (numFramesFile > 0 && numFramesScene == 0) {
-		// Read frames from file into the scene.
-		needFileRead = true;
-	} else if (numFramesFile > 0 && numFramesScene > 0) {
-		// Ask user to choose.
-		std::wstringstream keepSceneTextWss;
-		keepSceneTextWss << L"Keep data from scene (" << numFramesScene << " frames)\n"
-						 << L"The next time the 3ds Max scene is saved, the simulation in the external file will be replaced.";
-		std::wstring keepSceneText = keepSceneTextWss.str();
+    bool needFileRead = false;
+    if (numFramesFile < 0) {
+        // File error--doesn't appear valid.
+        ErrorDialog(hDlg,
+            L"The file could not be read.",
+            L"It doesn't appear to be a valid iWave simulation cache. Please try again with another file.");
+        return false;
+    } else if (numFramesFile > 0 && numFramesScene == 0) {
+        // Read frames from file into the scene.
+        needFileRead = true;
+    } else if (numFramesFile > 0 && numFramesScene > 0) {
+        // Ask user to choose.
+        std::wstringstream keepSceneTextWss;
+        keepSceneTextWss << L"Keep data from scene (" << numFramesScene << " frames)\n"
+                         << L"The next time the 3ds Max scene is saved, the simulation in the external file will be replaced.";
+        std::wstring keepSceneText = keepSceneTextWss.str();
 
-		std::wstringstream keepFileTextWss;
-		keepFileTextWss << L"Keep data from " << PathFindFileNameW(file.c_str()) << " (" << numFramesFile << " frames)\n"
-						<< L"The simulation data from the external file will be read immediately, and the simulation in the scene will be replaced.";
-		std::wstring keepFileText = keepFileTextWss.str();
+        std::wstringstream keepFileTextWss;
+        keepFileTextWss << L"Keep data from " << PathFindFileNameW(file.c_str()) << " (" << numFramesFile << " frames)\n"
+                        << L"The simulation data from the external file will be read immediately, and the simulation in the scene will be replaced.";
+        std::wstring keepFileText = keepFileTextWss.str();
 
-		int nButtonPressed = 0;
-		TASKDIALOGCONFIG config = {0};
-		const TASKDIALOG_BUTTON buttons[] = { 
-			{ IDYES, keepSceneText.c_str() },
-			{ IDNO, keepFileText.c_str() }
-		};
-		config.cbSize = sizeof(config);
-		config.hInstance = hInstance;
-		config.hwndParent = hDlg;
-		config.dwCommonButtons = TDCBF_CANCEL_BUTTON;
-		config.pszMainIcon = TD_WARNING_ICON;
-		config.pszMainInstruction = L"Which data should be kept?";
-		config.pszContent = L"Both the current scene and the selected file contain simulation data, but you can only keep one set of data.";
-		config.pszWindowTitle = L"iWave";
-		config.pButtons = buttons;
-		config.cButtons = ARRAYSIZE(buttons);
-		config.dwFlags = TDF_USE_COMMAND_LINKS;
-		config.nDefaultButton = IDCANCEL;
+        int nButtonPressed = 0;
+        TASKDIALOGCONFIG config = {0};
+        const TASKDIALOG_BUTTON buttons[] = { 
+            { IDYES, keepSceneText.c_str() },
+            { IDNO, keepFileText.c_str() }
+        };
+        config.cbSize = sizeof(config);
+        config.hInstance = hInstance;
+        config.hwndParent = hDlg;
+        config.dwCommonButtons = TDCBF_CANCEL_BUTTON;
+        config.pszMainIcon = TD_WARNING_ICON;
+        config.pszMainInstruction = L"Which data should be kept?";
+        config.pszContent = L"Both the current scene and the selected file contain simulation data, but you can only keep one set of data.";
+        config.pszWindowTitle = L"iWave";
+        config.pButtons = buttons;
+        config.cButtons = ARRAYSIZE(buttons);
+        config.dwFlags = TDF_USE_COMMAND_LINKS;
+        config.nDefaultButton = IDCANCEL;
 
-		TaskDialogIndirect(&config, &nButtonPressed, NULL, NULL);
-		switch (nButtonPressed)
-		{
-			case IDYES:
-				// The user chose to keep the current scene data.
-				// We don't have to do anything right now.
-				break;
-			case IDNO:
-				// The user chose to keep the file's data.
-				needFileRead = true;
-				break;
-			default:
-				return false;
-		}
-	}
+        TaskDialogIndirect(&config, &nButtonPressed, NULL, NULL);
+        switch (nButtonPressed)
+        {
+            case IDYES:
+                // The user chose to keep the current scene data.
+                // We don't have to do anything right now.
+                break;
+            case IDNO:
+                // The user chose to keep the file's data.
+                needFileRead = true;
+                break;
+            default:
+                return false;
+        }
+    }
 
-	if (needFileRead && !LoadExternal(saveExternalFile)) {
-		// Error reading file.
-		ErrorDialog(hDlg,
-			L"The file could not be read.",
-			L"It may be corrupted. Try again with a different file.");
-		return false;
-	}
+    if (needFileRead && !LoadExternal(saveExternalFile)) {
+        // Error reading file.
+        ErrorDialog(hDlg,
+            L"The file could not be read.",
+            L"It may be corrupted. Try again with a different file.");
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 void Simulator::UseNativeStorage() {
-	_saveExternal = false;
-	_saveExternalPath = L"";
+    _saveExternal = false;
+    _saveExternalPath = L"";
 }
 
 bool Simulator::IsUsingExternalStorage() const {
-	return _saveExternal;
+    return _saveExternal;
 }
 
 std::wstring Simulator::GetExternalFileName() const {
-	if (_saveExternalPath.size() > 0) {
-		return PathFindFileNameW(_saveExternalPath.c_str());
-	} else {
-		return L"";
-	}
+    if (_saveExternalPath.size() > 0) {
+        return PathFindFileNameW(_saveExternalPath.c_str());
+    } else {
+        return L"";
+    }
 }
 
 void Simulator::ErrorDialog(HWND hDlg, std::wstring main, std::wstring detail) const {
-	TASKDIALOGCONFIG config = {0};
+    TASKDIALOGCONFIG config = {0};
     const TASKDIALOG_BUTTON buttons[] = {{ IDCANCEL, _T("OK" )}};
     config.cbSize = sizeof(config);
     config.hInstance = hInstance;
     config.hwndParent = hDlg;
     config.pszWindowTitle = _T("iWave");
     config.pszMainInstruction = main.c_str();
-	config.pszMainIcon = TD_WARNING_ICON;
+    config.pszMainIcon = TD_WARNING_ICON;
     config.pszContent = detail.c_str();
     config.dwFlags = 0;
     config.pfCallback = NULL;
@@ -566,11 +566,11 @@ void Simulator::ErrorDialog(HWND hDlg, std::wstring main, std::wstring detail) c
 }
 
 bool Simulator::LoadExternal(ExternalFile& file) {
-	if (file.Read(&_cacheStartFrame, &_cache)) {
-		delete _staticGrid;
-		_staticGrid = NULL;
-		return true;
-	}
+    if (file.Read(&_cacheStartFrame, &_cache)) {
+        delete _staticGrid;
+        _staticGrid = NULL;
+        return true;
+    }
 
-	return false;
+    return false;
 }

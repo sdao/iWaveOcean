@@ -188,23 +188,23 @@ void iWaveOcean::BeginEditParams(IObjParam* ip, ULONG flags, Animatable* prev)
     SimpleObject2::BeginEditParams(ip,flags,prev);
     GetiWaveOceanDesc()->BeginEditParams(ip, this, flags, prev);
 
-	if (flags != BEGIN_EDIT_CREATE) {
-		_simulateRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SIMULATE), SimulateRollupDlgProc, GetString(IDS_SIMULATE_ROLLUP), (LPARAM)this);
-		_saveDataRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SAVEDATA), SaveDataRollupDlgProc, GetString(IDS_SAVEDATA_ROLLUP), (LPARAM)this);
-	}
+    if (flags != BEGIN_EDIT_CREATE) {
+        _simulateRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SIMULATE), SimulateRollupDlgProc, GetString(IDS_SIMULATE_ROLLUP), (LPARAM)this);
+        _saveDataRollup = ip->AddRollupPage(hInstance, MAKEINTRESOURCE(IDD_SAVEDATA), SaveDataRollupDlgProc, GetString(IDS_SAVEDATA_ROLLUP), (LPARAM)this);
+    }
 }
 
 void iWaveOcean::EndEditParams( IObjParam* ip, ULONG flags, Animatable* next )
 {
-	if (_simulateRollup) {
-		ip->DeleteRollupPage(_simulateRollup);
-		_simulateRollup = NULL;
-	}
+    if (_simulateRollup) {
+        ip->DeleteRollupPage(_simulateRollup);
+        _simulateRollup = NULL;
+    }
 
-	if (_saveDataRollup) {
-		ip->DeleteRollupPage(_saveDataRollup);
-		_saveDataRollup = NULL;
-	}
+    if (_saveDataRollup) {
+        ip->DeleteRollupPage(_saveDataRollup);
+        _saveDataRollup = NULL;
+    }
 
     //TODO: Save plugin parameter values into class variables, if they are not hosted in ParamBlocks. 
     SimpleObject2::EndEditParams(ip,flags,next);
@@ -239,7 +239,7 @@ INT_PTR CALLBACK iWaveOcean::SimulateRollupDlgProc(HWND hDlg, UINT message, WPAR
         case IDC_CLEAR_BUTTON:
             instanceForSimulate->_sim.Reset();
             UpdateStatus();
-			return TRUE;
+            return TRUE;
         }
         break;
     case WM_NOTIFY: // Others this way...
@@ -257,31 +257,31 @@ INT_PTR CALLBACK iWaveOcean::SaveDataRollupDlgProc(HWND hDlg, UINT message, WPAR
     { // Respond to the message ...
     case WM_INITDIALOG: // Initialize the Controls here.
         instanceForSaveData = (iWaveOcean*)lParam;
-		UpdateSaveInfo(hDlg);
+        UpdateSaveInfo(hDlg);
         return TRUE;
     case WM_DESTROY: // Release the Controls here.
-		instanceForSaveData = NULL;
+        instanceForSaveData = NULL;
         return FALSE;
     case WM_COMMAND: // Various messages come in this way.
         switch (LOWORD(wParam)) {
         case IDC_BROWSE_BUTTON:
             instanceForSaveData->_sim.BeginSelectExternalFile(hDlg);
-			UpdateSaveInfo(hDlg);
-			UpdateStatus();
+            UpdateSaveInfo(hDlg);
+            UpdateStatus();
             return TRUE;
-		case IDC_RADIO_MAXFILE:
-		case IDC_RADIO_EXTERNALFILE:
-			{
-				HWND radioMaxFile = GetDlgItem(hDlg, IDC_RADIO_MAXFILE);
-				if (Button_GetCheck(radioMaxFile)) {
-					instanceForSaveData->_sim.UseNativeStorage();
-				} else {
-					instanceForSaveData->_sim.BeginSelectExternalFile(hDlg);
-				}
-				UpdateSaveInfo(hDlg);
-				UpdateStatus();
-			}
-			return TRUE;
+        case IDC_RADIO_MAXFILE:
+        case IDC_RADIO_EXTERNALFILE:
+            {
+                HWND radioMaxFile = GetDlgItem(hDlg, IDC_RADIO_MAXFILE);
+                if (Button_GetCheck(radioMaxFile)) {
+                    instanceForSaveData->_sim.UseNativeStorage();
+                } else {
+                    instanceForSaveData->_sim.BeginSelectExternalFile(hDlg);
+                }
+                UpdateSaveInfo(hDlg);
+                UpdateStatus();
+            }
+            return TRUE;
         }
         break;
     case WM_NOTIFY: // Others this way...
@@ -310,23 +310,23 @@ void iWaveOcean::UpdateStatus()
 
 void iWaveOcean::UpdateSaveInfo(HWND hDlg)
 {
-	if (instanceForSaveData) {
-		HWND radioMaxFile = GetDlgItem(hDlg, IDC_RADIO_MAXFILE);
-		HWND radioExternalFile = GetDlgItem(hDlg, IDC_RADIO_EXTERNALFILE);
-		HWND browseButton = GetDlgItem(hDlg, IDC_BROWSE_BUTTON);
+    if (instanceForSaveData) {
+        HWND radioMaxFile = GetDlgItem(hDlg, IDC_RADIO_MAXFILE);
+        HWND radioExternalFile = GetDlgItem(hDlg, IDC_RADIO_EXTERNALFILE);
+        HWND browseButton = GetDlgItem(hDlg, IDC_BROWSE_BUTTON);
 
-		if (!instanceForSaveData->_sim.IsUsingExternalStorage()) {
-			Button_SetCheck(radioMaxFile, BST_CHECKED);
-			Button_SetCheck(radioExternalFile, BST_UNCHECKED);
-			Button_Enable(browseButton, FALSE);
-			Button_SetText(browseButton, _T("(no file)"));
-		} else {
-			Button_SetCheck(radioMaxFile, BST_UNCHECKED);
-			Button_SetCheck(radioExternalFile, BST_CHECKED);
-			Button_Enable(browseButton, TRUE);
-			Button_SetText(browseButton, instanceForSaveData->_sim.GetExternalFileName().c_str());
-		}
-	}
+        if (!instanceForSaveData->_sim.IsUsingExternalStorage()) {
+            Button_SetCheck(radioMaxFile, BST_CHECKED);
+            Button_SetCheck(radioExternalFile, BST_UNCHECKED);
+            Button_Enable(browseButton, FALSE);
+            Button_SetText(browseButton, _T("(no file)"));
+        } else {
+            Button_SetCheck(radioMaxFile, BST_UNCHECKED);
+            Button_SetCheck(radioExternalFile, BST_CHECKED);
+            Button_Enable(browseButton, TRUE);
+            Button_SetText(browseButton, instanceForSaveData->_sim.GetExternalFileName().c_str());
+        }
+    }
 }
 
 //From Object

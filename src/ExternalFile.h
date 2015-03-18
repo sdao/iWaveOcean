@@ -8,16 +8,16 @@
 
 class ExternalFile
 {
-	std::wstring _filename;
+    std::wstring _filename;
 
 public:
-	ExternalFile(std::wstring filename);
+    ExternalFile(std::wstring filename);
 
-	/**
-	 * Returns the number of frames in the file, or -1 if the file is invalid.
-	 */
-	int CheckValidity() const;
-	bool Read(int* startFrameOut, std::vector<Grid*>* gridsOut) const;
-	bool Write(int startFrame, const std::vector<Grid*>& gridsIn) const;
+    /**
+     * Returns the number of frames in the file, or -1 if the file is invalid.
+     */
+    int CheckValidity() const;
+    bool Read(int* startFrameOut, std::vector<Grid*>* gridsOut) const;
+    bool Write(int startFrame, const std::vector<Grid*>& gridsIn) const;
 };
 
