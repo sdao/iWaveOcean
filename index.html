@@ -105,7 +105,9 @@ $(document).ready(function(){initNavTree('index.html','');});
 <div class="contents">
 <div class="textblock"><p>Check out <a href="http://vimeo.com/83008229">an example</a> on Vimeo! And to quickly get started, look at <a href="http://sdao.github.io/iWaveOcean/">the documentation</a>.</p>
 <h1>iWave Ocean Simulation Plugin </h1>
-<p>This plugin for Autodesk 3ds Max simulates both ambient waves and dynamic, collision-driven waves. To install it after compiling, simply copy the output <code>iWaveOcean.dlo</code> file to your 3ds Max plugins folder (for 3ds Max 2014, this should be <code>C:\Program Files\Autodesk\3ds Max 2014\plugins</code>), and copy the included <code>libfftw3f-3.dll</code> library to your 3ds Max application folder (e.g. <code>C:\Program Files\Autodesk\3ds Max 2014</code>). The plugin will appear in the Command Panel &gt; Simulations category &gt; <a class="el" href="classi_wave_ocean.html">iWaveOcean</a>.</p>
+<p>This plugin for Autodesk 3ds Max simulates both ambient waves and dynamic, collision-driven waves. To install it after compiling, simply copy the output <code>iWaveOcean.dlo</code> file to your 3ds Max plugins folder (for 3ds Max 2014, this should be <code>C:\Program Files\Autodesk\3ds Max 2014\plugins</code>), and copy the included <code>libfftw3f-3.dll</code> library to your 3ds Max application folder (e.g. <code>C:\Program Files\Autodesk\3ds Max 2014</code>).</p>
+<p>If Visual Studio generates <code>en-US</code> folder containing language resources, you should copy it into the <code>plugins</code> folder as well. Without the language resource files, the plugin will load, but its UI will not appear properly.</p>
+<p>In 3s Max, the plugin will appear in the Command Panel &gt; Simulations category &gt; <a class="el" href="classi_wave_ocean.html">iWaveOcean</a>.</p>
 <p>If you used a version of this plugin from before March 2015, please see <a href="http://sdao.github.io/iWaveOcean/">the documentation</a> for compatibility information. (In short, everything is compatible except for saved simulation data.)</p>
 <h2>License </h2>
 <p>Copyright (C) 2013-2015 by Steven Dao </p><pre class="fragment">This program is free software: you can redistribute it and/or modify
@@ -133,7 +135,7 @@ along with this program.  If not, see [http://www.gnu.org/licenses/].
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Mar 17 2015 00:30:48 for iWaveOcean by
+    <li class="footer">Generated on Tue Mar 17 2015 21:40:29 for iWaveOcean by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.9.1 </li>
   </ul>
